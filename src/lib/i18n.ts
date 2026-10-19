@@ -50,6 +50,11 @@ export interface Dictionary {
     timeline: string;
     status: string;
     statusCompleted: string;
+    projectSpecsTitle: string;
+    techUsed: string;
+    similarProjectTitle: string;
+    similarProjectSubtitle: string;
+    consultNow: string;
     clientSummaryTitle: string;
     galleryTitle: string;
     caseStudyTitle: string;
@@ -159,9 +164,15 @@ export const dictionaries: Record<Locale, Dictionary> = {
       overview: "Ringkasan Proyek",
       techStackTitle: "Teknologi yang Digunakan",
       proprietaryNotice: "Repositori & Kode Sumber Terkunci (Proprietary)",
-      timeline: "Periode Pengerjaan",
-      status: "Status Proyek",
+      timeline: "Timeline",
+      status: "Status",
       statusCompleted: "Selesai",
+      projectSpecsTitle: "SPESIFIKASI PROYEK",
+      techUsed: "Teknologi yang Digunakan",
+      similarProjectTitle: "Ingin Proyek Serupa?",
+      similarProjectSubtitle:
+        "Tim ahli kami siap membantu Anda merealisasikan inovasi sistem software terbaik.",
+      consultNow: "Konsultasi Sekarang",
       clientSummaryTitle: "Ringkasan Eksekutif Klien",
       galleryTitle: "Galeri & Tangkapan Layar",
       caseStudyTitle: "Studi Kasus & Detail Teknis",
@@ -275,8 +286,14 @@ export const dictionaries: Record<Locale, Dictionary> = {
       techStackTitle: "Technologies Used",
       proprietaryNotice: "Proprietary Source Code Locked",
       timeline: "Timeline",
-      status: "Project Status",
+      status: "Status",
       statusCompleted: "Completed",
+      projectSpecsTitle: "PROJECT SPECIFICATIONS",
+      techUsed: "Technologies Used",
+      similarProjectTitle: "Interested in a Similar Project?",
+      similarProjectSubtitle:
+        "Our engineering team is ready to help you realize the best software and web architecture.",
+      consultNow: "Consult Now",
       clientSummaryTitle: "Executive Client Summary",
       galleryTitle: "Screenshots & Gallery",
       caseStudyTitle: "Technical Case Study & Architecture",

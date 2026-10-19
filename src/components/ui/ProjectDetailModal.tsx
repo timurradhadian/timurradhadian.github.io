@@ -27,6 +27,44 @@ interface GalleryItem {
   isCover?: boolean;
 }
 
+function formatProjectTimeline(
+  startDate?: string,
+  endDate?: string | null,
+  locale: Locale = "id"
+): string {
+  if (!startDate && !endDate) {
+    return locale === "id" ? "Selesai (Produksi)" : "Completed (Production)";
+  }
+
+  const formatDate = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-US", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }).format(d);
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const startFormatted = startDate ? formatDate(startDate) : "";
+  const endFormatted = endDate ? formatDate(endDate) : "";
+
+  if (startFormatted && endFormatted) {
+    return `${startFormatted} – ${endFormatted}`;
+  }
+  if (startFormatted && !endDate) {
+    return `${startFormatted} – ${locale === "id" ? "Sekarang" : "Present"}`;
+  }
+  if (!startDate && endFormatted) {
+    return endFormatted;
+  }
+  return startFormatted;
+}
+
 export function ProjectDetailModal({
   project,
   onClose,
@@ -67,13 +105,13 @@ export function ProjectDetailModal({
               if (!prev || prev.slug !== project.slug) return prev;
               const documents: ProjectDocument[] = Array.isArray(detail.documents)
                 ? detail.documents.map((d: Record<string, unknown>, idx: number) => ({
-                    id: (d.id as string) || `doc-${idx}`,
-                    name: (d.name as string) || `Screenshot ${idx + 1}`,
-                    type: (d.type as string) || "image/webp",
-                    url: (d.url as string) || "",
-                    size: typeof d.size === "number" ? d.size : undefined,
-                    order: typeof d.order === "number" ? d.order : idx,
-                  }))
+                  id: (d.id as string) || `doc-${idx}`,
+                  name: (d.name as string) || `Screenshot ${idx + 1}`,
+                  type: (d.type as string) || "image/webp",
+                  url: (d.url as string) || "",
+                  size: typeof d.size === "number" ? d.size : undefined,
+                  order: typeof d.order === "number" ? d.order : idx,
+                }))
                 : prev.documents || [];
 
               return {
@@ -85,6 +123,15 @@ export function ProjectDetailModal({
                 clientSummaryId: (detail.clientSummaryId as string) || prev.clientSummaryId,
                 clientSummaryEn: (detail.clientSummaryEn as string) || prev.clientSummaryEn,
                 bannerImage: (detail.bannerImage as string) || prev.bannerImage,
+                startDate: (detail.startDate as string) || prev.startDate,
+                endDate: (detail.endDate as string) || prev.endDate,
+                status: (detail.status as string) || prev.status,
+                techStack:
+                  Array.isArray(detail.technologies) && detail.technologies.length > 0
+                    ? (detail.technologies as string[])
+                    : Array.isArray(detail.techStack) && detail.techStack.length > 0
+                      ? (detail.techStack as string[])
+                      : prev.techStack,
                 documents,
               };
             });
@@ -195,6 +242,38 @@ export function ProjectDetailModal({
     setSelectedImageIndex((prev) => (prev === galleryItems.length - 1 ? 0 : prev + 1));
   };
 
+  const formattedTimeline = useMemo(() => {
+    return formatProjectTimeline(
+      activeProject.startDate,
+      activeProject.endDate,
+      activeLocale
+    );
+  }, [activeProject.startDate, activeProject.endDate, activeLocale]);
+
+  const displayStatus = useMemo(() => {
+    const rawStatus = activeProject.status?.toUpperCase();
+    if (!rawStatus || rawStatus === "COMPLETE" || rawStatus === "COMPLETED") {
+      return activeDict.projects.statusCompleted;
+    }
+    if (rawStatus === "IN_PROGRESS" || rawStatus === "PROGRESS") {
+      return activeLocale === "id" ? "Dalam Pengerjaan" : "In Progress";
+    }
+    return activeProject.status;
+  }, [activeProject.status, activeDict.projects.statusCompleted, activeLocale]);
+
+  const whatsAppMessage = useMemo(() => {
+    if (activeProject.isNda) {
+      return activeLocale === "id"
+        ? `Halo Timur, saya melihat portofolio proyek enterprise Anda (${title}) dan tertarik untuk konsultasi arsitektur sistem serupa.`
+        : `Hello Timur, I saw your enterprise project (${title}) in your portfolio and would like to consult about building a similar system architecture.`;
+    }
+    return activeLocale === "id"
+      ? `Halo Timur, saya melihat proyek "${title}" di portfolio Anda dan tertarik untuk konsultasi sistem software serupa.`
+      : `Hello Timur, I saw your project "${title}" in your portfolio and would like to consult about building a similar software system.`;
+  }, [activeProject.isNda, activeLocale, title]);
+
+  const whatsAppUrl = `https://wa.me/6289508436275?text=${encodeURIComponent(whatsAppMessage)}`;
+
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 bg-white flex flex-col h-screen w-screen overflow-hidden">
@@ -221,9 +300,6 @@ export function ProjectDetailModal({
 
               {/* Title & Category Breadcrumb */}
               <div className="min-w-0 flex items-center gap-2">
-                <span className="hidden md:inline-block px-2.5 py-0.5 rounded-md text-[11px] font-mono uppercase tracking-wider font-semibold bg-zinc-100 text-zinc-700 border border-zinc-200/80 shrink-0">
-                  {category}
-                </span>
                 {activeProject.isNda && (
                   <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
                 )}
@@ -286,16 +362,14 @@ export function ProjectDetailModal({
                 <button
                   type="button"
                   onClick={() => setActiveTab("overview")}
-                  className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                    activeTab === "overview"
-                      ? "text-zinc-950 bg-white shadow-xs border border-zinc-200/90"
-                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/80"
-                  }`}
+                  className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${activeTab === "overview"
+                    ? "text-zinc-950 bg-white shadow-xs border border-zinc-200/90"
+                    : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/80"
+                    }`}
                 >
                   <span
-                    className={`icon-[lucide--layout-grid] size-4 ${
-                      activeTab === "overview" ? "text-zinc-950" : "text-zinc-400"
-                    }`}
+                    className={`icon-[lucide--layout-grid] size-4 ${activeTab === "overview" ? "text-zinc-950" : "text-zinc-400"
+                      }`}
                   />
                   <span>{activeDict.projects.tabOverview}</span>
                   {galleryItems.length > 0 && !activeProject.isNda && (
@@ -308,16 +382,14 @@ export function ProjectDetailModal({
                 <button
                   type="button"
                   onClick={() => setActiveTab("details")}
-                  className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                    activeTab === "details"
-                      ? "text-zinc-950 bg-white shadow-xs border border-zinc-200/90"
-                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/80"
-                  }`}
+                  className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${activeTab === "details"
+                    ? "text-zinc-950 bg-white shadow-xs border border-zinc-200/90"
+                    : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/80"
+                    }`}
                 >
                   <span
-                    className={`icon-[lucide--file-code-2] size-4 ${
-                      activeTab === "details" ? "text-zinc-950" : "text-zinc-400"
-                    }`}
+                    className={`icon-[lucide--file-code-2] size-4 ${activeTab === "details" ? "text-zinc-950" : "text-zinc-400"
+                      }`}
                   />
                   <span>{activeDict.projects.tabDetails}</span>
                 </button>
@@ -349,9 +421,8 @@ export function ProjectDetailModal({
                   galleryItems.length > 0 &&
                   setLightboxIndex(selectedImageIndex)
                 }
-                className={`group relative aspect-[16/9] sm:aspect-[2.1/1] w-full rounded-xl overflow-hidden border border-zinc-200/90 bg-zinc-950 shadow-xs ${
-                  !activeProject.isNda && galleryItems.length > 0 ? "cursor-zoom-in" : ""
-                }`}
+                className={`group relative aspect-[16/9] sm:aspect-[2.1/1] w-full rounded-xl overflow-hidden border border-zinc-200/90 bg-zinc-950 shadow-xs ${!activeProject.isNda && galleryItems.length > 0 ? "cursor-zoom-in" : ""
+                  }`}
               >
                 {currentShowcaseUrl ? (
                   <Image
@@ -359,11 +430,10 @@ export function ProjectDetailModal({
                     alt={currentShowcaseName || title}
                     fill
                     sizes="(max-width: 1200px) 100vw, 1024px"
-                    className={`object-contain sm:object-cover transition-all duration-300 ${
-                      activeProject.isNda && ndaBlurEnabled
-                        ? "filter blur-[5px] scale-105"
-                        : ""
-                    }`}
+                    className={`object-contain sm:object-cover transition-all duration-300 ${activeProject.isNda && ndaBlurEnabled
+                      ? "filter blur-[5px] scale-105"
+                      : ""
+                      }`}
                     priority
                   />
                 ) : (
@@ -391,18 +461,8 @@ export function ProjectDetailModal({
 
                 {/* Top Badges overlay on banner screen */}
                 <div className="absolute top-3.5 left-3.5 flex flex-wrap items-center gap-2 z-10 pointer-events-none">
-                  <span className="px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider font-semibold bg-white/95 text-zinc-800 border border-zinc-200/80 backdrop-blur-xs shadow-xs">
-                    {category}
-                  </span>
                   {activeProject.isNda && (
                     <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
-                  )}
-                  {activeProject.status && (
-                    <span className="px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider font-semibold bg-emerald-50/95 text-emerald-800 border border-emerald-200 shadow-xs">
-                      {activeProject.status === "COMPLETE"
-                        ? activeDict.projects.statusCompleted
-                        : activeProject.status}
-                    </span>
                   )}
                 </div>
 
@@ -465,11 +525,10 @@ export function ProjectDetailModal({
                           key={item.id || idx}
                           type="button"
                           onClick={() => setSelectedImageIndex(idx)}
-                          className={`group relative shrink-0 aspect-[16/10] w-24 sm:w-28 md:w-32 rounded-lg overflow-hidden border transition-all cursor-pointer ${
-                            isSelected
-                              ? "ring-2 ring-zinc-950 border-zinc-950 shadow-sm scale-102"
-                              : "border-zinc-200/90 hover:border-zinc-400 opacity-75 hover:opacity-100"
-                          }`}
+                          className={`group relative shrink-0 aspect-[16/10] w-24 sm:w-28 md:w-32 rounded-lg overflow-hidden border transition-all cursor-pointer ${isSelected
+                            ? "ring-2 ring-zinc-950 border-zinc-950 shadow-sm scale-102"
+                            : "border-zinc-200/90 hover:border-zinc-400 opacity-75 hover:opacity-100"
+                            }`}
                         >
                           <Image
                             src={item.url}
@@ -495,13 +554,23 @@ export function ProjectDetailModal({
             </div>
 
             {/* =========================================================================
-                PROJECT TITLE & TECH STACK (DIRECTLY BELOW BANNER & THUMBNAILS)
+                PROJECT TITLE & ACTIONS (DIRECTLY BELOW BANNER & THUMBNAILS)
             ========================================================================= */}
             <div className="p-6 sm:p-7 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-zinc-950">
-                  {title}
-                </h1>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-md text-[11px] font-mono uppercase tracking-wider font-semibold bg-zinc-100 text-zinc-700 border border-zinc-200/80 shrink-0">
+                      {category}
+                    </span>
+                    {activeProject.isNda && (
+                      <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
+                    )}
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-zinc-950">
+                    {title}
+                  </h1>
+                </div>
 
                 {/* Quick External Links for Desktop */}
                 <div className="flex items-center gap-2 shrink-0">
@@ -510,7 +579,7 @@ export function ProjectDetailModal({
                       href={activeProject.projectUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-zinc-900 text-white font-medium text-xs hover:bg-zinc-800 transition-colors shadow-2xs"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-900 text-white font-medium text-xs hover:bg-zinc-800 transition-colors shadow-2xs"
                     >
                       <span className="icon-[lucide--globe] size-3.5" />
                       <span>{activeDict.projects.website}</span>
@@ -522,38 +591,21 @@ export function ProjectDetailModal({
                       href={activeProject.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-medium text-xs transition-colors shadow-2xs"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-medium text-xs transition-colors shadow-2xs"
                     >
                       <span className="icon-[simple-icons--github] size-3.5" />
                       <span>{activeDict.projects.source}</span>
                     </a>
                   )}
+
+                  {activeProject.isNda && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-medium">
+                      <span className="icon-[lucide--lock] size-3.5 text-amber-600" />
+                      <span>{activeDict.projects.proprietaryNotice}</span>
+                    </span>
+                  )}
                 </div>
               </div>
-
-              {/* Tech Stack Badges directly under Title */}
-              {activeProject.techStack && activeProject.techStack.length > 0 && (
-                <div className="pt-2 border-t border-zinc-100 flex flex-wrap items-center gap-2">
-                  <span className="text-zinc-400 font-mono text-[11px] uppercase tracking-wider font-semibold mr-1">
-                    Stack:
-                  </span>
-                  {activeProject.techStack.map((tech) => {
-                    const techInfo = getTechIcon(tech);
-                    return (
-                      <span
-                        key={tech}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-zinc-50 text-zinc-800 border border-zinc-200/90 shadow-2xs hover:bg-zinc-100 transition-colors"
-                      >
-                        <span
-                          className={`${techInfo.iconClass} size-3.5 inline-block shrink-0`}
-                          aria-hidden="true"
-                        />
-                        <span>{tech}</span>
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
             </div>
 
             {/* =========================================================================
@@ -572,13 +624,105 @@ export function ProjectDetailModal({
                   transition={{ duration: 0.2 }}
                   className="space-y-6"
                 >
+                  {/* =========================================================================
+                      SPESIFIKASI PROYEK CARD (MATCHING USER REFERENCE DESIGN)
+                  ========================================================================= */}
+                  <div className="p-6 sm:p-8 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-6">
+                    {/* Header: SPESIFIKASI PROYEK with subtle divider */}
+                    <div className="pb-4 border-b border-zinc-100 flex items-center justify-between">
+                      <h3 className="text-base sm:text-lg font-bold tracking-wider text-zinc-950 uppercase font-mono sm:font-sans">
+                        {activeDict.projects.projectSpecsTitle}
+                      </h3>
+                      {activeProject.isNda && (
+                        <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
+                      )}
+                    </div>
+
+                    {/* Specification Rows */}
+                    <div className="space-y-4 sm:space-y-5 text-sm sm:text-base">
+                      {/* Row 1: Status */}
+                      <div className="flex items-center justify-between gap-4 py-0.5">
+                        <span className="text-zinc-500 font-medium">
+                          {activeDict.projects.status}
+                        </span>
+                        <div className="flex items-center gap-2 font-bold text-zinc-900">
+                          <span className="icon-[lucide--check-circle-2] size-5 text-emerald-600 shrink-0" />
+                          <span>{displayStatus}</span>
+                        </div>
+                      </div>
+
+                      {/* Row 2: Timeline */}
+                      <div className="flex items-center justify-between gap-4 py-0.5">
+                        <span className="text-zinc-500 font-medium">
+                          {activeDict.projects.timeline}
+                        </span>
+                        <div className="flex items-center gap-2 font-bold text-zinc-900">
+                          <span className="icon-[lucide--calendar] size-4.5 text-zinc-700 shrink-0" />
+                          <span>{formattedTimeline}</span>
+                        </div>
+                      </div>
+
+                      {/* Row 3: Teknologi yang Digunakan */}
+                      {activeProject.techStack && activeProject.techStack.length > 0 && (
+                        <div className="space-y-3 pt-2">
+                          <span className="text-zinc-500 font-medium block">
+                            {activeDict.projects.techUsed}
+                          </span>
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                            {activeProject.techStack.map((tech) => {
+                              const techInfo = getTechIcon(tech);
+                              return (
+                                <span
+                                  key={tech}
+                                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-medium bg-zinc-50/90 text-zinc-800 border border-zinc-200/90 shadow-2xs hover:bg-zinc-100/90 hover:border-zinc-300 transition-all"
+                                >
+                                  <span
+                                    className={`${techInfo.iconClass} size-4 shrink-0`}
+                                    aria-hidden="true"
+                                  />
+                                  <span>{tech}</span>
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Subtle Divider */}
+                    <div className="border-t border-zinc-100 pt-6 space-y-4">
+                      {/* Ingin Proyek Serupa? CTA */}
+                      <div className="space-y-1.5">
+                        <h4 className="text-base sm:text-lg font-bold text-zinc-950">
+                          {activeDict.projects.similarProjectTitle}
+                        </h4>
+                        <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed max-w-2xl">
+                          {activeDict.projects.similarProjectSubtitle}
+                        </p>
+                      </div>
+
+                      {/* WhatsApp Button */}
+                      <a
+                        href={whatsAppUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full group inline-flex items-center justify-center gap-2.5 px-6 py-3.5 sm:py-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-semibold text-sm sm:text-base shadow-sm hover:shadow-md transition-all cursor-pointer"
+                      >
+                        <svg
+                          className="size-5 fill-current shrink-0 group-hover:scale-105 transition-transform"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.711 1.456h.005c6.554 0 11.89-5.336 11.893-11.893 0-3.177-1.237-6.164-3.48-8.409z" />
+                        </svg>
+                        <span>{activeDict.projects.consultNow}</span>
+                      </a>
+                    </div>
+                  </div>
+
                   {/* Executive Client Summary (Clean neutral card - no blue) */}
                   {!activeProject.isNda && clientSummary && clientSummary.trim().length > 0 && (
                     <div className="p-6 sm:p-8 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-4">
-                      <div className="flex items-center gap-2.5 text-zinc-900 font-bold text-sm uppercase tracking-wider pb-3 border-b border-zinc-100">
-                        <span className="icon-[lucide--briefcase] size-4.5 text-zinc-700" />
-                        <span>{activeDict.projects.clientSummaryTitle}</span>
-                      </div>
                       <MarkdownContent
                         content={clientSummary}
                         className="text-sm sm:text-base text-zinc-700 leading-relaxed"
@@ -682,9 +826,6 @@ export function ProjectDetailModal({
                             : activeDict.projects.caseStudyTitle}
                         </span>
                       </div>
-                      <span className="px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider font-semibold bg-zinc-100 text-zinc-700 border border-zinc-200 self-start sm:self-auto">
-                        {category}
-                      </span>
                     </div>
 
                     {/* NDA Banner inside Details */}
