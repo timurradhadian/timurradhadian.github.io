@@ -8,7 +8,6 @@ import { Dictionary, getDictionary, getLocalized } from "@/lib/i18n";
 import { getTechIcon } from "@/lib/tech-icons";
 import { NdaBadge } from "@/components/ui/NdaBadge";
 import { MarkdownContent } from "@/components/ui/MarkdownContent";
-import { getProjectDetailFromGlio } from "@/services/portfolioService";
 import { useLocale } from "@/context/LocaleContext";
 
 interface ProjectDetailModalProps {
@@ -113,7 +112,6 @@ export function ProjectDetailModal({
   const [prevProject, setPrevProject] = useState<Project | null>(project);
   const [activeTab, setActiveTab] = useState<"overview" | "details">("overview");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   // Sync active project state immediately when project prop updates
@@ -132,69 +130,6 @@ export function ProjectDetailModal({
     setPrevProject(null);
     setLightboxIndex(null);
   }
-
-  // Load additional details from Glio when project is opened
-  useEffect(() => {
-    if (!project) return;
-
-    // If non-NDA project and missing full description or documents, fetch fresh from Glio
-    const isNda = checkIsNda(project);
-
-    if (!project.description || !project.documents || project.documents.length === 0) {
-      if (typeof project.slug === "string" && project.slug.trim().length > 0) {
-        setIsLoadingDetail(true);
-        getProjectDetailFromGlio(project.slug)
-          .then((detail) => {
-            if (detail) {
-              setActiveProject((prev) => {
-                if (!prev || prev.slug !== project.slug) return prev;
-                const documents: ProjectDocument[] = Array.isArray(detail.documents)
-                  ? detail.documents
-                    .filter((d: unknown): d is Record<string, unknown> => Boolean(d && typeof d === "object"))
-                    .map((d: Record<string, unknown>, idx: number) => ({
-                      id: (typeof d.id === "string" && d.id) || `doc-${idx}`,
-                      name: (typeof d.name === "string" && d.name) || `Screenshot ${idx + 1}`,
-                      type: (typeof d.type === "string" && d.type) || "image/webp",
-                      url: (typeof d.url === "string" && d.url) || "",
-                      size: typeof d.size === "number" ? d.size : undefined,
-                      order: typeof d.order === "number" ? d.order : idx,
-                    }))
-                  : prev.documents || [];
-
-                const rawTech =
-                  Array.isArray(detail.technologies) && detail.technologies.length > 0
-                    ? detail.technologies
-                    : Array.isArray(detail.techStack) && detail.techStack.length > 0
-                      ? detail.techStack
-                      : prev.techStack;
-
-                return {
-                  ...prev,
-                  description: (typeof detail.description === "string" && detail.description) || prev.description,
-                  descriptionId: (typeof detail.descriptionId === "string" && detail.descriptionId) || prev.descriptionId,
-                  descriptionEn: (typeof detail.descriptionEn === "string" && detail.descriptionEn) || prev.descriptionEn,
-                  clientSummary: (typeof detail.clientSummary === "string" && detail.clientSummary) || prev.clientSummary,
-                  clientSummaryId: (typeof detail.clientSummaryId === "string" && detail.clientSummaryId) || prev.clientSummaryId,
-                  clientSummaryEn: (typeof detail.clientSummaryEn === "string" && detail.clientSummaryEn) || prev.clientSummaryEn,
-                  bannerImage: (typeof detail.bannerImage === "string" && detail.bannerImage) || prev.bannerImage,
-                  startDate: (typeof detail.startDate === "string" && detail.startDate) || prev.startDate,
-                  endDate: (typeof detail.endDate === "string" && detail.endDate) || prev.endDate,
-                  status: (typeof detail.status === "string" && detail.status) || prev.status,
-                  techStack: normalizeTechStack(rawTech),
-                  documents,
-                };
-              });
-            }
-          })
-          .catch((err) => {
-            console.error("Error loading project detail:", err);
-          })
-          .finally(() => {
-            setIsLoadingDetail(false);
-          });
-      }
-    }
-  }, [project]);
 
   // Handle body overflow lock & keyboard Escape key
   useEffect(() => {
@@ -447,12 +382,6 @@ export function ProjectDetailModal({
                 <h2 className="text-sm sm:text-base font-bold text-zinc-900 truncate">
                   {title}
                 </h2>
-                {!hasDistinctSummary && isLoadingDetail && (
-                  <div className="hidden sm:flex items-center gap-1.5 text-xs text-zinc-500 font-medium shrink-0">
-                    <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[11px]">Syncing...</span>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -538,13 +467,6 @@ export function ProjectDetailModal({
                     <span>{activeDict.projects.tabDetails}</span>
                   </button>
                 </div>
-
-                {isLoadingDetail && (
-                  <div className="hidden sm:flex items-center gap-2 text-xs text-zinc-500 font-medium">
-                    <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>Sinkronisasi data Glio...</span>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -881,11 +803,6 @@ export function ProjectDetailModal({
                         content={description}
                         className="text-sm sm:text-base text-zinc-700"
                       />
-                    ) : isLoadingDetail ? (
-                      <div className="py-12 flex flex-col items-center justify-center gap-3 text-zinc-400 font-mono text-xs">
-                        <span className="size-5 rounded-full border-2 border-zinc-300 border-t-zinc-700 animate-spin" />
-                        <span>Memuat dokumentasi teknis...</span>
-                      </div>
                     ) : (
                       <div className="text-center py-12 text-zinc-400 font-mono text-sm">
                         Dokumentasi studi kasus teknis belum dipublikasikan.
