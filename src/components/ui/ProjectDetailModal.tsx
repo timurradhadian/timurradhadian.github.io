@@ -26,12 +26,14 @@ export function ProjectDetailModal({
   ndaBlurEnabled = true,
 }: ProjectDetailModalProps) {
   const [activeProject, setActiveProject] = useState<Project | null>(project);
+  const [activeTab, setActiveTab] = useState<"overview" | "details">("overview");
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  // Sync active project when prop changes
+  // Sync active project and reset tab when project prop changes
   useEffect(() => {
     setActiveProject(project);
+    setActiveTab("overview");
     setLightboxIndex(null);
 
     if (!project) return;
@@ -129,368 +131,539 @@ export function ProjectDetailModal({
         /\.(webp|png|jpe?g|gif|avif)$/i.test(doc.url))
   );
 
+  const heroImage = activeProject.bannerImage || activeProject.thumbnailUrl;
+
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6">
-        {/* Backdrop */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          onClick={onClose}
-          className="fixed inset-0 bg-zinc-950/70 backdrop-blur-sm cursor-pointer"
-          aria-hidden="true"
-        />
+      <div className="fixed inset-0 z-50 bg-white flex flex-col h-screen w-screen overflow-hidden">
+        {/* =========================================================================
+            STICKY FULL-WIDTH TOP NAVIGATION BAR
+        ========================================================================= */}
+        <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-zinc-200/90 shadow-2xs">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between gap-3 sm:gap-4">
+            {/* Left: Back / Close Action */}
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={onClose}
+                className="group inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 hover:text-zinc-950 font-medium text-xs sm:text-sm shadow-2xs transition-all cursor-pointer shrink-0"
+              >
+                <span className="icon-[lucide--arrow-left] size-4 text-zinc-500 group-hover:text-zinc-900 group-hover:-translate-x-0.5 transition-transform" />
+                <span className="hidden xs:inline">{dict.projects.backButton}</span>
+                <span className="hidden sm:inline-block font-mono text-[10px] text-zinc-400 border border-zinc-200 rounded px-1 ml-0.5">
+                  Esc
+                </span>
+              </button>
 
-        {/* Modal Window */}
-        <motion.div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="project-modal-title"
-          initial={{ opacity: 0, scale: 0.96, y: 16 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: 16 }}
-          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-4xl max-h-[92vh] bg-white rounded-2xl border border-zinc-200/90 shadow-2xl flex flex-col overflow-hidden z-10"
-        >
-          {/* Header Bar with Action Buttons */}
-          <div className="absolute top-3.5 right-3.5 z-20 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label={dict.projects.closeModal}
-              className="size-8 sm:size-9 rounded-full bg-white/90 hover:bg-white text-zinc-700 hover:text-zinc-950 border border-zinc-200/90 flex items-center justify-center shadow-xs backdrop-blur-xs transition-colors cursor-pointer"
-            >
-              <span className="icon-[lucide--x] size-4" />
-            </button>
-          </div>
+              <div className="h-4 w-px bg-zinc-200 hidden sm:block shrink-0" />
 
-          {/* Scrollable Container */}
-          <div className="overflow-y-auto overscroll-contain">
-            {/* Hero / Cover Banner */}
-            <div className="relative aspect-[21/9] sm:aspect-[2.2/1] w-full bg-zinc-100 overflow-hidden">
-              {(activeProject.bannerImage || activeProject.thumbnailUrl) ? (
-                <Image
-                  src={(activeProject.bannerImage || activeProject.thumbnailUrl) as string}
-                  alt={title}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 896px"
-                  className={`object-cover ${
-                    activeProject.isNda && ndaBlurEnabled
-                      ? "filter blur-[4px] scale-105"
-                      : ""
-                  }`}
-                  priority
-                />
-              ) : (
-                <div className="flex size-full items-center justify-center bg-zinc-100 text-zinc-400 font-mono text-sm uppercase tracking-wider">
-                  {category}
-                </div>
-              )}
-
-              {/* Watermark Overlay for NDA Projects */}
-              {activeProject.isNda && (
-                <div className="absolute inset-0 bg-zinc-950/40 flex items-center justify-center p-4">
-                  <div className="px-4 py-2 rounded-xl bg-zinc-900/90 border border-white/20 backdrop-blur-md shadow-xl flex items-center gap-2.5 text-white">
-                    <span className="icon-[lucide--shield-lock] size-5 text-amber-400 shrink-0" />
-                    <div>
-                      <span className="font-mono text-xs uppercase tracking-widest font-bold block">
-                        {dict.projects.confidentialStamp}
-                      </span>
-                      <span className="text-[10px] text-zinc-300 font-mono">
-                        PROTECTED REPOSITORY & ARCHITECTURE
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Top-Left Badges */}
-              <div className="absolute top-3.5 left-3.5 flex flex-wrap items-center gap-1.5 z-10">
-                <span className="px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider font-semibold bg-white/95 text-zinc-800 border border-zinc-200/80 backdrop-blur-xs shadow-2xs">
+              {/* Title & Category Breadcrumb */}
+              <div className="min-w-0 flex items-center gap-2">
+                <span className="hidden md:inline-block px-2.5 py-0.5 rounded-md text-[11px] font-mono uppercase tracking-wider font-semibold bg-zinc-100 text-zinc-700 border border-zinc-200/80 shrink-0">
                   {category}
                 </span>
                 {activeProject.isNda && (
                   <NdaBadge label={dict.projects.ndaBadge} size="sm" />
                 )}
-                {activeProject.status && (
-                  <span className="px-2 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
-                    {activeProject.status === "COMPLETE"
-                      ? dict.projects.statusCompleted
-                      : activeProject.status}
-                  </span>
-                )}
+                <h2 className="text-sm sm:text-base font-bold text-zinc-900 truncate">
+                  {title}
+                </h2>
               </div>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-5 sm:p-7 md:p-8 space-y-7">
-              {/* Header Title, Timeline & Quick Actions */}
-              <div className="space-y-3 pb-2 border-b border-zinc-100">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 text-xs text-zinc-500 font-medium">
-                    {timelineStr && (
-                      <span className="flex items-center gap-1 bg-zinc-100 px-2 py-0.5 rounded-md font-mono text-[11px]">
-                        <span className="icon-[lucide--calendar] size-3.5" />
-                        <span>{timelineStr}</span>
-                      </span>
-                    )}
-                    {isLoadingDetail && (
-                      <span className="flex items-center gap-1.5 text-zinc-400 text-xs">
-                        <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span>Memuat data detail terbaru...</span>
-                      </span>
-                    )}
-                  </div>
-
-                  {/* External Links */}
-                  <div className="flex flex-wrap items-center gap-2">
-                    {!activeProject.isNda && activeProject.projectUrl && (
-                      <a
-                        href={activeProject.projectUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-zinc-900 text-white font-medium text-xs hover:bg-zinc-800 transition-colors shadow-2xs"
-                      >
-                        <span className="icon-[lucide--globe] size-3.5" />
-                        <span>{dict.projects.website}</span>
-                      </a>
-                    )}
-                    {!activeProject.isNda && activeProject.githubUrl && (
-                      <a
-                        href={activeProject.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-medium text-xs transition-colors shadow-2xs"
-                      >
-                        <span className="icon-[simple-icons--github] size-3.5" />
-                        <span>{dict.projects.source}</span>
-                      </a>
-                    )}
-                    {activeProject.isNda && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-medium">
-                        <span className="icon-[lucide--lock] size-3.5 text-amber-600" />
-                        <span>{dict.projects.proprietaryNotice}</span>
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <h3
-                  id="project-modal-title"
-                  className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight"
+            {/* Right: Quick Action Buttons & Close Icon */}
+            <div className="flex items-center gap-2 shrink-0">
+              {!activeProject.isNda && activeProject.projectUrl && (
+                <a
+                  href={activeProject.projectUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-zinc-900 text-white font-medium text-xs hover:bg-zinc-800 transition-colors shadow-2xs"
                 >
-                  {title}
-                </h3>
+                  <span className="icon-[lucide--globe] size-3.5" />
+                  <span>{dict.projects.website}</span>
+                </a>
+              )}
 
-                <p className="text-sm sm:text-base text-zinc-600 leading-relaxed">
-                  {summary}
-                </p>
+              {!activeProject.isNda && activeProject.githubUrl && (
+                <a
+                  href={activeProject.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-medium text-xs transition-colors shadow-2xs"
+                >
+                  <span className="icon-[simple-icons--github] size-3.5" />
+                  <span>{dict.projects.source}</span>
+                </a>
+              )}
+
+              {activeProject.isNda && (
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-medium">
+                  <span className="icon-[lucide--lock] size-3.5 text-amber-600" />
+                  <span>{dict.projects.proprietaryNotice}</span>
+                </span>
+              )}
+
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label={dict.projects.closeModal}
+                className="size-8 sm:size-9 rounded-xl bg-zinc-100 hover:bg-zinc-200/80 text-zinc-700 hover:text-zinc-950 flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <span className="icon-[lucide--x] size-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* =========================================================================
+              SEGMENTED TAB CONTROLS (RINGKASAN PROYEK vs DETAIL PROYEK)
+          ========================================================================= */}
+          <div className="border-t border-zinc-100 bg-zinc-50/70">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-1 sm:gap-2 py-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("overview")}
+                  className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                    activeTab === "overview"
+                      ? "text-zinc-950 bg-white shadow-xs border border-zinc-200/90"
+                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/80"
+                  }`}
+                >
+                  <span
+                    className={`icon-[lucide--layout-grid] size-4 ${
+                      activeTab === "overview" ? "text-zinc-950" : "text-zinc-400"
+                    }`}
+                  />
+                  <span>{dict.projects.tabOverview}</span>
+                  {imageDocs.length > 0 && !activeProject.isNda && (
+                    <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono font-medium bg-zinc-100 text-zinc-600 border border-zinc-200">
+                      {imageDocs.length} foto
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("details")}
+                  className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                    activeTab === "details"
+                      ? "text-zinc-950 bg-white shadow-xs border border-zinc-200/90"
+                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/80"
+                  }`}
+                >
+                  <span
+                    className={`icon-[lucide--file-code-2] size-4 ${
+                      activeTab === "details" ? "text-zinc-950" : "text-zinc-400"
+                    }`}
+                  />
+                  <span>{dict.projects.tabDetails}</span>
+                </button>
               </div>
 
-              {/* NDA Censored Notice & Redacted Architecture Box */}
-              {activeProject.isNda && (
-                <div className="rounded-xl border border-amber-300 bg-amber-50/70 p-4 sm:p-5 space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="size-8 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0 text-amber-800 mt-0.5">
-                      <span className="icon-[lucide--shield-alert] size-4" />
+              {isLoadingDetail && (
+                <div className="hidden sm:flex items-center gap-2 text-xs text-zinc-500 font-medium">
+                  <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Sinkronisasi data Glio...</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* =========================================================================
+            MAIN SCROLLABLE CONTENT AREA
+        ========================================================================= */}
+        <div className="flex-1 overflow-y-auto overscroll-contain bg-zinc-50/40">
+          <main className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-10">
+            <AnimatePresence mode="wait">
+              {/* ===================================================================
+                  TAB 1: RINGKASAN PROYEK (OVERVIEW, SUMMARY, GALLERY, TECH STACK)
+              =================================================================== */}
+              {activeTab === "overview" && (
+                <motion.div
+                  key="overview"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-8"
+                >
+                  {/* Hero Showcase Banner */}
+                  <div className="relative aspect-[21/9] sm:aspect-[2.2/1] w-full rounded-2xl overflow-hidden border border-zinc-200/90 bg-zinc-100 shadow-sm">
+                    {heroImage ? (
+                      <Image
+                        src={heroImage as string}
+                        alt={title}
+                        fill
+                        sizes="(max-width: 1200px) 100vw, 1024px"
+                        className={`object-cover ${
+                          activeProject.isNda && ndaBlurEnabled
+                            ? "filter blur-[4px] scale-105"
+                            : ""
+                        }`}
+                        priority
+                      />
+                    ) : (
+                      <div className="flex size-full items-center justify-center bg-zinc-100 text-zinc-400 font-mono text-sm uppercase tracking-wider">
+                        {category}
+                      </div>
+                    )}
+
+                    {/* Watermark Overlay for NDA Projects */}
+                    {activeProject.isNda && (
+                      <div className="absolute inset-0 bg-zinc-950/40 backdrop-blur-[2px] flex items-center justify-center p-4">
+                        <div className="px-4 py-2.5 rounded-xl bg-zinc-900/95 border border-white/20 backdrop-blur-md shadow-2xl flex items-center gap-3 text-white text-center">
+                          <span className="icon-[lucide--shield-lock] size-5 text-amber-400 shrink-0" />
+                          <div className="text-left">
+                            <span className="font-mono text-xs uppercase tracking-widest font-bold block text-amber-300">
+                              {dict.projects.confidentialStamp}
+                            </span>
+                            <span className="text-[10px] text-zinc-300 font-mono block">
+                              PROTECTED ENTERPRISE SYSTEM // REDACTED DATA
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Top Floating Badges */}
+                    <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2 z-10">
+                      <span className="px-3 py-1 rounded-lg text-xs font-mono uppercase tracking-wider font-semibold bg-white/95 text-zinc-800 border border-zinc-200/80 backdrop-blur-xs shadow-xs">
+                        {category}
+                      </span>
+                      {activeProject.isNda && (
+                        <NdaBadge label={dict.projects.ndaBadge} size="sm" />
+                      )}
+                      {activeProject.status && (
+                        <span className="px-2.5 py-1 rounded-lg text-xs font-mono uppercase tracking-wider font-semibold bg-emerald-50/95 text-emerald-800 border border-emerald-200 shadow-xs">
+                          {activeProject.status === "COMPLETE"
+                            ? dict.projects.statusCompleted
+                            : activeProject.status}
+                        </span>
+                      )}
                     </div>
-                    <div className="space-y-1">
-                      <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-amber-900">
-                        {dict.projects.confidentialStamp}
-                      </h4>
-                      <p className="text-xs sm:text-sm text-amber-800 leading-relaxed">
-                        {dict.projects.confidentialNotice}
+                  </div>
+
+                  {/* At-a-Glance Metadata Cards Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="p-3.5 rounded-xl bg-white border border-zinc-200/80 shadow-2xs space-y-1">
+                      <div className="flex items-center gap-1.5 text-zinc-400 text-xs font-mono uppercase tracking-wider">
+                        <span className="icon-[lucide--folder] size-3.5" />
+                        <span>Kategori</span>
+                      </div>
+                      <p className="font-semibold text-xs sm:text-sm text-zinc-900 truncate">
+                        {category}
+                      </p>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-white border border-zinc-200/80 shadow-2xs space-y-1">
+                      <div className="flex items-center gap-1.5 text-zinc-400 text-xs font-mono uppercase tracking-wider">
+                        <span className="icon-[lucide--calendar] size-3.5" />
+                        <span>Periode</span>
+                      </div>
+                      <p className="font-semibold text-xs sm:text-sm text-zinc-900">
+                        {timelineStr || "2024 – 2025"}
+                      </p>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-white border border-zinc-200/80 shadow-2xs space-y-1">
+                      <div className="flex items-center gap-1.5 text-zinc-400 text-xs font-mono uppercase tracking-wider">
+                        <span className="icon-[lucide--check-circle-2] size-3.5 text-emerald-600" />
+                        <span>Status</span>
+                      </div>
+                      <p className="font-semibold text-xs sm:text-sm text-emerald-700">
+                        {activeProject.status === "COMPLETE"
+                          ? dict.projects.statusCompleted
+                          : activeProject.status || "Completed"}
+                      </p>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-white border border-zinc-200/80 shadow-2xs space-y-1">
+                      <div className="flex items-center gap-1.5 text-zinc-400 text-xs font-mono uppercase tracking-wider">
+                        {activeProject.isNda ? (
+                          <span className="icon-[lucide--lock] size-3.5 text-amber-600" />
+                        ) : (
+                          <span className="icon-[lucide--globe] size-3.5 text-blue-600" />
+                        )}
+                        <span>Aksesibilitas</span>
+                      </div>
+                      <p className="font-semibold text-xs sm:text-sm text-zinc-900 truncate">
+                        {activeProject.isNda ? "Terikat NDA (Redacted)" : "Publik / Live"}
                       </p>
                     </div>
                   </div>
 
-                  {/* Redacted Data Fields Simulation */}
-                  <div className="pt-2 border-t border-amber-200/80 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                    <div className="flex items-center justify-between p-2.5 rounded-lg bg-white/90 border border-amber-200/60 shadow-2xs">
-                      <span className="text-zinc-500 font-medium">Klien / Enterprise:</span>
-                      <span className="bg-zinc-900 text-transparent select-none rounded px-2.5 py-0.5 font-mono text-[11px] tracking-wider">
-                        ████████████
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between p-2.5 rounded-lg bg-white/90 border border-amber-200/60 shadow-2xs">
-                      <span className="text-zinc-500 font-medium">Server Endpoint:</span>
-                      <span className="bg-zinc-900 text-transparent select-none rounded px-2.5 py-0.5 font-mono text-[11px] tracking-wider">
-                        api.internal.████
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between p-2.5 rounded-lg bg-white/90 border border-amber-200/60 shadow-2xs">
-                      <span className="text-zinc-500 font-medium">Database Cluster:</span>
-                      <span className="bg-zinc-900 text-transparent select-none rounded px-2.5 py-0.5 font-mono text-[11px] tracking-wider">
-                        cluster-db-████
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between p-2.5 rounded-lg bg-white/90 border border-amber-200/60 shadow-2xs">
-                      <span className="text-zinc-500 font-medium">Source Repository:</span>
-                      <span className="bg-zinc-900 text-transparent select-none rounded px-2.5 py-0.5 font-mono text-[11px] tracking-wider">
-                        git@gitlab.████
-                      </span>
-                    </div>
+                  {/* Project Title & Summary Card */}
+                  <div className="p-6 sm:p-7 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-3">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-zinc-950">
+                      {title}
+                    </h1>
+                    <p className="text-base sm:text-lg text-zinc-600 leading-relaxed font-normal">
+                      {summary}
+                    </p>
                   </div>
 
-                  <div className="text-[11px] text-amber-700 italic flex items-center gap-1.5 pt-1">
-                    <span className="icon-[lucide--info] size-3.5 shrink-0" />
-                    <span>{dict.projects.ndaRestrictedGallery}</span>
-                  </div>
-                </div>
-              )}
+                  {/* Executive Client Summary (If Available & Not NDA) */}
+                  {!activeProject.isNda && clientSummary && clientSummary.trim().length > 0 && (
+                    <div className="p-6 sm:p-7 rounded-2xl bg-gradient-to-br from-blue-50/70 via-indigo-50/30 to-white border border-blue-200/90 shadow-2xs space-y-4">
+                      <div className="flex items-center gap-2 text-blue-900 font-bold text-sm uppercase tracking-wider">
+                        <span className="icon-[lucide--briefcase] size-4.5 text-blue-700" />
+                        <span>{dict.projects.clientSummaryTitle}</span>
+                      </div>
+                      <MarkdownContent
+                        content={clientSummary}
+                        className="text-sm sm:text-base text-zinc-700"
+                      />
+                    </div>
+                  )}
 
-              {/* Executive Client Summary (If Available & Not NDA) */}
-              {!activeProject.isNda && clientSummary && clientSummary.trim().length > 0 && (
-                <div className="rounded-xl border border-blue-200/90 bg-blue-50/40 p-4 sm:p-5 space-y-3">
-                  <div className="flex items-center gap-2 text-blue-900 font-semibold text-xs sm:text-sm uppercase tracking-wider">
-                    <span className="icon-[lucide--briefcase] size-4 text-blue-700" />
-                    <span>{dict.projects.clientSummaryTitle}</span>
-                  </div>
-                  <MarkdownContent
-                    content={clientSummary}
-                    className="text-xs sm:text-sm text-zinc-700"
-                  />
-                </div>
-              )}
+                  {/* NDA Censored Notice & Redacted Architecture Box */}
+                  {activeProject.isNda && (
+                    <div className="p-6 sm:p-7 rounded-2xl border border-amber-300 bg-amber-50/60 shadow-2xs space-y-5">
+                      <div className="flex items-start gap-3.5">
+                        <div className="size-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0 text-amber-800 mt-0.5">
+                          <span className="icon-[lucide--shield-alert] size-5" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-bold uppercase tracking-wider text-amber-900">
+                            {dict.projects.confidentialStamp}
+                          </h4>
+                          <p className="text-xs sm:text-sm text-amber-800 leading-relaxed">
+                            {dict.projects.confidentialNotice}
+                          </p>
+                        </div>
+                      </div>
 
-              {/* Screenshots Gallery (If Available & Not NDA) */}
-              {!activeProject.isNda && imageDocs.length > 0 && (
-                <div className="space-y-3 pt-2 border-t border-zinc-100">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-700 flex items-center gap-2">
-                      <span className="icon-[lucide--image] size-4 text-zinc-500" />
-                      <span>{dict.projects.galleryTitle}</span>
-                    </h4>
-                    <span className="px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-600 text-xs font-mono font-medium">
-                      {imageDocs.length} Foto
-                    </span>
-                  </div>
-
-                  {/* Horizontal Scroll / Grid of Thumbnails */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {imageDocs.map((doc, idx) => (
-                      <button
-                        key={doc.id || idx}
-                        type="button"
-                        onClick={() => setLightboxIndex(idx)}
-                        className="group relative aspect-video w-full rounded-xl overflow-hidden border border-zinc-200/90 bg-zinc-100 hover:border-zinc-400 transition-all shadow-2xs hover:shadow-md cursor-pointer text-left"
-                      >
-                        <Image
-                          src={doc.url}
-                          alt={doc.name || `Screenshot ${idx + 1}`}
-                          fill
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 280px"
-                          className="object-cover group-hover:scale-104 transition-transform duration-300"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2.5">
-                          <span className="text-[11px] text-white font-medium line-clamp-1">
-                            {doc.name || `Screenshot ${idx + 1}`}
+                      {/* Redacted Data Fields Simulation */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+                        <div className="flex items-center justify-between p-3 rounded-xl bg-white/95 border border-amber-200/70 shadow-2xs">
+                          <span className="text-zinc-500 font-medium">Klien / Enterprise:</span>
+                          <span className="bg-zinc-950 text-transparent select-none rounded px-3 py-1 font-mono text-xs tracking-wider">
+                            ████████████
                           </span>
                         </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+                        <div className="flex items-center justify-between p-3 rounded-xl bg-white/95 border border-amber-200/70 shadow-2xs">
+                          <span className="text-zinc-500 font-medium">Server Endpoint:</span>
+                          <span className="bg-zinc-950 text-transparent select-none rounded px-3 py-1 font-mono text-xs tracking-wider">
+                            api.internal.████
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 rounded-xl bg-white/95 border border-amber-200/70 shadow-2xs">
+                          <span className="text-zinc-500 font-medium">Database Cluster:</span>
+                          <span className="bg-zinc-950 text-transparent select-none rounded px-3 py-1 font-mono text-xs tracking-wider">
+                            cluster-db-████
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 rounded-xl bg-white/95 border border-amber-200/70 shadow-2xs">
+                          <span className="text-zinc-500 font-medium">Source Repository:</span>
+                          <span className="bg-zinc-950 text-transparent select-none rounded px-3 py-1 font-mono text-xs tracking-wider">
+                            git@gitlab.████
+                          </span>
+                        </div>
+                      </div>
 
-              {/* Technical Case Study / Description */}
-              {description && description.trim().length > 0 && (
-                <div className="space-y-3 pt-2 border-t border-zinc-100">
-                  <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-700 flex items-center gap-2">
-                    <span className="icon-[lucide--file-text] size-4 text-zinc-500" />
-                    <span>
-                      {activeProject.isNda
-                        ? dict.projects.overview
-                        : dict.projects.caseStudyTitle}
-                    </span>
-                  </h4>
-                  <MarkdownContent content={description} />
-                </div>
-              )}
+                      <div className="text-xs text-amber-800/90 italic flex items-center gap-2 pt-1 border-t border-amber-200/60">
+                        <span className="icon-[lucide--info] size-4 shrink-0 text-amber-700" />
+                        <span>{dict.projects.ndaRestrictedGallery}</span>
+                      </div>
+                    </div>
+                  )}
 
-              {/* Tech Stack */}
-              {activeProject.techStack && activeProject.techStack.length > 0 && (
-                <div className="space-y-3 pt-2 border-t border-zinc-100">
-                  <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-700 flex items-center gap-2">
-                    <span className="icon-[lucide--layers] size-4 text-zinc-500" />
-                    <span>{dict.projects.techStackTitle}</span>
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {activeProject.techStack.map((tech) => {
-                      const techInfo = getTechIcon(tech);
-                      return (
-                        <span
-                          key={tech}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-50 text-zinc-800 border border-zinc-200/90 shadow-2xs hover:bg-zinc-100 transition-colors"
-                        >
-                          <span
-                            className={`${techInfo.iconClass} size-3.5 inline-block shrink-0`}
-                            aria-hidden="true"
-                          />
-                          <span>{tech}</span>
+                  {/* Screenshots Gallery (If Available & Not NDA) */}
+                  {!activeProject.isNda && imageDocs.length > 0 && (
+                    <div className="p-6 sm:p-7 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5 text-zinc-900 font-bold text-sm uppercase tracking-wider">
+                          <span className="icon-[lucide--image] size-4.5 text-zinc-700" />
+                          <span>{dict.projects.galleryTitle}</span>
+                        </div>
+                        <span className="px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-700 text-xs font-mono font-semibold border border-zinc-200">
+                          {imageDocs.length} Foto
                         </span>
-                      );
-                    })}
+                      </div>
+
+                      {/* Responsive Grid of Thumbnails */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-1">
+                        {imageDocs.map((doc, idx) => (
+                          <button
+                            key={doc.id || idx}
+                            type="button"
+                            onClick={() => setLightboxIndex(idx)}
+                            className="group relative aspect-video w-full rounded-xl overflow-hidden border border-zinc-200 bg-zinc-100 hover:border-zinc-400 transition-all shadow-2xs hover:shadow-md cursor-pointer text-left"
+                          >
+                            <Image
+                              src={doc.url}
+                              alt={doc.name || `Screenshot ${idx + 1}`}
+                              fill
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
+                              className="object-cover group-hover:scale-104 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-3">
+                              <span className="text-xs text-white font-medium truncate max-w-[80%]">
+                                {doc.name || `Screenshot ${idx + 1}`}
+                              </span>
+                              <span className="size-6 rounded-md bg-white/20 backdrop-blur-xs flex items-center justify-center text-white shrink-0">
+                                <span className="icon-[lucide--maximize-2] size-3.5" />
+                              </span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tech Stack Pills */}
+                  {activeProject.techStack && activeProject.techStack.length > 0 && (
+                    <div className="p-6 sm:p-7 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-4">
+                      <div className="flex items-center gap-2 text-zinc-900 font-bold text-sm uppercase tracking-wider">
+                        <span className="icon-[lucide--layers] size-4.5 text-zinc-700" />
+                        <span>{dict.projects.techStackTitle}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2.5">
+                        {activeProject.techStack.map((tech) => {
+                          const techInfo = getTechIcon(tech);
+                          return (
+                            <span
+                              key={tech}
+                              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-zinc-50 text-zinc-800 border border-zinc-200/90 shadow-2xs hover:bg-zinc-100 transition-colors"
+                            >
+                              <span
+                                className={`${techInfo.iconClass} size-4 inline-block shrink-0`}
+                                aria-hidden="true"
+                              />
+                              <span>{tech}</span>
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Call-to-action banner to switch to Tab 2 (Detail & Studi Kasus) */}
+                  <div className="p-5 sm:p-6 rounded-2xl bg-zinc-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md">
+                    <div className="space-y-1 text-center sm:text-left">
+                      <h4 className="font-bold text-sm sm:text-base">
+                        Tertarik dengan arsitektur & implementasi teknis?
+                      </h4>
+                      <p className="text-xs sm:text-sm text-zinc-400">
+                        Pelajari studi kasus arsitektur, tantangan rekayasa, dan solusi mendalam.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("details")}
+                      className="px-4 py-2.5 rounded-xl bg-white text-zinc-950 font-semibold text-xs sm:text-sm hover:bg-zinc-100 transition-colors shadow-xs cursor-pointer shrink-0 flex items-center gap-2"
+                    >
+                      <span>Buka Tab Detail Proyek</span>
+                      <span className="icon-[lucide--arrow-right] size-4" />
+                    </button>
                   </div>
-                </div>
+                </motion.div>
               )}
 
-              {/* Bottom Action Footer */}
-              <div className="pt-4 border-t border-zinc-100 flex flex-wrap items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-2.5">
-                  {!activeProject.isNda && activeProject.projectUrl && (
-                    <a
-                      href={activeProject.projectUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 text-white font-medium text-xs sm:text-sm hover:bg-zinc-800 transition-colors shadow-xs"
-                    >
-                      <span className="icon-[lucide--globe] size-4" />
-                      <span>{dict.projects.website}</span>
-                    </a>
-                  )}
-
-                  {!activeProject.isNda && activeProject.githubUrl && (
-                    <a
-                      href={activeProject.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-medium text-xs sm:text-sm transition-colors shadow-xs"
-                    >
-                      <span className="icon-[simple-icons--github] size-4" />
-                      <span>{dict.projects.source}</span>
-                    </a>
-                  )}
-
-                  {activeProject.isNda && (
-                    <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-100 text-zinc-600 border border-zinc-200 text-xs font-medium">
-                      <span className="icon-[lucide--lock] size-3.5 text-amber-600" />
-                      <span>{dict.projects.proprietaryNotice}</span>
-                    </span>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 rounded-xl border border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 text-xs sm:text-sm font-medium transition-colors cursor-pointer"
+              {/* ===================================================================
+                  TAB 2: DETAIL PROYEK (CASE STUDY, ARCHITECTURE, ENGINEERING SPEC)
+              =================================================================== */}
+              {activeTab === "details" && (
+                <motion.div
+                  key="details"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-8"
                 >
-                  {dict.projects.closeModal}
-                </button>
-              </div>
-            </div>
-          </div>
-        </motion.div>
+                  <div className="p-6 sm:p-8 md:p-10 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-6">
+                    <div className="flex items-center justify-between pb-4 border-b border-zinc-100">
+                      <div className="flex items-center gap-2.5 text-zinc-900 font-bold text-base sm:text-lg">
+                        <span className="icon-[lucide--cpu] size-5 text-zinc-700" />
+                        <span>
+                          {activeProject.isNda
+                            ? "Spesifikasi Arsitektur Sistem (High-Level)"
+                            : dict.projects.caseStudyTitle}
+                        </span>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider font-semibold bg-zinc-100 text-zinc-700 border border-zinc-200">
+                        {category}
+                      </span>
+                    </div>
 
-        {/* Screenshot Lightbox Overlay */}
+                    {/* NDA Banner inside Details */}
+                    {activeProject.isNda && (
+                      <div className="rounded-xl border border-amber-300 bg-amber-50/70 p-4 flex items-start gap-3">
+                        <span className="icon-[lucide--lock] size-4 text-amber-700 mt-0.5 shrink-0" />
+                        <div className="text-xs text-amber-900 leading-relaxed">
+                          <strong>Pemberitahuan Sensor NDA:</strong> Seluruh skema database produksi, kontrak API microservice privat, dan baris source code repositori internal disensor secara resmi sesuai regulasi kerahasiaan perusahaan klien.
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Rich Markdown Technical Description */}
+                    {description && description.trim().length > 0 ? (
+                      <MarkdownContent
+                        content={description}
+                        className="text-sm sm:text-base text-zinc-700"
+                      />
+                    ) : (
+                      <div className="text-center py-12 text-zinc-400 font-mono text-sm">
+                        Dokumentasi studi kasus teknis belum dipublikasikan.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Tech Stack Summary in Details Tab */}
+                  {activeProject.techStack && activeProject.techStack.length > 0 && (
+                    <div className="p-6 sm:p-7 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-3">
+                      <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-500">
+                        {dict.projects.techStackTitle}
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {activeProject.techStack.map((tech) => {
+                          const techInfo = getTechIcon(tech);
+                          return (
+                            <span
+                              key={tech}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-50 text-zinc-800 border border-zinc-200/90 shadow-2xs"
+                            >
+                              <span
+                                className={`${techInfo.iconClass} size-3.5 inline-block shrink-0`}
+                                aria-hidden="true"
+                              />
+                              <span>{tech}</span>
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Back to Overview Tab */}
+                  <div className="flex justify-center pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("overview")}
+                      className="px-5 py-2.5 rounded-xl border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-semibold text-xs sm:text-sm transition-colors shadow-2xs flex items-center gap-2 cursor-pointer"
+                    >
+                      <span className="icon-[lucide--arrow-left] size-4" />
+                      <span>Kembali ke Ringkasan Proyek</span>
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </main>
+        </div>
+
+        {/* =========================================================================
+            SCREENSHOT LIGHTBOX OVERLAY
+        ========================================================================= */}
         {lightboxIndex !== null && imageDocs[lightboxIndex] && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-60 bg-zinc-950/90 backdrop-blur-md flex flex-col items-center justify-between p-4 sm:p-6"
+            className="fixed inset-0 z-60 bg-zinc-950/95 backdrop-blur-md flex flex-col items-center justify-between p-4 sm:p-6"
             onClick={() => setLightboxIndex(null)}
           >
             {/* Lightbox Top Bar */}
@@ -499,7 +672,7 @@ export function ProjectDetailModal({
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3">
-                <span className="text-xs font-mono bg-zinc-800/80 px-2.5 py-1 rounded-md border border-zinc-700">
+                <span className="text-xs font-mono bg-zinc-800/90 px-3 py-1 rounded-md border border-zinc-700">
                   {lightboxIndex + 1} / {imageDocs.length}
                 </span>
                 <span className="text-sm font-medium truncate max-w-md">

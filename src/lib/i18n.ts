@@ -54,6 +54,10 @@ export interface Dictionary {
     galleryTitle: string;
     caseStudyTitle: string;
     ndaRestrictedGallery: string;
+    tabOverview: string;
+    tabDetails: string;
+    backButton: string;
+    quickStats: string;
   };
   experience: {
     title: string;
@@ -163,6 +167,10 @@ export const dictionaries: Record<Locale, Dictionary> = {
       caseStudyTitle: "Studi Kasus & Detail Teknis",
       ndaRestrictedGallery:
         "Arsip tangkapan layar antarmuka dan skema sistem internal dilindungi oleh NDA dan tidak dipublikasikan.",
+      tabOverview: "Ringkasan Proyek",
+      tabDetails: "Detail & Studi Kasus",
+      backButton: "Kembali",
+      quickStats: "Informasi Proyek",
     },
     experience: {
       title: "Pengalaman Kerja",
@@ -274,6 +282,10 @@ export const dictionaries: Record<Locale, Dictionary> = {
       caseStudyTitle: "Technical Case Study & Architecture",
       ndaRestrictedGallery:
         "UI screenshots and internal system architecture are restricted by NDA and not publicly disclosed.",
+      tabOverview: "Project Overview",
+      tabDetails: "Details & Case Study",
+      backButton: "Back",
+      quickStats: "Project Information",
     },
     experience: {
       title: "Work Experience",
