@@ -258,9 +258,11 @@ export function Experiences({
 
           return (
             <Reveal key={exp.id} delay={0.1 + idx * 0.05} yOffset={10}>
-              <div
+              <motion.div
                 onClick={() => toggleExpand(exp.id)}
-                className="group rounded-xl border border-zinc-200/90 bg-white hover:border-zinc-300 p-3.5 sm:p-4 transition-all shadow-xs cursor-pointer"
+                whileHover={{ y: -2 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="group rounded-xl border border-zinc-200/90 bg-white hover:border-zinc-300 hover:shadow-sm p-3.5 sm:p-4 transition-colors shadow-xs cursor-pointer"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -301,9 +303,12 @@ export function Experiences({
                           </a>
                         )}
 
-                        <span
-                          className={`icon-[lucide--chevron-right] size-3.5 text-zinc-400 transition-transform duration-200 ml-auto shrink-0 ${isExpanded ? "rotate-90 text-zinc-700" : ""
-                            }`}
+                        <motion.span
+                          animate={{ rotate: isExpanded ? 90 : 0 }}
+                          transition={{ type: "spring", stiffness: 350, damping: 22 }}
+                          className={`icon-[lucide--chevron-right] size-3.5 ml-auto shrink-0 ${
+                            isExpanded ? "text-zinc-700" : "text-zinc-400 group-hover:text-zinc-700"
+                          }`}
                           aria-hidden="true"
                         />
                       </div>
@@ -363,10 +368,13 @@ export function Experiences({
                                 proj.summary;
 
                               return (
-                                <div
+                                <motion.div
                                   key={proj.id || proj.slug}
                                   onClick={() => setSelectedProject(proj)}
-                                  className="group rounded-lg border border-zinc-200/90 bg-zinc-50/60 p-3 space-y-1.5 hover:bg-zinc-100/90 hover:border-zinc-300 transition-all cursor-pointer shadow-2xs"
+                                  whileHover={{ y: -2, scale: 1.008 }}
+                                  whileTap={{ scale: 0.99 }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                  className="group rounded-lg border border-zinc-200/90 bg-zinc-50/60 p-3 space-y-1.5 hover:bg-white hover:border-zinc-300 hover:shadow-xs transition-colors cursor-pointer shadow-2xs"
                                 >
                                   <div className="flex items-start justify-between gap-2">
                                     <h4 className="font-semibold text-xs sm:text-sm text-zinc-900 group-hover:text-zinc-950 leading-snug flex items-center gap-1.5">
@@ -396,7 +404,7 @@ export function Experiences({
                                       ))}
                                     </div>
                                   )}
-                                </div>
+                                </motion.div>
                               );
                             })}
                           </div>
@@ -405,7 +413,7 @@ export function Experiences({
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </motion.div>
             </Reveal>
           );
         })}

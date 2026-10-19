@@ -60,28 +60,46 @@ export function FeaturedProjects({
 
         {/* Filter Pills */}
         <Reveal delay={0.2} yOffset={10}>
-          <div className="inline-flex items-center gap-1.5 p-1 rounded-xl border border-zinc-200 bg-white mt-4 text-xs font-medium shadow-2xs">
+          <div className="inline-flex items-center gap-1 p-1 rounded-xl border border-zinc-200 bg-white mt-4 text-xs font-medium shadow-2xs">
             <button
               type="button"
               onClick={() => setFilter("featured")}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+              className={`relative px-3.5 py-1.5 rounded-lg transition-colors cursor-pointer select-none ${
                 filter === "featured"
-                  ? "bg-zinc-900 text-white font-semibold shadow-xs"
-                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50"
+                  ? "text-white font-semibold"
+                  : "text-zinc-600 hover:text-zinc-900"
               }`}
             >
-              {dict.projects.filterFeatured} ({projects.length || 6})
+              {filter === "featured" && (
+                <motion.span
+                  layoutId="activeFilterPill"
+                  className="absolute inset-0 rounded-lg bg-zinc-900 shadow-xs"
+                  transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                />
+              )}
+              <span className="relative z-10">
+                {dict.projects.filterFeatured} ({projects.length || 6})
+              </span>
             </button>
             <button
               type="button"
               onClick={() => setFilter("all")}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+              className={`relative px-3.5 py-1.5 rounded-lg transition-colors cursor-pointer select-none ${
                 filter === "all"
-                  ? "bg-zinc-900 text-white font-semibold shadow-xs"
-                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50"
+                  ? "text-white font-semibold"
+                  : "text-zinc-600 hover:text-zinc-900"
               }`}
             >
-              {dict.projects.filterAll} ({combinedProjects.length})
+              {filter === "all" && (
+                <motion.span
+                  layoutId="activeFilterPill"
+                  className="absolute inset-0 rounded-lg bg-zinc-900 shadow-xs"
+                  transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                />
+              )}
+              <span className="relative z-10">
+                {dict.projects.filterAll} ({combinedProjects.length})
+              </span>
             </button>
           </div>
         </Reveal>
@@ -102,12 +120,13 @@ export function FeaturedProjects({
               <motion.article
                 layout
                 key={project.id || project.slug}
-                initial={{ opacity: 0.9 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                whileHover={{ y: -4 }}
+                transition={{ duration: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
                 onClick={() => setSelectedProject(project)}
-                className="group relative rounded-xl border border-zinc-200/90 bg-white flex flex-col justify-between overflow-hidden hover:border-zinc-300 hover:shadow-md transition-all shadow-xs cursor-pointer"
+                className="group relative rounded-xl border border-zinc-200/90 bg-white flex flex-col justify-between overflow-hidden hover:border-zinc-350 hover:shadow-md transition-shadow shadow-xs cursor-pointer"
               >
                 <div>
                   {/* Thumbnail / Media Container */}
@@ -118,11 +137,10 @@ export function FeaturedProjects({
                         alt={title}
                         fill
                         sizes="(max-width: 640px) 100vw, 50vw"
-                        className={`object-cover transition-all duration-300 ease-out group-hover:scale-103 ${
-                          project.isNda && ndaBlurEnabled
+                        className={`object-cover transition-all duration-300 ease-out group-hover:scale-103 ${project.isNda && ndaBlurEnabled
                             ? "filter blur-[2px] group-hover:blur-none"
                             : ""
-                        }`}
+                          }`}
                       />
                     ) : (
                       <div className="flex size-full items-center justify-center p-4 text-center bg-zinc-100">
@@ -194,43 +212,35 @@ export function FeaturedProjects({
 
                   {/* Action Buttons */}
                   <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-                    {/* Detail Button */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedProject(project);
-                      }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200/90 text-zinc-800 font-medium text-xs transition-colors cursor-pointer shadow-2xs"
-                    >
-                      <span className="icon-[lucide--info] size-3 inline-block text-zinc-600" />
-                      <span>{dict.projects.viewDetails}</span>
-                    </button>
 
                     {project.projectUrl && (
-                      <a
+                      <motion.a
                         href={project.projectUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
+                        whileHover={{ scale: 1.04 }}
+                        whileTap={{ scale: 0.96 }}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-medium text-xs hover:bg-zinc-800 transition-colors shadow-2xs"
                       >
                         <span className="icon-[lucide--globe] size-3 inline-block" />
                         <span>{dict.projects.website}</span>
-                      </a>
+                      </motion.a>
                     )}
 
                     {project.githubUrl && (
-                      <a
+                      <motion.a
                         href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
+                        whileHover={{ scale: 1.04 }}
+                        whileTap={{ scale: 0.96 }}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-medium text-xs transition-colors shadow-2xs"
                       >
                         <span className="icon-[simple-icons--github] size-3 inline-block" />
                         <span>{dict.projects.source}</span>
-                      </a>
+                      </motion.a>
                     )}
 
                     {project.isNda && (

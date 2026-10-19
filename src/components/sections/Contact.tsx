@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { m } from "motion/react";
 import { Locale, Profile } from "@/types/portfolio";
 import { getDictionary } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
@@ -71,24 +74,30 @@ export function Contact({ locale, profile }: ContactProps) {
 
             <Reveal delay={0.2} yOffset={10}>
               <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
-                <a
+                <m.a
                   href={`mailto:${profile.email}`}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 text-white font-semibold text-xs sm:text-sm hover:bg-zinc-800 hover:scale-105 active:scale-95 transition-all shadow-xs"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 text-white font-semibold text-xs sm:text-sm hover:bg-zinc-800 transition-colors shadow-xs"
                 >
                   <span className="icon-[lucide--mail] size-4 inline-block" />
                   <span>{dict.contact.chatBtn}</span>
-                </a>
+                </m.a>
 
                 {profile.linkedinUrl && (
-                  <a
+                  <m.a
                     href={profile.linkedinUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-semibold text-xs sm:text-sm hover:scale-105 active:scale-95 transition-all shadow-2xs"
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-semibold text-xs sm:text-sm transition-colors shadow-2xs"
                   >
                     <span className="icon-[simple-icons--linkedin] size-4 inline-block text-[#0A66C2]" />
                     <span>LinkedIn</span>
-                  </a>
+                  </m.a>
                 )}
               </div>
             </Reveal>

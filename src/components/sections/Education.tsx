@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { m } from "motion/react";
 import { Education as EducationType, Locale } from "@/types/portfolio";
 import { getDictionary, getLocalized } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
@@ -54,11 +57,16 @@ export function Education({ locale, educations = [] }: EducationProps) {
 
           return (
             <Reveal key={edu.id} delay={0.1 + idx * 0.05} yOffset={10}>
-              <div className="group rounded-xl border border-zinc-200/90 bg-white hover:border-zinc-300 p-3.5 sm:p-4 transition-all shadow-xs">
+              <m.div
+                whileHover={{ y: -3 }}
+                whileTap={{ scale: 0.99 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="group rounded-xl border border-zinc-200/90 bg-white hover:border-zinc-300 hover:shadow-sm p-3.5 sm:p-4 transition-colors shadow-xs cursor-default"
+              >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className={`size-10 sm:size-11 rounded-xl border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs ${badge.className}`}
+                      className={`size-10 sm:size-11 rounded-xl border flex items-center justify-center shrink-0 group-hover:scale-108 transition-transform shadow-2xs ${badge.className}`}
                     >
                       <span
                         className={`${badge.icon} size-5 inline-block shrink-0`}
@@ -79,7 +87,7 @@ export function Education({ locale, educations = [] }: EducationProps) {
                     {dateDisplay}
                   </div>
                 </div>
-              </div>
+              </m.div>
             </Reveal>
           );
         })}

@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
+import { m } from "motion/react";
 import { Certificate, Locale } from "@/types/portfolio";
 import { getDictionary } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
@@ -94,7 +97,7 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
               <div className="relative group">
                 {/* Timeline Node Bullet */}
                 <div
-                  className={`absolute -left-7 sm:-left-9 top-2.5 size-7 sm:size-8 rounded-full border flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden p-1 ${issuerInfo.bgClass}`}
+                  className={`absolute -left-7 sm:-left-9 top-2.5 size-7 sm:size-8 rounded-full border flex items-center justify-center group-hover:scale-115 transition-transform overflow-hidden p-1 ${issuerInfo.bgClass}`}
                 >
                   {issuerInfo.image ? (
                     <div className="relative size-full">
@@ -112,7 +115,11 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
                   )}
                 </div>
 
-                <div className="rounded-xl border border-zinc-200/90 bg-white hover:border-zinc-300 p-4 transition-all space-y-2 shadow-xs">
+                <m.div
+                  whileHover={{ x: 4 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  className="rounded-xl border border-zinc-200/90 bg-white hover:border-zinc-300 hover:shadow-sm p-4 transition-colors space-y-2 shadow-xs cursor-default"
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h3 className="font-semibold text-sm sm:text-base text-zinc-900">
@@ -140,14 +147,14 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
                         href={cert.credentialUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-900 hover:text-blue-600 transition-colors"
+                        className="group/verify inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-900 hover:text-blue-600 transition-colors"
                       >
                         <span>{dict.certificates.verifyLink}</span>
-                        <span className="icon-[lucide--external-link] size-3 inline-block" />
+                        <span className="icon-[lucide--external-link] size-3 inline-block transition-transform duration-200 group-hover/verify:translate-x-0.5 group-hover/verify:-translate-y-0.5" />
                       </a>
                     )}
                   </div>
-                </div>
+                </m.div>
               </div>
             </Reveal>
           );

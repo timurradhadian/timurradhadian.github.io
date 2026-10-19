@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { m } from "motion/react";
 import { Locale, Skill } from "@/types/portfolio";
 import { getDictionary } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
@@ -122,18 +125,21 @@ export function Skills({ locale, skills }: SkillsProps) {
                   const techInfo = getTechIcon(skill.name);
 
                   return (
-                    <span
+                    <m.span
                       key={skill.id}
-                      className="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium bg-white text-zinc-800 border border-zinc-200/90 shadow-2xs hover:border-zinc-300 hover:shadow-xs hover:bg-zinc-50/70 transition-all cursor-default"
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 450, damping: 20 }}
+                      className="group/skill inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium bg-white text-zinc-800 border border-zinc-200/90 shadow-2xs hover:border-zinc-350 hover:shadow-xs hover:bg-zinc-50/90 transition-colors cursor-default select-none"
                     >
                       <span
-                        className={`${techInfo.iconClass} size-4 inline-block shrink-0`}
+                        className={`${techInfo.iconClass} size-4 inline-block shrink-0 transition-transform duration-200 group-hover/skill:scale-110 group-hover/skill:rotate-3`}
                         aria-hidden="true"
                       />
-                      <span className="font-medium text-zinc-800">
+                      <span className="font-medium text-zinc-800 group-hover/skill:text-zinc-950">
                         {skill.name}
                       </span>
-                    </span>
+                    </m.span>
                   );
                 })}
               </div>

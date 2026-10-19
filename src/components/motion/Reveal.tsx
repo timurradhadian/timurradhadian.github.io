@@ -9,13 +9,17 @@ interface RevealProps {
   className?: string;
   delay?: number;
   yOffset?: number;
+  scale?: number;
+  duration?: number;
 }
 
 export function Reveal({
   children,
   className,
   delay = 0,
-  yOffset = 18,
+  yOffset = 16,
+  scale = 1,
+  duration = 0.45,
 }: RevealProps) {
   const mounted = useIsMounted();
 
@@ -25,11 +29,11 @@ export function Reveal({
 
   return (
     <m.div
-      initial={{ opacity: 0, y: yOffset }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
+      initial={{ opacity: 0, y: yOffset, scale }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-20px" }}
       transition={{
-        duration: 0.45,
+        duration,
         ease: [0.21, 0.47, 0.32, 0.98],
         delay,
       }}

@@ -1,7 +1,10 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
+import { m } from "motion/react";
 import { Locale, Profile } from "@/types/portfolio";
-import { getDictionary, getLocalized } from "@/lib/i18n";
+import { getDictionary } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
 
 interface HeroProps {
@@ -37,18 +40,33 @@ export function Hero({ locale, profile }: HeroProps) {
           </Reveal>
         </div>
 
-        <Reveal delay={0.1} yOffset={0}>
-          <div className="relative size-24 sm:size-28 md:size-32 rounded-full overflow-hidden border border-border shadow-xs shrink-0 bg-surface">
+        <div className="relative shrink-0">
+          <m.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ scale: 1.05, rotate: 1 }}
+            transition={{ type: "spring", stiffness: 280, damping: 20, delay: 0.1 }}
+            className="relative size-24 sm:size-28 md:size-32 rounded-full overflow-hidden border border-border shadow-xs bg-surface cursor-pointer ring-4 ring-transparent hover:ring-zinc-200/60 transition-all duration-300"
+          >
             <Image
               src={avatarSrc}
               alt={profile.name}
               width={128}
               height={128}
               priority
-              className="size-full object-cover"
+              className="size-full object-cover transition-transform duration-500 hover:scale-105"
             />
-          </div>
-        </Reveal>
+          </m.div>
+
+          {/* Active status pulse badge */}
+          <span
+            className="absolute bottom-1 right-1 flex size-3.5 sm:size-4 items-center justify-center pointer-events-none"
+            title="Available"
+          >
+            <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex size-2.5 sm:size-3 rounded-full bg-emerald-500 ring-2 ring-white" />
+          </span>
+        </div>
       </div>
 
       {/* About Section */}
