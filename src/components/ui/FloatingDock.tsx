@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import Link from "next/link";
 import {
   motion,
   useMotionValue,
@@ -10,10 +9,10 @@ import {
   AnimatePresence,
 } from "motion/react";
 import { Locale } from "@/types/portfolio";
-import { getDictionary } from "@/lib/i18n";
+import { useLocale } from "@/context/LocaleContext";
 
 interface FloatingDockProps {
-  locale: Locale;
+  locale?: Locale;
   email: string;
   githubUrl: string;
   linkedinUrl: string;
@@ -108,12 +107,13 @@ function DockIcon({
 }
 
 export function FloatingDock({
-  locale,
+  locale: fallbackLocale,
   email,
   githubUrl,
   linkedinUrl,
 }: FloatingDockProps) {
-  const dict = getDictionary(locale);
+  const { locale, setLocale, dict } = useLocale();
+  const activeLocale = locale || fallbackLocale || "id";
   const mouseX = useMotionValue(Infinity);
 
   const navItems: DockItemData[] = [
@@ -132,7 +132,7 @@ export function FloatingDock({
     { title: dict.dock.email, icon: "icon-[lucide--mail]", href: `mailto:${email}`, external: true, color: "#2563EB" },
   ];
 
-  const targetLang = locale === "en" ? "id" : "en";
+  const targetLang = activeLocale === "en" ? "id" : "en";
   const targetHref = `/${targetLang}/`;
 
   return (
@@ -161,16 +161,20 @@ export function FloatingDock({
         {/* Separator */}
         <div className="h-6 w-px bg-zinc-200 mx-0.5 sm:mx-1" aria-hidden="true" />
 
-        {/* Language Switcher */}
-        <Link
+        {/* Bilingual Language Switcher (Zero-Reload In-Place Toggle) */}
+        <a
           href={targetHref}
+          onClick={(e) => {
+            e.preventDefault();
+            setLocale(targetLang);
+          }}
           aria-label={dict.dock.switchLang}
-          className="relative flex size-9.5 sm:size-10 items-center justify-center rounded-full bg-white border border-zinc-200/90 hover:border-zinc-400 text-zinc-900 shadow-xs transition-transform hover:scale-110 active:scale-95 focus-visible:outline-2 focus-visible:outline-zinc-900 focus-visible:outline-offset-2"
+          className="relative flex size-9.5 sm:size-10 items-center justify-center rounded-full bg-white border border-zinc-200/90 hover:border-zinc-400 text-zinc-900 shadow-xs transition-transform hover:scale-110 active:scale-95 focus-visible:outline-2 focus-visible:outline-zinc-900 focus-visible:outline-offset-2 cursor-pointer"
         >
           <span className="font-mono text-xs font-bold uppercase tracking-tight text-zinc-900">
             {targetLang}
           </span>
-        </Link>
+        </a>
       </motion.div>
     </nav>
   );
