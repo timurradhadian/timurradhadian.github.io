@@ -118,7 +118,11 @@ export function ProjectDetailModal({
   // Sync active project and reset states when project prop changes
   useEffect(() => {
     setActiveProject(project);
-    setActiveTab("overview");
+    const hasSum = Boolean(
+      (project?.clientSummary && project.clientSummary.trim().length > 0) ||
+      (project?.summary && project.summary.trim().length > 0)
+    );
+    setActiveTab(hasSum ? "overview" : "details");
     setSelectedImageIndex(0);
     setLightboxIndex(null);
 
@@ -290,11 +294,19 @@ export function ProjectDetailModal({
 
   const summaryContent = useMemo(() => {
     if (!activeProject) return "";
-    const clientSum = clientSummary && clientSummary.trim().length > 0 ? clientSummary : "";
-    const regularSum = getLocalized(activeProject, "summary", activeLocale) || "";
-    const desc = getLocalized(activeProject, "description", activeLocale) || "";
-    return clientSum || regularSum || desc;
+    const clientSum = clientSummary && clientSummary.trim().length > 0 ? clientSummary.trim() : "";
+    const regularSum = getLocalized(activeProject, "summary", activeLocale)?.trim() || "";
+    return clientSum || regularSum || "";
   }, [activeProject, clientSummary, activeLocale]);
+
+  const hasDistinctSummary = useMemo(() => {
+    if (!activeProject || !summaryContent || summaryContent.trim().length === 0) return false;
+    const desc = getLocalized(activeProject, "description", activeLocale)?.trim() || "";
+    if (desc && summaryContent === desc) return false;
+    return true;
+  }, [activeProject, summaryContent, activeLocale]);
+
+  const currentTab = hasDistinctSummary ? activeTab : "details";
 
   const formattedTimeline = useMemo(() => {
     if (!activeProject) return "";
@@ -388,6 +400,12 @@ export function ProjectDetailModal({
                 <h2 className="text-sm sm:text-base font-bold text-zinc-900 truncate">
                   {title}
                 </h2>
+                {!hasDistinctSummary && isLoadingDetail && (
+                  <div className="hidden sm:flex items-center gap-1.5 text-xs text-zinc-500 font-medium shrink-0">
+                    <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[11px]">Syncing...</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -429,55 +447,57 @@ export function ProjectDetailModal({
           </div>
 
           {/* =========================================================================
-              SEGMENTED TAB CONTROLS (RINGKASAN PROYEK vs DETAIL PROYEK)
+              SEGMENTED TAB CONTROLS (ONLY DISPLAYED IF DISTINCT SUMMARY EXISTS)
           ========================================================================= */}
-          <div className="border-t border-zinc-100 bg-zinc-50/70">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-1 sm:gap-2 py-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("overview")}
-                  className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${activeTab === "overview"
-                    ? "text-zinc-950 bg-white shadow-xs border border-zinc-200/90"
-                    : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/80"
-                    }`}
-                >
-                  <span
-                    className={`icon-[lucide--layout-grid] size-4 ${activeTab === "overview" ? "text-zinc-950" : "text-zinc-400"
+          {hasDistinctSummary && (
+            <div className="border-t border-zinc-100 bg-zinc-50/70">
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-1 sm:gap-2 py-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("overview")}
+                    className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${currentTab === "overview"
+                      ? "text-zinc-950 bg-white shadow-xs border border-zinc-200/90"
+                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/80"
                       }`}
-                  />
-                  <span>{activeDict.projects.tabOverview}</span>
-                  {galleryItems.length > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono font-medium bg-zinc-100 text-zinc-600 border border-zinc-200">
-                      {galleryItems.length} {isNda ? "media" : "foto"}
-                    </span>
-                  )}
-                </button>
+                  >
+                    <span
+                      className={`icon-[lucide--layout-grid] size-4 ${currentTab === "overview" ? "text-zinc-950" : "text-zinc-400"
+                        }`}
+                    />
+                    <span>{activeDict.projects.tabOverview}</span>
+                    {galleryItems.length > 0 && (
+                      <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono font-medium bg-zinc-100 text-zinc-600 border border-zinc-200">
+                        {galleryItems.length} {isNda ? "media" : "foto"}
+                      </span>
+                    )}
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("details")}
-                  className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${activeTab === "details"
-                    ? "text-zinc-950 bg-white shadow-xs border border-zinc-200/90"
-                    : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/80"
-                    }`}
-                >
-                  <span
-                    className={`icon-[lucide--file-code-2] size-4 ${activeTab === "details" ? "text-zinc-950" : "text-zinc-400"
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("details")}
+                    className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${currentTab === "details"
+                      ? "text-zinc-950 bg-white shadow-xs border border-zinc-200/90"
+                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/80"
                       }`}
-                  />
-                  <span>{activeDict.projects.tabDetails}</span>
-                </button>
-              </div>
-
-              {isLoadingDetail && (
-                <div className="hidden sm:flex items-center gap-2 text-xs text-zinc-500 font-medium">
-                  <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Sinkronisasi data Glio...</span>
+                  >
+                    <span
+                      className={`icon-[lucide--file-code-2] size-4 ${currentTab === "details" ? "text-zinc-950" : "text-zinc-400"
+                        }`}
+                    />
+                    <span>{activeDict.projects.tabDetails}</span>
+                  </button>
                 </div>
-              )}
+
+                {isLoadingDetail && (
+                  <div className="hidden sm:flex items-center gap-2 text-xs text-zinc-500 font-medium">
+                    <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Sinkronisasi data Glio...</span>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </header>
 
         {/* =========================================================================
@@ -649,16 +669,73 @@ export function ProjectDetailModal({
 
 
             {/* =========================================================================
-                TAB CONTENT AREA: RINGKASAN PROYEK vs DETAIL PROYEK
+                SPESIFIKASI PROYEK (STATUS, TIMELINE, TECH STACK - PERSISTENT DI SEMUA TAB)
+            ========================================================================= */}
+            <div className="p-5 sm:p-6 rounded-2xl bg-white border border-zinc-200/90 shadow-2xs space-y-4">
+              {/* Header with Title & Key Meta Badges */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-zinc-100">
+                <div className="flex items-center gap-2">
+                  <span className="icon-[lucide--sliders-horizontal] size-4.5 text-zinc-700" />
+                  <h3 className="text-xs sm:text-sm font-bold tracking-wider text-zinc-950 uppercase font-mono sm:font-sans">
+                    {activeDict.projects.projectSpecsTitle}
+                  </h3>
+                  {isNda && (
+                    <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
+                  )}
+                </div>
+
+                {/* Status & Timeline Badges */}
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-50 border border-zinc-200/80">
+                    <span className="text-zinc-500 font-medium">{activeDict.projects.status}:</span>
+                    <div className="flex items-center gap-1.5 font-bold text-zinc-900">
+                      <span className="icon-[lucide--check-circle-2] size-3.5 text-emerald-600 shrink-0" />
+                      <span>{displayStatus}</span>
+                    </div>
+                  </div>
+
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-50 border border-zinc-200/80">
+                    <span className="text-zinc-500 font-medium">{activeDict.projects.timeline}:</span>
+                    <div className="flex items-center gap-1.5 font-bold text-zinc-900">
+                      <span className="icon-[lucide--calendar] size-3.5 text-zinc-700 shrink-0" />
+                      <span>{formattedTimeline}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row: Teknologi yang Digunakan */}
+              {normalizedTechStack.length > 0 && (
+                <div className="space-y-2 pt-0.5">
+                  <span className="text-xs font-semibold text-zinc-600 block uppercase tracking-wider font-mono">
+                    {activeDict.projects.techUsed}
+                  </span>
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    {normalizedTechStack.map((tech, idx) => {
+                      const techInfo = getTechIcon(tech);
+                      return (
+                        <span
+                          key={`${tech}-${idx}`}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-50 text-zinc-800 border border-zinc-200/90 shadow-2xs hover:bg-zinc-100 transition-colors"
+                        >
+                          <span
+                            className={`${techInfo.iconClass} size-3.5 shrink-0`}
+                            aria-hidden="true"
+                          />
+                          <span>{tech}</span>
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* =========================================================================
+                TAB CONTENT AREA: HANYA KONTEN YANG BERUBAH SAAT PERPINDAHAN TAB
             ========================================================================= */}
             <AnimatePresence mode="wait">
-              {/* ===================================================================
-                  TAB 1: RINGKASAN PROYEK (EXECUTIVE SUMMARY / NDA NOTICE)
-              =================================================================== */}
-              {/* ===================================================================
-                  TAB 1: RINGKASAN PROYEK (EXECUTIVE SUMMARY & PROJECT SPECS)
-              =================================================================== */}
-              {activeTab === "overview" && (
+              {currentTab === "overview" && (
                 <motion.div
                   key="overview"
                   initial={{ opacity: 0, y: 10 }}
@@ -667,68 +744,7 @@ export function ProjectDetailModal({
                   transition={{ duration: 0.2 }}
                   className="space-y-6"
                 >
-                  {/* 1. SPESIFIKASI PROYEK (FULL-WIDTH MODERN SPECIFICATIONS CARD) */}
-                  <div className="p-5 sm:p-6 rounded-2xl bg-white border border-zinc-200/90 shadow-2xs space-y-4">
-                    {/* Header with Title & Key Meta Badges */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-zinc-100">
-                      <div className="flex items-center gap-2">
-                        <span className="icon-[lucide--sliders-horizontal] size-4.5 text-zinc-700" />
-                        <h3 className="text-xs sm:text-sm font-bold tracking-wider text-zinc-950 uppercase font-mono sm:font-sans">
-                          {activeDict.projects.projectSpecsTitle}
-                        </h3>
-                        {isNda && (
-                          <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
-                        )}
-                      </div>
-
-                      {/* Status & Timeline Badges */}
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-50 border border-zinc-200/80">
-                          <span className="text-zinc-500 font-medium">{activeDict.projects.status}:</span>
-                          <div className="flex items-center gap-1.5 font-bold text-zinc-900">
-                            <span className="icon-[lucide--check-circle-2] size-3.5 text-emerald-600 shrink-0" />
-                            <span>{displayStatus}</span>
-                          </div>
-                        </div>
-
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-50 border border-zinc-200/80">
-                          <span className="text-zinc-500 font-medium">{activeDict.projects.timeline}:</span>
-                          <div className="flex items-center gap-1.5 font-bold text-zinc-900">
-                            <span className="icon-[lucide--calendar] size-3.5 text-zinc-700 shrink-0" />
-                            <span>{formattedTimeline}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Row: Teknologi yang Digunakan */}
-                    {normalizedTechStack.length > 0 && (
-                      <div className="space-y-2 pt-0.5">
-                        <span className="text-xs font-semibold text-zinc-600 block uppercase tracking-wider font-mono">
-                          {activeDict.projects.techUsed}
-                        </span>
-                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                          {normalizedTechStack.map((tech, idx) => {
-                            const techInfo = getTechIcon(tech);
-                            return (
-                              <span
-                                key={`${tech}-${idx}`}
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-50 text-zinc-800 border border-zinc-200/90 shadow-2xs hover:bg-zinc-100 transition-colors"
-                              >
-                                <span
-                                  className={`${techInfo.iconClass} size-3.5 shrink-0`}
-                                  aria-hidden="true"
-                                />
-                                <span>{tech}</span>
-                              </span>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 2. COMPACT NDA NOTICE (SEDIKIT SAJA DI ATAS) */}
+                  {/* Compact NDA notice at top */}
                   {isNda && (
                     <div className="flex items-start sm:items-center gap-3.5 p-4 rounded-xl border border-amber-200 bg-amber-50/80 text-amber-900 shadow-2xs">
                       <div className="size-8 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center shrink-0 text-amber-800 mt-0.5 sm:mt-0">
@@ -750,10 +766,10 @@ export function ProjectDetailModal({
                     </div>
                   )}
 
-                  {/* 3. EXECUTIVE CLIENT SUMMARY (ALWAYS SHOWN) */}
+                  {/* Executive Client Summary */}
                   {summaryContent ? (
                     <div className="p-6 sm:p-8 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-4">
-                      <div className="flex items-center justify-between pb-2 border-zinc-100">
+                      <div className="flex items-center justify-between pb-2 border-b border-zinc-100">
                         <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-900 font-mono flex items-center gap-2">
                           <span className="icon-[lucide--file-text] size-4 text-zinc-500" />
                           <span>{activeDict.projects.clientSummaryTitle}</span>
@@ -773,10 +789,7 @@ export function ProjectDetailModal({
                 </motion.div>
               )}
 
-              {/* ===================================================================
-                  TAB 2: DETAIL PROYEK (CASE STUDY, ARCHITECTURE, ENGINEERING SPEC)
-              =================================================================== */}
-              {activeTab === "details" && (
+              {currentTab === "details" && (
                 <motion.div
                   key="details"
                   initial={{ opacity: 0, y: 10 }}
@@ -820,17 +833,19 @@ export function ProjectDetailModal({
                     )}
                   </div>
 
-                  {/* Back to Overview Tab */}
-                  <div className="flex justify-center pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("overview")}
-                      className="px-5 py-2.5 rounded-xl border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-semibold text-xs sm:text-sm transition-colors shadow-2xs flex items-center gap-2 cursor-pointer"
-                    >
-                      <span className="icon-[lucide--arrow-left] size-4" />
-                      <span>Kembali ke Ringkasan Proyek</span>
-                    </button>
-                  </div>
+                  {/* Back to Overview Tab (Only if distinct summary exists) */}
+                  {hasDistinctSummary && (
+                    <div className="flex justify-center pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("overview")}
+                        className="px-5 py-2.5 rounded-xl border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-semibold text-xs sm:text-sm transition-colors shadow-2xs flex items-center gap-2 cursor-pointer"
+                      >
+                        <span className="icon-[lucide--arrow-left] size-4" />
+                        <span>Kembali ke Ringkasan Proyek</span>
+                      </button>
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
