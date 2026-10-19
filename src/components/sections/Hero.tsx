@@ -11,13 +11,12 @@ interface HeroProps {
 
 export function Hero({ locale, profile }: HeroProps) {
   const dict = getDictionary(locale);
-  const localizedRole = getLocalized(profile, "role", locale);
-  const localizedBio = getLocalized(profile, "bio", locale);
   const localizedAbout =
     (locale === "en" ? profile.aboutEn : profile.aboutId) ||
     profile.about ||
     dict.hero.aboutBio;
 
+  const tagline = dict.hero.description;
   const avatarSrc = profile.avatarUrl || "/avatar.png";
 
   return (
@@ -33,7 +32,7 @@ export function Hero({ locale, profile }: HeroProps) {
 
           <Reveal delay={0.1} yOffset={12}>
             <p className="text-base sm:text-lg text-ink-muted leading-relaxed max-w-xl">
-              {localizedBio}
+              {tagline}
             </p>
           </Reveal>
         </div>
