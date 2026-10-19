@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { Experience, Locale } from "@/types/portfolio";
 import { getDictionary, getLocalized, getLocalizedArray } from "@/lib/i18n";
@@ -11,18 +12,24 @@ interface ExperiencesProps {
   experiences: Experience[];
 }
 
-function getCompanyBadge(company: string): { icon: string; className: string } {
+function getCompanyBadge(company: string): { icon?: string; image?: string; className: string } {
   const normalized = company.toLowerCase();
   if (normalized.includes("sejati")) {
     return {
-      icon: "icon-[lucide--layers]",
-      className: "bg-blue-50 text-blue-600 border-blue-200",
+      image: "/companies/sejatidimedia.png",
+      className: "bg-white border-zinc-200/90 shadow-2xs",
     };
   }
-  if (normalized.includes("tanjung") || normalized.includes("dsn")) {
+  if (
+    normalized.includes("tanjung") ||
+    normalized.includes("kreasi") ||
+    normalized.includes("dsn") ||
+    normalized.includes("teka") ||
+    normalized.includes("parquet")
+  ) {
     return {
-      icon: "icon-[lucide--factory]",
-      className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      image: "/companies/tanjung-kreasi.png",
+      className: "bg-white border-zinc-200/90 shadow-2xs",
     };
   }
   if (normalized.includes("tech") || normalized.includes("digital")) {
@@ -74,9 +81,20 @@ export function Experiences({ locale, experiences }: ExperiencesProps) {
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className={`size-10 sm:size-11 rounded-xl border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs ${badge.className}`}
+                      className={`size-10 sm:size-11 rounded-xl border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs overflow-hidden p-1.5 ${badge.className}`}
                     >
-                      <span className={`${badge.icon} size-5 inline-block shrink-0`} />
+                      {badge.image ? (
+                        <div className="relative size-full">
+                          <Image
+                            src={badge.image}
+                            alt={exp.company}
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <span className={`${badge.icon} size-5 inline-block shrink-0`} />
+                      )}
                     </div>
 
                     <div className="min-w-0">
