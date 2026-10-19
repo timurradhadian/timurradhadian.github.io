@@ -24,7 +24,7 @@ export default async function LocaleLayout({
   const dict = getDictionary(locale);
 
   return (
-    <div className="flex min-h-screen flex-col bg-canvas text-ink transition-colors selection:bg-zinc-900 selection:text-zinc-50 dark:selection:bg-zinc-100 dark:selection:text-zinc-900">
+    <div className="flex min-h-screen flex-col bg-canvas text-ink transition-colors selection:bg-zinc-900 selection:text-white">
       <a href="#main-content" className="skip-link">
         {dict.common.skipToContent}
       </a>

@@ -11,6 +11,14 @@ interface ExperiencesProps {
   experiences: Experience[];
 }
 
+function getCompanyIcon(company: string): string {
+  const normalized = company.toLowerCase();
+  if (normalized.includes("sejati")) return "icon-[lucide--layers]";
+  if (normalized.includes("tanjung") || normalized.includes("dsn")) return "icon-[lucide--factory]";
+  if (normalized.includes("tech") || normalized.includes("digital")) return "icon-[lucide--cpu]";
+  return "icon-[lucide--briefcase]";
+}
+
 export function Experiences({ locale, experiences }: ExperiencesProps) {
   const dict = getDictionary(locale);
   const [expandedId, setExpandedId] = useState<string | null>(experiences[0]?.id || null);
@@ -21,7 +29,7 @@ export function Experiences({ locale, experiences }: ExperiencesProps) {
 
   return (
     <section id="experience" className="space-y-4 pt-4">
-      <Reveal delay={0.1} yOffset={14}>
+      <Reveal delay={0.1} yOffset={12}>
         <h2 className="text-xl font-bold tracking-tight text-ink">
           {dict.experience.title}
         </h2>
@@ -37,24 +45,18 @@ export function Experiences({ locale, experiences }: ExperiencesProps) {
             exp.endDate ? exp.endDate : dict.experience.present
           }`;
 
-          // Stylized monogram
-          const monogram = exp.company
-            .split(" ")
-            .map((w) => w[0])
-            .slice(0, 2)
-            .join("")
-            .toUpperCase();
+          const iconClass = getCompanyIcon(exp.company);
 
           return (
-            <Reveal key={exp.id} delay={0.1 + idx * 0.05} yOffset={12}>
+            <Reveal key={exp.id} delay={0.1 + idx * 0.05} yOffset={10}>
               <div
                 onClick={() => toggleExpand(exp.id)}
-                className="group rounded-xl border border-border/60 bg-surface/40 hover:bg-surface/80 p-3.5 sm:p-4 transition-all cursor-pointer"
+                className="group rounded-xl border border-border bg-white hover:border-zinc-400 p-3.5 sm:p-4 transition-all shadow-xs cursor-pointer"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="size-10 sm:size-11 rounded-full border border-border bg-canvas flex items-center justify-center font-bold text-xs text-ink shrink-0 group-hover:scale-105 transition-transform">
-                      {monogram}
+                    <div className="size-10 sm:size-11 rounded-full border border-border bg-zinc-50 flex items-center justify-center text-zinc-800 shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
+                      <span className={`${iconClass} size-5 inline-block shrink-0 text-zinc-900`} />
                     </div>
 
                     <div className="min-w-0">
@@ -86,10 +88,10 @@ export function Experiences({ locale, experiences }: ExperiencesProps) {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: "easeOut" }}
+                      transition={{ duration: 0.22, ease: "easeOut" }}
                       className="overflow-hidden"
                     >
-                      <ul className="mt-3.5 pt-3 border-t border-border/50 space-y-1.5 text-xs text-ink-muted leading-relaxed pl-4 list-disc marker:text-ink/60">
+                      <ul className="mt-3.5 pt-3 border-t border-border/60 space-y-1.5 text-xs text-ink-muted leading-relaxed pl-4 list-disc marker:text-zinc-600">
                         {highlights.map((item, hIdx) => (
                           <li key={hIdx}>{item}</li>
                         ))}

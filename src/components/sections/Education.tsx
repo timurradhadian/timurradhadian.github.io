@@ -8,6 +8,14 @@ interface EducationProps {
   educations?: EducationType[];
 }
 
+function getSchoolIcon(school: string): string {
+  const normalized = school.toLowerCase();
+  if (normalized.includes("google") || normalized.includes("bangkit")) {
+    return "icon-[simple-icons--google]";
+  }
+  return "icon-[lucide--graduation-cap]";
+}
+
 export function Education({ locale, educations = [] }: EducationProps) {
   const dict = getDictionary(locale);
 
@@ -15,7 +23,7 @@ export function Education({ locale, educations = [] }: EducationProps) {
 
   return (
     <section id="education" className="space-y-4 pt-4">
-      <Reveal delay={0.1} yOffset={14}>
+      <Reveal delay={0.1} yOffset={12}>
         <h2 className="text-xl font-bold tracking-tight text-ink">
           {dict.education.title}
         </h2>
@@ -30,20 +38,15 @@ export function Education({ locale, educations = [] }: EducationProps) {
             edu.endDate ? edu.endDate : dict.experience.present
           }`;
 
-          const monogram = edu.school
-            .split(" ")
-            .map((w) => w[0])
-            .slice(0, 2)
-            .join("")
-            .toUpperCase();
+          const iconClass = getSchoolIcon(edu.school);
 
           return (
-            <Reveal key={edu.id} delay={0.1 + idx * 0.05} yOffset={12}>
-              <div className="group rounded-xl border border-border/60 bg-surface/40 hover:bg-surface/80 p-3.5 sm:p-4 transition-all">
+            <Reveal key={edu.id} delay={0.1 + idx * 0.05} yOffset={10}>
+              <div className="group rounded-xl border border-border bg-white hover:border-zinc-400 p-3.5 sm:p-4 transition-all shadow-xs">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="size-10 sm:size-11 rounded-full border border-border bg-canvas flex items-center justify-center font-bold text-xs text-ink shrink-0 group-hover:scale-105 transition-transform">
-                      {monogram}
+                    <div className="size-10 sm:size-11 rounded-full border border-border bg-zinc-50 flex items-center justify-center text-zinc-900 shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
+                      <span className={`${iconClass} size-5 inline-block shrink-0`} />
                     </div>
 
                     <div className="min-w-0">

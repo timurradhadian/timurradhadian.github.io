@@ -15,7 +15,7 @@ export function NdaBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full font-medium uppercase tracking-wide bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 backdrop-blur-xs ${
+      className={`inline-flex items-center gap-1 rounded-full font-medium uppercase tracking-wide bg-amber-50 text-amber-800 border border-amber-200 shadow-2xs ${
         isSm ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-0.5 text-xs"
       } ${className}`}
       title="Confidential client work - details protected by Non-Disclosure Agreement"

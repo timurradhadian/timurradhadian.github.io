@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
 import {
   motion,
@@ -53,7 +53,7 @@ function DockIcon({
       style={{ width, height: width }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative flex items-center justify-center rounded-full bg-surface/80 border border-border/70 hover:border-border text-ink hover:text-ink transition-colors shadow-xs"
+      className="relative flex items-center justify-center rounded-full bg-white border border-border/80 hover:border-zinc-400 text-ink shadow-xs transition-colors"
     >
       <AnimatePresence>
         {hovered && (
@@ -62,7 +62,7 @@ function DockIcon({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute -top-9 px-2 py-0.5 rounded-md text-[11px] font-medium bg-ink text-canvas border border-border shadow-md whitespace-nowrap pointer-events-none z-50"
+            className="absolute -top-9 px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-zinc-900 text-white border border-zinc-800 shadow-md whitespace-nowrap pointer-events-none z-50"
           >
             {item.title}
           </motion.div>
@@ -111,28 +111,6 @@ export function FloatingDock({
 }: FloatingDockProps) {
   const dict = getDictionary(locale);
   const mouseX = useMotionValue(Infinity);
-  const [isDark, setIsDark] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    // Check initial theme class or storage
-    const hasDarkClass = document.documentElement.classList.contains("dark");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    setIsDark(hasDarkClass || (localStorage.getItem("theme") === "dark") || (!localStorage.getItem("theme") && prefersDark));
-  }, []);
-
-  const toggleTheme = () => {
-    const nextDark = !isDark;
-    setIsDark(nextDark);
-    if (nextDark) {
-      document.documentElement.classList.add("dark");
-      document.documentElement.classList.remove("light");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      document.documentElement.classList.add("light");
-      localStorage.setItem("theme", "light");
-    }
-  };
 
   const navItems: DockItemData[] = [
     { title: dict.dock.home, icon: "icon-[lucide--home]", href: `#hero` },
@@ -145,8 +123,8 @@ export function FloatingDock({
   ];
 
   const socialItems: DockItemData[] = [
-    { title: dict.dock.github, icon: "icon-[lucide--github]", href: githubUrl, external: true },
-    { title: dict.dock.linkedin, icon: "icon-[lucide--linkedin]", href: linkedinUrl, external: true },
+    { title: dict.dock.github, icon: "icon-[simple-icons--github]", href: githubUrl, external: true },
+    { title: dict.dock.linkedin, icon: "icon-[simple-icons--linkedin]", href: linkedinUrl, external: true },
     { title: dict.dock.email, icon: "icon-[lucide--mail]", href: `mailto:${email}`, external: true },
   ];
 
@@ -161,7 +139,7 @@ export function FloatingDock({
       <motion.div
         onMouseMove={(e) => mouseX.set(e.pageX)}
         onMouseLeave={() => mouseX.set(Infinity)}
-        className="flex items-center gap-1 sm:gap-1.5 p-1.5 sm:p-2 rounded-full border border-border/80 bg-canvas/85 dark:bg-canvas/90 backdrop-blur-md shadow-lg"
+        className="flex items-center gap-1 sm:gap-1.5 p-1.5 sm:p-2 rounded-full border border-border/80 bg-white/90 backdrop-blur-md shadow-lg"
       >
         {/* Navigation Sections */}
         {navItems.map((item) => (
@@ -183,26 +161,12 @@ export function FloatingDock({
         <Link
           href={targetHref}
           aria-label={dict.dock.switchLang}
-          className="relative flex size-9.5 sm:size-10 items-center justify-center rounded-full bg-surface/80 border border-border/70 hover:border-border text-ink hover:text-ink transition-transform hover:scale-110 active:scale-95 shadow-xs focus-visible:outline-2 focus-visible:outline-ink focus-visible:outline-offset-2"
+          className="relative flex size-9.5 sm:size-10 items-center justify-center rounded-full bg-white border border-border/80 hover:border-zinc-400 text-ink shadow-xs transition-transform hover:scale-110 active:scale-95 focus-visible:outline-2 focus-visible:outline-ink focus-visible:outline-offset-2"
         >
-          <span className="font-mono text-xs font-bold uppercase tracking-tight">
+          <span className="font-mono text-xs font-bold uppercase tracking-tight text-ink">
             {targetLang}
           </span>
         </Link>
-
-        {/* Theme Toggle Button */}
-        <button
-          type="button"
-          onClick={toggleTheme}
-          aria-label={dict.dock.toggleTheme}
-          className="relative flex size-9.5 sm:size-10 items-center justify-center rounded-full bg-surface/80 border border-border/70 hover:border-border text-ink hover:text-ink transition-transform hover:scale-110 active:scale-95 shadow-xs focus-visible:outline-2 focus-visible:outline-ink focus-visible:outline-offset-2 cursor-pointer"
-        >
-          {isDark ? (
-            <span className="icon-[lucide--sun] size-4 inline-block" aria-hidden="true" />
-          ) : (
-            <span className="icon-[lucide--moon] size-4 inline-block" aria-hidden="true" />
-          )}
-        </button>
       </motion.div>
     </nav>
   );

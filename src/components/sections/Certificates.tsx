@@ -8,6 +8,16 @@ interface CertificatesProps {
   certificates: Certificate[];
 }
 
+function getIssuerIcon(issuer: string, title: string): string {
+  const normalized = `${issuer} ${title}`.toLowerCase();
+  if (normalized.includes("aws") || normalized.includes("amazon")) return "icon-[simple-icons--amazonwebservices]";
+  if (normalized.includes("meta")) return "icon-[simple-icons--meta]";
+  if (normalized.includes("google")) return "icon-[simple-icons--google]";
+  if (normalized.includes("linux") || normalized.includes("kubernetes") || normalized.includes("cncf")) return "icon-[simple-icons--linuxfoundation]";
+  if (normalized.includes("alibaba")) return "icon-[simple-icons--alibabacloud]";
+  return "icon-[lucide--award]";
+}
+
 export function Certificates({ locale, certificates }: CertificatesProps) {
   const dict = getDictionary(locale);
 
@@ -16,18 +26,18 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
       {/* Centered Section Header */}
       <div className="flex flex-col items-center text-center space-y-2">
         <Reveal delay={0.05} yOffset={10}>
-          <span className="inline-block rounded-md bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900 px-3 py-1 text-xs font-semibold shadow-xs">
+          <span className="inline-block rounded-md bg-zinc-900 text-white px-3 py-1 text-xs font-semibold shadow-xs">
             {dict.certificates.badge}
           </span>
         </Reveal>
 
-        <Reveal delay={0.1} yOffset={14}>
+        <Reveal delay={0.1} yOffset={12}>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-ink">
             {dict.certificates.title}
           </h2>
         </Reveal>
 
-        <Reveal delay={0.15} yOffset={14}>
+        <Reveal delay={0.15} yOffset={12}>
           <p className="text-sm sm:text-base text-ink-muted max-w-xl mx-auto leading-relaxed">
             {dict.certificates.subtitle}
           </p>
@@ -35,26 +45,19 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
       </div>
 
       {/* Timeline List */}
-      <div className="relative pl-6 sm:pl-8 space-y-6 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-border/60">
+      <div className="relative pl-6 sm:pl-8 space-y-5 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-zinc-200">
         {certificates.map((cert, idx) => {
-          const monogram = cert.issuer
-            ? cert.issuer
-                .split(" ")
-                .map((w) => w[0])
-                .slice(0, 2)
-                .join("")
-                .toUpperCase()
-            : "CERT";
+          const iconClass = getIssuerIcon(cert.issuer, cert.title);
 
           return (
-            <Reveal key={cert.id} delay={0.1 + idx * 0.05} yOffset={12}>
+            <Reveal key={cert.id} delay={0.1 + idx * 0.04} yOffset={10}>
               <div className="relative group">
                 {/* Timeline Node Bullet */}
-                <div className="absolute -left-6 sm:-left-8 top-1.5 size-6 sm:size-7 rounded-full border border-border bg-canvas flex items-center justify-center font-bold text-[10px] text-ink group-hover:scale-110 transition-transform shadow-xs">
-                  {monogram}
+                <div className="absolute -left-6 sm:-left-8 top-2 size-6 sm:size-7 rounded-full border border-border bg-white flex items-center justify-center text-zinc-900 group-hover:scale-110 transition-transform shadow-xs">
+                  <span className={`${iconClass} size-3.5 inline-block shrink-0`} />
                 </div>
 
-                <div className="rounded-xl border border-border/70 bg-surface/40 hover:bg-surface/80 p-4 transition-all space-y-2">
+                <div className="rounded-xl border border-border bg-white hover:border-zinc-400 p-4 transition-all space-y-2 shadow-xs">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h3 className="font-semibold text-sm sm:text-base text-ink">
@@ -68,7 +71,7 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/40 text-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/50 text-xs">
                     {cert.credentialId ? (
                       <span className="font-mono text-[11px] text-ink-muted">
                         ID: {cert.credentialId}
@@ -82,7 +85,7 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
                         href={cert.credentialUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-ink hover:underline"
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-900 hover:underline"
                       >
                         <span>{dict.certificates.verifyLink}</span>
                         <span className="icon-[lucide--external-link] size-3 inline-block" />
