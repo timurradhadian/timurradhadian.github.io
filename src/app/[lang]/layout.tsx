@@ -4,6 +4,8 @@ import { LOCALES, getDictionary } from "@/lib/i18n";
 import { getPortfolioData } from "@/lib/api";
 import { FloatingDock } from "@/components/ui/FloatingDock";
 import { Footer } from "@/components/layout/Footer";
+import { Particles } from "@/components/ui/Particles";
+import { DotPattern } from "@/components/ui/DotPattern";
 
 export async function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
@@ -24,7 +26,27 @@ export default async function LocaleLayout({
   const dict = getDictionary(locale);
 
   return (
-    <div className="flex min-h-screen flex-col bg-canvas text-ink transition-colors selection:bg-zinc-900 selection:text-white">
+    <div className="flex min-h-screen flex-col bg-canvas text-ink transition-colors selection:bg-zinc-900 selection:text-white relative overflow-x-hidden">
+      {/* Top Ambient Particle & Dot Pattern Banner */}
+      <div className="absolute top-0 left-0 right-0 h-48 sm:h-64 w-full overflow-hidden pointer-events-none -z-10 [mask-image:linear-gradient(to_bottom,white_35%,transparent_100%)]">
+        <DotPattern
+          width={15}
+          height={15}
+          cx={1}
+          cy={1}
+          cr={1}
+          className="fill-zinc-400/35"
+        />
+        <Particles
+          className="absolute inset-0 size-full"
+          quantity={130}
+          ease={70}
+          size={0.6}
+          color="#18181b"
+          refresh
+        />
+      </div>
+
       <a href="#main-content" className="skip-link">
         {dict.common.skipToContent}
       </a>
