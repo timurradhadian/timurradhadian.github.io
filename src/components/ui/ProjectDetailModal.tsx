@@ -110,23 +110,31 @@ export function ProjectDetailModal({
   const activeDict = contextDict || fallbackDict || getDictionary(activeLocale);
 
   const [activeProject, setActiveProject] = useState<Project | null>(project);
+  const [prevProject, setPrevProject] = useState<Project | null>(project);
   const [activeTab, setActiveTab] = useState<"overview" | "details">("overview");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  // Sync active project and reset states when project prop changes
-  useEffect(() => {
+  // Sync active project state immediately when project prop updates
+  if (project && project !== prevProject) {
+    setPrevProject(project);
     setActiveProject(project);
     const hasSum = Boolean(
-      (project?.clientSummary && project.clientSummary.trim().length > 0) ||
-      (project?.clientSummaryId && project.clientSummaryId.trim().length > 0) ||
-      (project?.clientSummaryEn && project.clientSummaryEn.trim().length > 0)
+      (project.clientSummary && project.clientSummary.trim().length > 0) ||
+      (project.clientSummaryId && project.clientSummaryId.trim().length > 0) ||
+      (project.clientSummaryEn && project.clientSummaryEn.trim().length > 0)
     );
     setActiveTab(hasSum ? "overview" : "details");
     setSelectedImageIndex(0);
     setLightboxIndex(null);
+  } else if (!project && prevProject !== null) {
+    setPrevProject(null);
+    setLightboxIndex(null);
+  }
 
+  // Load additional details from Glio when project is opened
+  useEffect(() => {
     if (!project) return;
 
     // If non-NDA project and missing full description or documents, fetch fresh from Glio
@@ -349,12 +357,13 @@ export function ProjectDetailModal({
       : `Hello Timur, I saw your project "${title}" in your portfolio and would like to consult about building a similar software system.`;
   }, [activeProject, isNda, activeLocale, title]);
 
-  // Early return only after all React Hooks have been declared
-  if (!project || !activeProject) return null;
+  const isOpen = Boolean(project && activeProject);
 
-  const activeShowcase = galleryItems[selectedImageIndex] || galleryItems[0];
+  const activeShowcase = activeProject
+    ? galleryItems[selectedImageIndex] || galleryItems[0]
+    : null;
   const rawShowcaseUrl =
-    activeShowcase?.url || activeProject.bannerImage || activeProject.thumbnailUrl;
+    activeShowcase?.url || activeProject?.bannerImage || activeProject?.thumbnailUrl;
   const currentShowcaseUrl = isValidImageUrl(rawShowcaseUrl) ? rawShowcaseUrl : "";
   const currentShowcaseName = activeShowcase?.name || title;
 
@@ -374,25 +383,62 @@ export function ProjectDetailModal({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 bg-white flex flex-col h-screen w-screen overflow-hidden">
-        {/* =========================================================================
-            STICKY FULL-WIDTH TOP NAVIGATION BAR
-        ========================================================================= */}
-        <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-zinc-200/90 shadow-2xs">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between gap-3 sm:gap-4">
-            {/* Left: Back / Close Action */}
-            <div className="flex items-center gap-3 min-w-0">
-              <button
-                type="button"
-                onClick={onClose}
-                className="group inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 hover:text-zinc-950 font-medium text-xs sm:text-sm shadow-2xs transition-all cursor-pointer shrink-0"
-              >
-                <span className="icon-[lucide--arrow-left] size-4 text-zinc-500 group-hover:text-zinc-900 group-hover:-translate-x-0.5 transition-transform" />
-                <span className="hidden xs:inline">{activeDict.projects.backButton}</span>
-                <span className="hidden sm:inline-block font-mono text-[10px] text-zinc-400 border border-zinc-200 rounded px-1 ml-0.5">
-                  Esc
-                </span>
-              </button>
+      {isOpen && activeProject && (
+        <div className="fixed inset-0 z-50 overflow-hidden">
+          {/* Animated Dim Backdrop with Blur */}
+          <motion.div
+            key="project-modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.28, ease: "easeInOut" }}
+            onClick={onClose}
+            className="fixed inset-0 bg-zinc-950/60 backdrop-blur-xs z-0 cursor-pointer"
+          />
+
+          {/* Animated Fullscreen Sheet Modal */}
+          <motion.div
+            key={`project-modal-sheet-${activeProject.id || activeProject.slug}`}
+            initial={{ opacity: 0, y: 36, scale: 0.985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{
+              opacity: 0,
+              y: 28,
+              scale: 0.985,
+              transition: { duration: 0.22, ease: [0.32, 0, 0.67, 0] },
+            }}
+            transition={{
+              duration: 0.35,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            className="relative z-10 size-full bg-white flex flex-col h-screen w-screen overflow-hidden shadow-2xl"
+          >
+            {/* =========================================================================
+                STICKY FULL-WIDTH TOP NAVIGATION BAR
+            ========================================================================= */}
+            <motion.header
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: 0.06, ease: "easeOut" }}
+              className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-zinc-200/90 shadow-2xs"
+            >
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between gap-3 sm:gap-4">
+                {/* Left: Back / Close Action */}
+                <div className="flex items-center gap-3 min-w-0">
+                  <motion.button
+                    type="button"
+                    onClick={onClose}
+                    whileHover={{ scale: 1.02, x: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    className="group inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 hover:text-zinc-950 font-medium text-xs sm:text-sm shadow-2xs transition-colors cursor-pointer shrink-0"
+                  >
+                    <span className="icon-[lucide--arrow-left] size-4 text-zinc-500 group-hover:text-zinc-900 group-hover:-translate-x-0.5 transition-transform" />
+                    <span className="hidden xs:inline">{activeDict.projects.backButton}</span>
+                    <span className="hidden sm:inline-block font-mono text-[10px] text-zinc-400 border border-zinc-200 rounded px-1 ml-0.5">
+                      Esc
+                    </span>
+                  </motion.button>
 
               <div className="h-4 w-px bg-zinc-200 hidden sm:block shrink-0" />
 
@@ -436,14 +482,17 @@ export function ProjectDetailModal({
                 </a>
               )}
 
-              <button
+              <motion.button
                 type="button"
                 onClick={onClose}
+                whileHover={{ scale: 1.08, rotate: 90 }}
+                whileTap={{ scale: 0.92 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 aria-label={activeDict.projects.closeModal}
                 className="size-8 sm:size-9 rounded-xl bg-zinc-100 hover:bg-zinc-200/80 text-zinc-700 hover:text-zinc-950 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <span className="icon-[lucide--x] size-4" />
-              </button>
+              </motion.button>
             </div>
           </div>
 
@@ -499,12 +548,17 @@ export function ProjectDetailModal({
               </div>
             </div>
           )}
-        </header>
+        </motion.header>
 
         {/* =========================================================================
             MAIN SCROLLABLE CONTENT AREA
         ========================================================================= */}
-        <div className="flex-1 overflow-y-auto overscroll-contain bg-zinc-50/40">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1, ease: "easeOut" }}
+          className="flex-1 overflow-y-auto overscroll-contain bg-zinc-50/40"
+        >
           <main className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-8 space-y-6">
             {/* =========================================================================
                 PROJECT BANNER & THUMBNAILS SHOWCASE (ALWAYS VISIBLE AT TOP)
@@ -856,7 +910,7 @@ export function ProjectDetailModal({
               )}
             </AnimatePresence>
           </main>
-        </div>
+        </motion.div>
 
         {/* =========================================================================
             SCREENSHOT LIGHTBOX OVERLAY
@@ -954,7 +1008,9 @@ export function ProjectDetailModal({
               </div>
             </motion.div>
           )}
-      </div>
+          </motion.div>
+        </div>
+      )}
     </AnimatePresence>
   );
 }
