@@ -21,17 +21,21 @@ export function Skills({ locale, skills }: SkillsProps) {
       </Reveal>
 
       <Reveal delay={0.15} yOffset={12}>
-        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+        <div className="flex flex-wrap gap-2">
           {skills.map((skill) => {
-            const iconClass = getTechIcon(skill.name);
+            const techInfo = getTechIcon(skill.name);
 
             return (
               <span
                 key={skill.id}
-                className="inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium bg-zinc-900 text-white hover:scale-105 active:scale-95 transition-all shadow-xs cursor-default"
+                className="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium bg-white text-zinc-800 border border-zinc-200/90 shadow-2xs hover:border-zinc-300 hover:shadow-xs hover:bg-zinc-50/70 transition-all cursor-default"
               >
-                <span className={`${iconClass} size-3.5 inline-block shrink-0`} aria-hidden="true" />
-                <span>{skill.name}</span>
+                <span
+                  className={`${techInfo.iconClass} size-4 inline-block shrink-0`}
+                  style={{ color: techInfo.color }}
+                  aria-hidden="true"
+                />
+                <span className="font-medium text-zinc-800">{skill.name}</span>
               </span>
             );
           })}

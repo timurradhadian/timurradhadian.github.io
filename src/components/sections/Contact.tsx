@@ -14,7 +14,7 @@ export function Contact({ locale, profile }: ContactProps) {
   return (
     <section id="contact" className="space-y-6 pt-10 pb-8 text-center">
       <Reveal delay={0.05} yOffset={10}>
-        <span className="inline-block rounded-md bg-zinc-900 text-white px-3 py-1 text-xs font-semibold shadow-xs">
+        <span className="inline-block rounded-md bg-zinc-100 text-zinc-900 border border-zinc-200 px-3 py-1 text-xs font-semibold shadow-2xs">
           {dict.contact.badge}
         </span>
       </Reveal>
@@ -45,9 +45,9 @@ export function Contact({ locale, profile }: ContactProps) {
             href={profile.linkedinUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border bg-white text-ink hover:bg-zinc-50 font-semibold text-xs sm:text-sm hover:scale-105 active:scale-95 transition-all shadow-2xs"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-semibold text-xs sm:text-sm hover:scale-105 active:scale-95 transition-all shadow-2xs"
           >
-            <span className="icon-[simple-icons--linkedin] size-4 inline-block" />
+            <span className="icon-[simple-icons--linkedin] size-4 inline-block text-[#0A66C2]" />
             <span>LinkedIn</span>
           </a>
         </div>

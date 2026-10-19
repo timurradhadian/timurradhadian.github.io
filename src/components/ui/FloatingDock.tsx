@@ -24,6 +24,7 @@ interface DockItemData {
   icon: string;
   href: string;
   external?: boolean;
+  color?: string;
 }
 
 function DockIcon({
@@ -53,7 +54,7 @@ function DockIcon({
       style={{ width, height: width }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative flex items-center justify-center rounded-full bg-white border border-border/80 hover:border-zinc-400 text-ink shadow-xs transition-colors"
+      className="relative flex items-center justify-center rounded-full bg-white border border-zinc-200/90 hover:border-zinc-400 text-zinc-800 shadow-xs transition-colors"
     >
       <AnimatePresence>
         {hovered && (
@@ -73,7 +74,10 @@ function DockIcon({
         style={{ scale: iconScale }}
         className="flex items-center justify-center"
       >
-        <span className={`${item.icon} size-4 sm:size-4.5 inline-block shrink-0`} />
+        <span
+          className={`${item.icon} size-4 sm:size-4.5 inline-block shrink-0`}
+          style={item.color ? { color: item.color } : undefined}
+        />
       </motion.div>
     </motion.div>
   );
@@ -85,7 +89,7 @@ function DockIcon({
         target="_blank"
         rel="noopener noreferrer"
         aria-label={item.title}
-        className="focus-visible:outline-2 focus-visible:outline-ink focus-visible:outline-offset-2 rounded-full"
+        className="focus-visible:outline-2 focus-visible:outline-zinc-900 focus-visible:outline-offset-2 rounded-full"
       >
         {content}
       </a>
@@ -96,7 +100,7 @@ function DockIcon({
     <a
       href={item.href}
       aria-label={item.title}
-      className="focus-visible:outline-2 focus-visible:outline-ink focus-visible:outline-offset-2 rounded-full"
+      className="focus-visible:outline-2 focus-visible:outline-zinc-900 focus-visible:outline-offset-2 rounded-full"
     >
       {content}
     </a>
@@ -123,9 +127,9 @@ export function FloatingDock({
   ];
 
   const socialItems: DockItemData[] = [
-    { title: dict.dock.github, icon: "icon-[simple-icons--github]", href: githubUrl, external: true },
-    { title: dict.dock.linkedin, icon: "icon-[simple-icons--linkedin]", href: linkedinUrl, external: true },
-    { title: dict.dock.email, icon: "icon-[lucide--mail]", href: `mailto:${email}`, external: true },
+    { title: dict.dock.github, icon: "icon-[simple-icons--github]", href: githubUrl, external: true, color: "#181717" },
+    { title: dict.dock.linkedin, icon: "icon-[simple-icons--linkedin]", href: linkedinUrl, external: true, color: "#0A66C2" },
+    { title: dict.dock.email, icon: "icon-[lucide--mail]", href: `mailto:${email}`, external: true, color: "#2563EB" },
   ];
 
   const targetLang = locale === "en" ? "id" : "en";
@@ -139,7 +143,7 @@ export function FloatingDock({
       <motion.div
         onMouseMove={(e) => mouseX.set(e.pageX)}
         onMouseLeave={() => mouseX.set(Infinity)}
-        className="flex items-center gap-1 sm:gap-1.5 p-1.5 sm:p-2 rounded-full border border-border/80 bg-white/90 backdrop-blur-md shadow-lg"
+        className="flex items-center gap-1 sm:gap-1.5 p-1.5 sm:p-2 rounded-full border border-zinc-200/90 bg-white/90 backdrop-blur-md shadow-lg"
       >
         {/* Navigation Sections */}
         {navItems.map((item) => (
@@ -147,23 +151,23 @@ export function FloatingDock({
         ))}
 
         {/* Separator */}
-        <div className="h-6 w-px bg-border/80 mx-0.5 sm:mx-1" aria-hidden="true" />
+        <div className="h-6 w-px bg-zinc-200 mx-0.5 sm:mx-1" aria-hidden="true" />
 
-        {/* Social Links */}
+        {/* Social Links with Brand Colors */}
         {socialItems.map((item) => (
           <DockIcon key={item.title} mouseX={mouseX} item={item} />
         ))}
 
         {/* Separator */}
-        <div className="h-6 w-px bg-border/80 mx-0.5 sm:mx-1" aria-hidden="true" />
+        <div className="h-6 w-px bg-zinc-200 mx-0.5 sm:mx-1" aria-hidden="true" />
 
         {/* Language Switcher */}
         <Link
           href={targetHref}
           aria-label={dict.dock.switchLang}
-          className="relative flex size-9.5 sm:size-10 items-center justify-center rounded-full bg-white border border-border/80 hover:border-zinc-400 text-ink shadow-xs transition-transform hover:scale-110 active:scale-95 focus-visible:outline-2 focus-visible:outline-ink focus-visible:outline-offset-2"
+          className="relative flex size-9.5 sm:size-10 items-center justify-center rounded-full bg-white border border-zinc-200/90 hover:border-zinc-400 text-zinc-900 shadow-xs transition-transform hover:scale-110 active:scale-95 focus-visible:outline-2 focus-visible:outline-zinc-900 focus-visible:outline-offset-2"
         >
-          <span className="font-mono text-xs font-bold uppercase tracking-tight text-ink">
+          <span className="font-mono text-xs font-bold uppercase tracking-tight text-zinc-900">
             {targetLang}
           </span>
         </Link>

@@ -11,12 +11,30 @@ interface ExperiencesProps {
   experiences: Experience[];
 }
 
-function getCompanyIcon(company: string): string {
+function getCompanyBadge(company: string): { icon: string; className: string } {
   const normalized = company.toLowerCase();
-  if (normalized.includes("sejati")) return "icon-[lucide--layers]";
-  if (normalized.includes("tanjung") || normalized.includes("dsn")) return "icon-[lucide--factory]";
-  if (normalized.includes("tech") || normalized.includes("digital")) return "icon-[lucide--cpu]";
-  return "icon-[lucide--briefcase]";
+  if (normalized.includes("sejati")) {
+    return {
+      icon: "icon-[lucide--layers]",
+      className: "bg-blue-50 text-blue-600 border-blue-200",
+    };
+  }
+  if (normalized.includes("tanjung") || normalized.includes("dsn")) {
+    return {
+      icon: "icon-[lucide--factory]",
+      className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    };
+  }
+  if (normalized.includes("tech") || normalized.includes("digital")) {
+    return {
+      icon: "icon-[lucide--cpu]",
+      className: "bg-purple-50 text-purple-600 border-purple-200",
+    };
+  }
+  return {
+    icon: "icon-[lucide--briefcase]",
+    className: "bg-zinc-50 text-zinc-700 border-zinc-200",
+  };
 }
 
 export function Experiences({ locale, experiences }: ExperiencesProps) {
@@ -45,39 +63,41 @@ export function Experiences({ locale, experiences }: ExperiencesProps) {
             exp.endDate ? exp.endDate : dict.experience.present
           }`;
 
-          const iconClass = getCompanyIcon(exp.company);
+          const badge = getCompanyBadge(exp.company);
 
           return (
             <Reveal key={exp.id} delay={0.1 + idx * 0.05} yOffset={10}>
               <div
                 onClick={() => toggleExpand(exp.id)}
-                className="group rounded-xl border border-border bg-white hover:border-zinc-400 p-3.5 sm:p-4 transition-all shadow-xs cursor-pointer"
+                className="group rounded-xl border border-zinc-200/90 bg-white hover:border-zinc-300 p-3.5 sm:p-4 transition-all shadow-xs cursor-pointer"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="size-10 sm:size-11 rounded-full border border-border bg-zinc-50 flex items-center justify-center text-zinc-800 shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
-                      <span className={`${iconClass} size-5 inline-block shrink-0 text-zinc-900`} />
+                    <div
+                      className={`size-10 sm:size-11 rounded-xl border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs ${badge.className}`}
+                    >
+                      <span className={`${badge.icon} size-5 inline-block shrink-0`} />
                     </div>
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <h3 className="font-semibold text-sm sm:text-base text-ink truncate group-hover:text-ink">
+                        <h3 className="font-semibold text-sm sm:text-base text-zinc-900 truncate">
                           {exp.company}
                         </h3>
                         <span
-                          className={`icon-[lucide--chevron-right] size-3.5 text-ink-muted transition-transform duration-200 ${
-                            isExpanded ? "rotate-90" : ""
+                          className={`icon-[lucide--chevron-right] size-3.5 text-zinc-400 transition-transform duration-200 ${
+                            isExpanded ? "rotate-90 text-zinc-700" : ""
                           }`}
                           aria-hidden="true"
                         />
                       </div>
-                      <p className="text-xs sm:text-sm text-ink-muted truncate">
+                      <p className="text-xs sm:text-sm text-zinc-600 truncate">
                         {position}
                       </p>
                     </div>
                   </div>
 
-                  <div className="text-xs text-ink-muted tabular-nums shrink-0 text-right">
+                  <div className="text-xs text-zinc-500 tabular-nums shrink-0 text-right">
                     {dateDisplay}
                   </div>
                 </div>
@@ -91,7 +111,7 @@ export function Experiences({ locale, experiences }: ExperiencesProps) {
                       transition={{ duration: 0.22, ease: "easeOut" }}
                       className="overflow-hidden"
                     >
-                      <ul className="mt-3.5 pt-3 border-t border-border/60 space-y-1.5 text-xs text-ink-muted leading-relaxed pl-4 list-disc marker:text-zinc-600">
+                      <ul className="mt-3.5 pt-3 border-t border-zinc-100 space-y-1.5 text-xs text-zinc-600 leading-relaxed pl-4 list-disc marker:text-zinc-400">
                         {highlights.map((item, hIdx) => (
                           <li key={hIdx}>{item}</li>
                         ))}

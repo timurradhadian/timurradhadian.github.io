@@ -40,7 +40,7 @@ export function FeaturedProjects({
       {/* Centered Section Header */}
       <div className="flex flex-col items-center text-center space-y-2">
         <Reveal delay={0.05} yOffset={10}>
-          <span className="inline-block rounded-md bg-zinc-900 text-white px-3 py-1 text-xs font-semibold shadow-xs">
+          <span className="inline-block rounded-md bg-zinc-100 text-zinc-900 border border-zinc-200 px-3 py-1 text-xs font-semibold shadow-2xs">
             {dict.projects.badge}
           </span>
         </Reveal>
@@ -59,14 +59,14 @@ export function FeaturedProjects({
 
         {/* Filter Pills */}
         <Reveal delay={0.2} yOffset={10}>
-          <div className="inline-flex items-center gap-1.5 p-1 rounded-xl border border-border bg-white mt-4 text-xs font-medium shadow-2xs">
+          <div className="inline-flex items-center gap-1.5 p-1 rounded-xl border border-zinc-200 bg-white mt-4 text-xs font-medium shadow-2xs">
             <button
               type="button"
               onClick={() => setFilter("featured")}
               className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
                 filter === "featured"
                   ? "bg-zinc-900 text-white font-semibold shadow-xs"
-                  : "text-ink-muted hover:text-ink"
+                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50"
               }`}
             >
               {dict.projects.filterFeatured} ({projects.length || 6})
@@ -77,7 +77,7 @@ export function FeaturedProjects({
               className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
                 filter === "all"
                   ? "bg-zinc-900 text-white font-semibold shadow-xs"
-                  : "text-ink-muted hover:text-ink"
+                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50"
               }`}
             >
               {dict.projects.filterAll} ({combinedProjects.length})
@@ -88,7 +88,7 @@ export function FeaturedProjects({
               className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
                 filter === "nda"
                   ? "bg-zinc-900 text-white font-semibold shadow-xs"
-                  : "text-ink-muted hover:text-ink"
+                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50"
               }`}
             >
               {dict.projects.filterNda}
@@ -116,11 +116,11 @@ export function FeaturedProjects({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="group relative rounded-xl border border-border bg-white flex flex-col justify-between overflow-hidden hover:border-zinc-400 hover:shadow-md transition-all"
+                className="group relative rounded-xl border border-zinc-200/90 bg-white flex flex-col justify-between overflow-hidden hover:border-zinc-300 hover:shadow-md transition-all shadow-xs"
               >
                 <div>
                   {/* Thumbnail / Media Container */}
-                  <div className="relative aspect-video w-full overflow-hidden bg-zinc-50 border-b border-border/70">
+                  <div className="relative aspect-video w-full overflow-hidden bg-zinc-50 border-b border-zinc-200/70">
                     {project.thumbnailUrl ? (
                       <Image
                         src={project.thumbnailUrl}
@@ -147,7 +147,7 @@ export function FeaturedProjects({
                   {/* Card Body */}
                   <div className="p-4 space-y-2">
                     <div className="flex items-center justify-between gap-2">
-                      <h3 className="font-semibold text-sm sm:text-base text-ink line-clamp-1 group-hover:text-ink">
+                      <h3 className="font-semibold text-sm sm:text-base text-zinc-900 line-clamp-1 group-hover:text-zinc-950">
                         {title}
                       </h3>
                       {project.projectUrl && (
@@ -156,38 +156,46 @@ export function FeaturedProjects({
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-label={`Open ${title}`}
-                          className="text-ink-muted hover:text-ink shrink-0"
+                          className="text-zinc-400 hover:text-zinc-800 shrink-0 transition-colors"
                         >
                           <span className="icon-[lucide--external-link] size-3.5 inline-block" />
                         </a>
                       )}
                     </div>
 
-                    <p className="text-[11px] font-mono text-ink-muted uppercase tracking-wider">
+                    <p className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
                       {category}
                     </p>
 
-                    <p className="text-xs text-ink-muted leading-relaxed line-clamp-3">
+                    <p className="text-xs text-zinc-600 leading-relaxed line-clamp-3">
                       {summary}
                     </p>
                   </div>
                 </div>
 
-                {/* Card Footer: Tech Stack with Iconify Icons & Links */}
+                {/* Card Footer: Tech Stack with Colorful Iconify Icons & Links */}
                 <div className="p-4 pt-0 space-y-3">
                   {project.techStack && project.techStack.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
-                      {project.techStack.slice(0, 5).map((tech) => (
-                        <span
-                          key={tech}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200/80"
-                        >
-                          <span className={`${getTechIcon(tech)} size-2.5 inline-block shrink-0`} aria-hidden="true" />
-                          <span>{tech}</span>
-                        </span>
-                      ))}
+                      {project.techStack.slice(0, 5).map((tech) => {
+                        const techInfo = getTechIcon(tech);
+
+                        return (
+                          <span
+                            key={tech}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium bg-zinc-50 text-zinc-700 border border-zinc-200/80 shadow-2xs"
+                          >
+                            <span
+                              className={`${techInfo.iconClass} size-3 inline-block shrink-0`}
+                              style={{ color: techInfo.color }}
+                              aria-hidden="true"
+                            />
+                            <span>{tech}</span>
+                          </span>
+                        );
+                      })}
                       {project.techStack.length > 5 && (
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-zinc-100 text-zinc-600 border border-zinc-200/80">
+                        <span className="px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-50 text-zinc-500 border border-zinc-200/80">
                           +{project.techStack.length - 5}
                         </span>
                       )}
@@ -195,13 +203,13 @@ export function FeaturedProjects({
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex items-center gap-2 pt-2 border-t border-border/50 text-xs">
+                  <div className="flex items-center gap-2 pt-2.5 border-t border-zinc-100 text-xs">
                     {project.projectUrl && (
                       <a
                         href={project.projectUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 text-white font-medium text-[11px] hover:bg-zinc-800 transition-colors shadow-2xs"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-medium text-xs hover:bg-zinc-800 transition-colors shadow-2xs"
                       >
                         <span className="icon-[lucide--globe] size-3 inline-block" />
                         <span>{dict.projects.website}</span>
@@ -213,7 +221,7 @@ export function FeaturedProjects({
                         href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border bg-white text-ink hover:bg-zinc-50 font-medium text-[11px] transition-colors shadow-2xs"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-medium text-xs transition-colors shadow-2xs"
                       >
                         <span className="icon-[simple-icons--github] size-3 inline-block" />
                         <span>{dict.projects.source}</span>
@@ -221,9 +229,9 @@ export function FeaturedProjects({
                     )}
 
                     {project.isNda && (
-                      <span className="text-[11px] text-amber-700 italic flex items-center gap-1 font-medium">
+                      <span className="text-[11px] text-amber-800 italic flex items-center gap-1 font-medium bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
                         <span className="icon-[lucide--lock] size-3 inline-block" />
-                        <span>NDA</span>
+                        <span>NDA Protected</span>
                       </span>
                     )}
                   </div>

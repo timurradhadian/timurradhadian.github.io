@@ -8,12 +8,19 @@ interface EducationProps {
   educations?: EducationType[];
 }
 
-function getSchoolIcon(school: string): string {
+function getSchoolBadge(school: string): { icon: string; className: string; iconColor?: string } {
   const normalized = school.toLowerCase();
   if (normalized.includes("google") || normalized.includes("bangkit")) {
-    return "icon-[simple-icons--google]";
+    return {
+      icon: "icon-[simple-icons--google]",
+      className: "bg-blue-50 border-blue-200 text-[#4285F4]",
+      iconColor: "#4285F4",
+    };
   }
-  return "icon-[lucide--graduation-cap]";
+  return {
+    icon: "icon-[lucide--graduation-cap]",
+    className: "bg-amber-50 border-amber-200 text-amber-700",
+  };
 }
 
 export function Education({ locale, educations = [] }: EducationProps) {
@@ -38,28 +45,33 @@ export function Education({ locale, educations = [] }: EducationProps) {
             edu.endDate ? edu.endDate : dict.experience.present
           }`;
 
-          const iconClass = getSchoolIcon(edu.school);
+          const badge = getSchoolBadge(edu.school);
 
           return (
             <Reveal key={edu.id} delay={0.1 + idx * 0.05} yOffset={10}>
-              <div className="group rounded-xl border border-border bg-white hover:border-zinc-400 p-3.5 sm:p-4 transition-all shadow-xs">
+              <div className="group rounded-xl border border-zinc-200/90 bg-white hover:border-zinc-300 p-3.5 sm:p-4 transition-all shadow-xs">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="size-10 sm:size-11 rounded-full border border-border bg-zinc-50 flex items-center justify-center text-zinc-900 shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
-                      <span className={`${iconClass} size-5 inline-block shrink-0`} />
+                    <div
+                      className={`size-10 sm:size-11 rounded-xl border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs ${badge.className}`}
+                    >
+                      <span
+                        className={`${badge.icon} size-5 inline-block shrink-0`}
+                        style={badge.iconColor ? { color: badge.iconColor } : undefined}
+                      />
                     </div>
 
                     <div className="min-w-0">
-                      <h3 className="font-semibold text-sm sm:text-base text-ink truncate">
+                      <h3 className="font-semibold text-sm sm:text-base text-zinc-900 truncate">
                         {edu.school}
                       </h3>
-                      <p className="text-xs sm:text-sm text-ink-muted truncate">
+                      <p className="text-xs sm:text-sm text-zinc-600 truncate">
                         {degree} {field ? `• ${field}` : ""}
                       </p>
                     </div>
                   </div>
 
-                  <div className="text-xs text-ink-muted tabular-nums shrink-0 text-right">
+                  <div className="text-xs text-zinc-500 tabular-nums shrink-0 text-right">
                     {dateDisplay}
                   </div>
                 </div>

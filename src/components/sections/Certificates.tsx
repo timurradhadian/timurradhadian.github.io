@@ -8,14 +8,24 @@ interface CertificatesProps {
   certificates: Certificate[];
 }
 
-function getIssuerIcon(issuer: string, title: string): string {
+function getIssuerInfo(issuer: string, title: string): { icon: string; color: string; bgClass: string } {
   const normalized = `${issuer} ${title}`.toLowerCase();
-  if (normalized.includes("aws") || normalized.includes("amazon")) return "icon-[simple-icons--amazonwebservices]";
-  if (normalized.includes("meta")) return "icon-[simple-icons--meta]";
-  if (normalized.includes("google")) return "icon-[simple-icons--google]";
-  if (normalized.includes("linux") || normalized.includes("kubernetes") || normalized.includes("cncf")) return "icon-[simple-icons--linuxfoundation]";
-  if (normalized.includes("alibaba")) return "icon-[simple-icons--alibabacloud]";
-  return "icon-[lucide--award]";
+  if (normalized.includes("aws") || normalized.includes("amazon")) {
+    return { icon: "icon-[simple-icons--amazonwebservices]", color: "#FF9900", bgClass: "bg-amber-50 border-amber-200" };
+  }
+  if (normalized.includes("meta")) {
+    return { icon: "icon-[simple-icons--meta]", color: "#0668E1", bgClass: "bg-blue-50 border-blue-200" };
+  }
+  if (normalized.includes("google")) {
+    return { icon: "icon-[simple-icons--google]", color: "#4285F4", bgClass: "bg-blue-50 border-blue-200" };
+  }
+  if (normalized.includes("linux") || normalized.includes("kubernetes") || normalized.includes("cncf")) {
+    return { icon: "icon-[simple-icons--linuxfoundation]", color: "#003366", bgClass: "bg-slate-50 border-slate-200" };
+  }
+  if (normalized.includes("alibaba")) {
+    return { icon: "icon-[simple-icons--alibabacloud]", color: "#FF6A00", bgClass: "bg-orange-50 border-orange-200" };
+  }
+  return { icon: "icon-[lucide--award]", color: "#4F46E5", bgClass: "bg-indigo-50 border-indigo-200" };
 }
 
 export function Certificates({ locale, certificates }: CertificatesProps) {
@@ -26,7 +36,7 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
       {/* Centered Section Header */}
       <div className="flex flex-col items-center text-center space-y-2">
         <Reveal delay={0.05} yOffset={10}>
-          <span className="inline-block rounded-md bg-zinc-900 text-white px-3 py-1 text-xs font-semibold shadow-xs">
+          <span className="inline-block rounded-md bg-zinc-100 text-zinc-900 border border-zinc-200 px-3 py-1 text-xs font-semibold shadow-2xs">
             {dict.certificates.badge}
           </span>
         </Reveal>
@@ -45,35 +55,40 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
       </div>
 
       {/* Timeline List */}
-      <div className="relative pl-6 sm:pl-8 space-y-5 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-zinc-200">
+      <div className="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-zinc-200">
         {certificates.map((cert, idx) => {
-          const iconClass = getIssuerIcon(cert.issuer, cert.title);
+          const issuerInfo = getIssuerInfo(cert.issuer, cert.title);
 
           return (
             <Reveal key={cert.id} delay={0.1 + idx * 0.04} yOffset={10}>
               <div className="relative group">
                 {/* Timeline Node Bullet */}
-                <div className="absolute -left-6 sm:-left-8 top-2 size-6 sm:size-7 rounded-full border border-border bg-white flex items-center justify-center text-zinc-900 group-hover:scale-110 transition-transform shadow-xs">
-                  <span className={`${iconClass} size-3.5 inline-block shrink-0`} />
+                <div
+                  className={`absolute -left-6 sm:-left-8 top-2 size-6 sm:size-7 rounded-full border flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs ${issuerInfo.bgClass}`}
+                >
+                  <span
+                    className={`${issuerInfo.icon} size-3.5 inline-block shrink-0`}
+                    style={{ color: issuerInfo.color }}
+                  />
                 </div>
 
-                <div className="rounded-xl border border-border bg-white hover:border-zinc-400 p-4 transition-all space-y-2 shadow-xs">
+                <div className="rounded-xl border border-zinc-200/90 bg-white hover:border-zinc-300 p-4 transition-all space-y-2 shadow-xs">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="font-semibold text-sm sm:text-base text-ink">
+                      <h3 className="font-semibold text-sm sm:text-base text-zinc-900">
                         {cert.title}
                       </h3>
-                      <p className="text-xs text-ink-muted">{cert.issuer}</p>
+                      <p className="text-xs text-zinc-600">{cert.issuer}</p>
                     </div>
 
-                    <div className="text-xs text-ink-muted tabular-nums shrink-0 text-right">
+                    <div className="text-xs text-zinc-500 tabular-nums shrink-0 text-right">
                       {cert.issueDate}
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/50 text-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-zinc-100 text-xs">
                     {cert.credentialId ? (
-                      <span className="font-mono text-[11px] text-ink-muted">
+                      <span className="font-mono text-[11px] text-zinc-500">
                         ID: {cert.credentialId}
                       </span>
                     ) : (
@@ -85,7 +100,7 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
                         href={cert.credentialUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-900 hover:underline"
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-900 hover:text-blue-600 transition-colors"
                       >
                         <span>{dict.certificates.verifyLink}</span>
                         <span className="icon-[lucide--external-link] size-3 inline-block" />
