@@ -207,6 +207,9 @@ function normalizeGlioProject(raw: Record<string, unknown>, idx: number): Projec
     isFeatured: false,
     isNda: Boolean(raw.isNda),
     isProfessional: Boolean(raw.isProfessional),
+    startDate: (raw.startDate as string) || undefined,
+    endDate: (raw.endDate as string) || undefined,
+    status: (raw.status as string) || undefined,
     order: typeof raw.order === "number" ? raw.order : idx,
   };
 }
@@ -470,6 +473,9 @@ function mergePortfolioProjects(
             ? base.techStack
             : sejatiNda?.techStack || [],
         thumbnailUrl: base.thumbnailUrl || sejatiNda?.thumbnailUrl || "",
+        startDate: sejatiNda?.startDate || base.startDate,
+        endDate: sejatiNda?.endDate || base.endDate,
+        status: sejatiNda?.status || base.status,
         isFeatured: false,
         isNda: true,
         isProfessional: true,

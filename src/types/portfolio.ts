@@ -28,6 +28,9 @@ export interface Project {
   isFeatured?: boolean;
   isNda?: boolean;
   isProfessional?: boolean;
+  startDate?: string;
+  endDate?: string | null;
+  status?: string;
   order?: number;
 }
 

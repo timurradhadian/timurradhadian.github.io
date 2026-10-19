@@ -8,6 +8,7 @@ import { getDictionary, getLocalized } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
 import { NdaBadge } from "@/components/ui/NdaBadge";
 import { getTechIcon } from "@/lib/tech-icons";
+import { ProjectDetailModal } from "@/components/ui/ProjectDetailModal";
 
 interface FeaturedProjectsProps {
   locale: Locale;
@@ -24,6 +25,7 @@ export function FeaturedProjects({
 }: FeaturedProjectsProps) {
   const dict = getDictionary(locale);
   const [filter, setFilter] = useState<"featured" | "all">("featured");
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const combinedProjects = allProjects.length > 0 ? allProjects : projects;
 
@@ -104,7 +106,8 @@ export function FeaturedProjects({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="group relative rounded-xl border border-zinc-200/90 bg-white flex flex-col justify-between overflow-hidden hover:border-zinc-300 hover:shadow-md transition-all shadow-xs"
+                onClick={() => setSelectedProject(project)}
+                className="group relative rounded-xl border border-zinc-200/90 bg-white flex flex-col justify-between overflow-hidden hover:border-zinc-300 hover:shadow-md transition-all shadow-xs cursor-pointer"
               >
                 <div>
                   {/* Thumbnail / Media Container */}
@@ -147,6 +150,7 @@ export function FeaturedProjects({
                           href={project.projectUrl}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
                           aria-label={`Open ${title}`}
                           className="text-zinc-400 hover:text-zinc-800 shrink-0 transition-colors"
                         >
@@ -189,12 +193,26 @@ export function FeaturedProjects({
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex items-center gap-2 pt-1 text-xs">
+                  <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
+                    {/* Detail Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedProject(project);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200/90 text-zinc-800 font-medium text-xs transition-colors cursor-pointer shadow-2xs"
+                    >
+                      <span className="icon-[lucide--info] size-3 inline-block text-zinc-600" />
+                      <span>{dict.projects.viewDetails}</span>
+                    </button>
+
                     {project.projectUrl && (
                       <a
                         href={project.projectUrl}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-medium text-xs hover:bg-zinc-800 transition-colors shadow-2xs"
                       >
                         <span className="icon-[lucide--globe] size-3 inline-block" />
@@ -207,6 +225,7 @@ export function FeaturedProjects({
                         href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-medium text-xs transition-colors shadow-2xs"
                       >
                         <span className="icon-[simple-icons--github] size-3 inline-block" />
@@ -227,6 +246,15 @@ export function FeaturedProjects({
           })}
         </AnimatePresence>
       </motion.div>
+
+      {/* Full Modal Project Detail */}
+      <ProjectDetailModal
+        project={selectedProject}
+        onClose={() => setSelectedProject(null)}
+        locale={locale}
+        dict={dict}
+        ndaBlurEnabled={ndaBlurEnabled}
+      />
     </section>
   );
 }

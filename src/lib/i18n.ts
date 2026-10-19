@@ -39,6 +39,17 @@ export interface Dictionary {
     ndaBadge: string;
     ndaExplanation: string;
     stackLabel: string;
+    viewDetails: string;
+    closeModal: string;
+    confidentialStamp: string;
+    confidentialNotice: string;
+    redactedLabel: string;
+    overview: string;
+    techStackTitle: string;
+    proprietaryNotice: string;
+    timeline: string;
+    status: string;
+    statusCompleted: string;
   };
   experience: {
     title: string;
@@ -131,6 +142,18 @@ export const dictionaries: Record<Locale, Dictionary> = {
       ndaExplanation:
         "Detail teknis dan repositori dibatasi untuk mematuhi perjanjian kerahasiaan klien.",
       stackLabel: "Teknologi",
+      viewDetails: "Lihat Detail",
+      closeModal: "Tutup Detail",
+      confidentialStamp: "DOKUMEN RAHASIA // TERIKAT NDA",
+      confidentialNotice:
+        "Informasi arsitektur internal, repositori kode, dan data proprietary disensor untuk mematuhi regulasi kerahasiaan perusahaan (Non-Disclosure Agreement).",
+      redactedLabel: "Disensor di Bawah NDA",
+      overview: "Ringkasan Proyek",
+      techStackTitle: "Teknologi yang Digunakan",
+      proprietaryNotice: "Repositori & Kode Sumber Terkunci (Proprietary)",
+      timeline: "Periode Pengerjaan",
+      status: "Status Proyek",
+      statusCompleted: "Selesai",
     },
     experience: {
       title: "Pengalaman Kerja",
@@ -225,6 +248,18 @@ export const dictionaries: Record<Locale, Dictionary> = {
       ndaExplanation:
         "Technical details and code repositories are restricted to comply with client confidentiality agreements.",
       stackLabel: "Technologies",
+      viewDetails: "View Details",
+      closeModal: "Close Details",
+      confidentialStamp: "CONFIDENTIAL // NDA PROTECTED",
+      confidentialNotice:
+        "Internal system architecture, source repositories, and proprietary metrics are redacted to comply with corporate Non-Disclosure Agreements.",
+      redactedLabel: "Redacted under NDA",
+      overview: "Project Overview",
+      techStackTitle: "Technologies Used",
+      proprietaryNotice: "Proprietary Source Code Locked",
+      timeline: "Timeline",
+      status: "Project Status",
+      statusCompleted: "Completed",
     },
     experience: {
       title: "Work Experience",
