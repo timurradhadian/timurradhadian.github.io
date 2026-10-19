@@ -4,7 +4,8 @@ Versi 1.1 | Status: Draft | Pemilik: Timur Dian Radha Sejati | Tanggal: 19 Oktob
 
 ## 1. Ringkasan
 
-Website portofolio personal untuk seorang software engineer yang menampilkan proyek, pengalaman kerja, keahlian, dan sertifikat. Konten tidak ditulis manual di kode, melainkan diambil dari dua sumber: **Glio Headless CMS** (master konten) dan **SejatiDimedia API** (6 proyek unggulan yang disinkronkan dari portal agency). Situs dibangun dengan **Next.js, Tailwind CSS, Iconify, dan Framer Motion**, lalu di-hosting gratis di **GitHub Pages** (`github.io`) sebagai situs statis.
+Website portofolio personal untuk seorang software engineer yang menampilkan proyek, pengalaman kerja, keahlian, dan sertifikat. Konten tidak ditulis manual di kode, melainkan diambil dari dua sumber: **Glio Headless CMS** (master konten) dan **SejatiDimedia API** (6 proyek unggulan yang disinkronkan dari portal
+ agency). Situs dibangun dengan **Next.js, Tailwind CSS, Iconify, dan Framer Motion**, lalu di-hosting gratis di **GitHub Pages** (`github.io`) sebagai situs statis.
 
 ## 2. Latar Belakang dan Masalah
 

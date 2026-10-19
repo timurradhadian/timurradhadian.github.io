@@ -57,15 +57,6 @@ export function Hero({ locale, profile }: HeroProps) {
               className="size-full object-cover transition-transform duration-500 hover:scale-105"
             />
           </m.div>
-
-          {/* Active status pulse badge */}
-          <span
-            className="absolute bottom-1 right-1 flex size-3.5 sm:size-4 items-center justify-center pointer-events-none"
-            title="Available"
-          >
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex size-2.5 sm:size-3 rounded-full bg-emerald-500 ring-2 ring-white" />
-          </span>
         </div>
       </div>
 
