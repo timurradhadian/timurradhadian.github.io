@@ -127,7 +127,7 @@ export function ProjectDetailModal({
     // If non-NDA project and missing full description or documents, fetch fresh from Glio
     const isNda = checkIsNda(project);
 
-    if (!isNda && (!project.description || !project.documents || project.documents.length === 0)) {
+    if (!project.description || !project.documents || project.documents.length === 0) {
       if (typeof project.slug === "string" && project.slug.trim().length > 0) {
         setIsLoadingDetail(true);
         getProjectDetailFromGlio(project.slug)
@@ -238,8 +238,8 @@ export function ProjectDetailModal({
       });
     }
 
-    // 3. Document Screenshots (if not NDA)
-    if (!checkIsNda(activeProject) && Array.isArray(activeProject.documents)) {
+    // 3. Document Screenshots / Media
+    if (Array.isArray(activeProject.documents)) {
       activeProject.documents.forEach((doc, idx) => {
         if (
           doc &&
@@ -290,9 +290,10 @@ export function ProjectDetailModal({
 
   const summaryContent = useMemo(() => {
     if (!activeProject) return "";
-    return clientSummary && clientSummary.trim().length > 0
-      ? clientSummary
-      : getLocalized(activeProject, "summary", activeLocale);
+    const clientSum = clientSummary && clientSummary.trim().length > 0 ? clientSummary : "";
+    const regularSum = getLocalized(activeProject, "summary", activeLocale) || "";
+    const desc = getLocalized(activeProject, "description", activeLocale) || "";
+    return clientSum || regularSum || desc;
   }, [activeProject, clientSummary, activeLocale]);
 
   const formattedTimeline = useMemo(() => {
@@ -446,9 +447,9 @@ export function ProjectDetailModal({
                       }`}
                   />
                   <span>{activeDict.projects.tabOverview}</span>
-                  {galleryItems.length > 0 && !isNda && (
+                  {galleryItems.length > 0 && (
                     <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono font-medium bg-zinc-100 text-zinc-600 border border-zinc-200">
-                      {galleryItems.length} foto
+                      {galleryItems.length} {isNda ? "media" : "foto"}
                     </span>
                   )}
                 </button>
@@ -534,7 +535,7 @@ export function ProjectDetailModal({
                 )}
 
                 {/* Next / Previous Screen Controls on Hover */}
-                {!isNda && galleryItems.length > 1 && (
+                {galleryItems.length > 1 && (
                   <>
                     <button
                       type="button"
@@ -556,31 +557,40 @@ export function ProjectDetailModal({
                 )}
 
                 {/* Counter & Zoom Indicator in Bottom Right */}
-                {!isNda && galleryItems.length > 0 && (
+                {galleryItems.length > 0 && (
                   <div className="absolute bottom-3 right-3 flex items-center gap-2 z-10">
                     <span className="px-2.5 py-1 rounded-md bg-zinc-900/85 backdrop-blur-xs border border-white/20 text-white font-mono text-[11px] font-medium shadow-xs">
                       {selectedImageIndex + 1} / {galleryItems.length}
                     </span>
-                    <span className="p-1 rounded-md bg-zinc-900/85 backdrop-blur-xs border border-white/20 text-white shadow-xs">
-                      <span className="icon-[lucide--maximize-2] size-3.5 block" />
-                    </span>
+                    {!isNda && (
+                      <span className="p-1 rounded-md bg-zinc-900/85 backdrop-blur-xs border border-white/20 text-white shadow-xs">
+                        <span className="icon-[lucide--maximize-2] size-3.5 block" />
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
 
               {/* =========================================================================
-                  THUMBNAILS DI BAWAH BANNER IMAGE
+                  THUMBNAILS DI BAWAH BANNER IMAGE (WITH BLUR FOR NDA)
               ========================================================================= */}
-              {!isNda && galleryItems.length > 0 && (
+              {galleryItems.length > 0 && (
                 <div className="space-y-2 pt-1">
                   <div className="flex items-center justify-between text-xs text-zinc-500 font-mono">
                     <span className="flex items-center gap-1.5 font-semibold text-zinc-700">
                       <span className="icon-[lucide--image] size-3.5 text-zinc-500" />
                       <span>Thumbnail & Tangkapan Layar ({galleryItems.length})</span>
                     </span>
-                    <span className="text-[11px] text-zinc-400">
-                      Klik thumbnail untuk beralih tampilan
-                    </span>
+                    {isNda ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-mono">
+                        <span className="icon-[lucide--shield-alert] size-3" />
+                        <span>Disensor (NDA Blur)</span>
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-zinc-400">
+                        Klik thumbnail untuk beralih tampilan
+                      </span>
+                    )}
                   </div>
 
                   {/* Scrollable Compact Thumbnails Row */}
@@ -593,8 +603,12 @@ export function ProjectDetailModal({
                           type="button"
                           onClick={() => setSelectedImageIndex(idx)}
                           className={`group relative shrink-0 aspect-[16/10] w-24 sm:w-28 md:w-32 rounded-lg overflow-hidden border transition-all cursor-pointer ${isSelected
-                            ? "ring-2 ring-zinc-950 border-zinc-950 shadow-sm scale-102"
-                            : "border-zinc-200/90 hover:border-zinc-400 opacity-75 hover:opacity-100"
+                            ? isNda
+                              ? "ring-2 ring-amber-500 border-amber-500 shadow-sm scale-102"
+                              : "ring-2 ring-zinc-950 border-zinc-950 shadow-sm scale-102"
+                            : isNda
+                              ? "border-amber-200/90 hover:border-amber-400 opacity-80 hover:opacity-100"
+                              : "border-zinc-200/90 hover:border-zinc-400 opacity-75 hover:opacity-100"
                             }`}
                         >
                           {isValidImageUrl(item.url) && (
@@ -603,11 +617,22 @@ export function ProjectDetailModal({
                               alt={item.name || `Thumbnail ${idx + 1}`}
                               fill
                               sizes="130px"
-                              className="object-cover"
+                              className={`object-cover transition-all duration-300 ${isNda && ndaBlurEnabled
+                                ? "filter blur-[3.5px] scale-110"
+                                : ""
+                                }`}
                             />
                           )}
+                          {isNda && (
+                            <div className="absolute inset-0 bg-zinc-950/25 backdrop-blur-[0.5px] flex items-center justify-center pointer-events-none">
+                              <span className="icon-[lucide--lock] size-3.5 text-amber-300 drop-shadow-xs" />
+                            </div>
+                          )}
                           {isSelected && (
-                            <div className="absolute inset-0 bg-zinc-950/15 pointer-events-none" />
+                            <div
+                              className={`absolute inset-0 pointer-events-none ${isNda ? "bg-amber-500/10" : "bg-zinc-950/15"
+                                }`}
+                            />
                           )}
                           <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/60 to-transparent p-1">
                             <span className="text-[9px] text-white font-mono block truncate leading-tight font-medium">
@@ -703,67 +728,48 @@ export function ProjectDetailModal({
                     )}
                   </div>
 
-                  {/* 2. EXECUTIVE CLIENT SUMMARY (FULL WIDTH SPACIOUS CONTAINER) */}
-                  {!isNda && summaryContent && (
+                  {/* 2. COMPACT NDA NOTICE (SEDIKIT SAJA DI ATAS) */}
+                  {isNda && (
+                    <div className="flex items-start sm:items-center gap-3.5 p-4 rounded-xl border border-amber-200 bg-amber-50/80 text-amber-900 shadow-2xs">
+                      <div className="size-8 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center shrink-0 text-amber-800 mt-0.5 sm:mt-0">
+                        <span className="icon-[lucide--shield-alert] size-4.5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-amber-900 font-mono">
+                            {activeDict.projects.confidentialStamp}
+                          </h4>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-200/80 text-amber-900 font-mono font-medium">
+                            REDACTED
+                          </span>
+                        </div>
+                        <p className="text-xs text-amber-800/90 leading-relaxed mt-0.5">
+                          {activeDict.projects.confidentialNotice}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3. EXECUTIVE CLIENT SUMMARY (ALWAYS SHOWN) */}
+                  {summaryContent ? (
                     <div className="p-6 sm:p-8 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-4">
+                      <div className="flex items-center justify-between pb-2 border-zinc-100">
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-900 font-mono flex items-center gap-2">
+                          <span className="icon-[lucide--file-text] size-4 text-zinc-500" />
+                          <span>{activeDict.projects.clientSummaryTitle}</span>
+                        </h3>
+                        {isNda && (
+                          <span className="text-[11px] font-mono text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded">
+                            Ringkasan Arsitektur
+                          </span>
+                        )}
+                      </div>
                       <MarkdownContent
                         content={summaryContent}
                         className="text-sm sm:text-base text-zinc-700 leading-relaxed"
                       />
                     </div>
-                  )}
-
-                  {/* 2b. NDA CENSORED NOTICE & ARCHITECTURE BOX (FULL WIDTH) */}
-                  {isNda && (
-                    <div className="p-6 sm:p-8 rounded-2xl border border-amber-300 bg-amber-50/60 shadow-2xs space-y-5">
-                      <div className="flex items-start gap-3.5">
-                        <div className="size-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0 text-amber-800 mt-0.5">
-                          <span className="icon-[lucide--shield-alert] size-5" />
-                        </div>
-                        <div className="space-y-1">
-                          <h4 className="text-sm font-bold uppercase tracking-wider text-amber-900">
-                            {activeDict.projects.confidentialStamp}
-                          </h4>
-                          <p className="text-xs sm:text-sm text-amber-800 leading-relaxed">
-                            {activeDict.projects.confidentialNotice}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Redacted Data Fields Simulation */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs pt-1">
-                        <div className="flex items-center justify-between p-3 rounded-xl bg-white/95 border border-amber-200/70 shadow-2xs">
-                          <span className="text-zinc-500 font-medium">Klien / Enterprise:</span>
-                          <span className="bg-zinc-950 text-transparent select-none rounded px-2.5 py-0.5 font-mono text-xs tracking-wider">
-                            ████████
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 rounded-xl bg-white/95 border border-amber-200/70 shadow-2xs">
-                          <span className="text-zinc-500 font-medium">Server Endpoint:</span>
-                          <span className="bg-zinc-950 text-transparent select-none rounded px-2.5 py-0.5 font-mono text-xs tracking-wider">
-                            api.internal.████
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 rounded-xl bg-white/95 border border-amber-200/70 shadow-2xs">
-                          <span className="text-zinc-500 font-medium">Database Cluster:</span>
-                          <span className="bg-zinc-950 text-transparent select-none rounded px-2.5 py-0.5 font-mono text-xs tracking-wider">
-                            cluster-db-████
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 rounded-xl bg-white/95 border border-amber-200/70 shadow-2xs">
-                          <span className="text-zinc-500 font-medium">Source Repository:</span>
-                          <span className="bg-zinc-950 text-transparent select-none rounded px-2.5 py-0.5 font-mono text-xs tracking-wider">
-                            git@gitlab.████
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="text-xs text-amber-800/90 italic flex items-center gap-2 pt-1 border-t border-amber-200/60">
-                        <span className="icon-[lucide--info] size-4 shrink-0 text-amber-700" />
-                        <span>{activeDict.projects.ndaRestrictedGallery}</span>
-                      </div>
-                    </div>
-                  )}
+                  ) : null}
                 </motion.div>
               )}
 

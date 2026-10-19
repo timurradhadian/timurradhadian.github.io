@@ -500,11 +500,13 @@ function mergePortfolioProjects(
         descriptionEn: sejatiNda?.descriptionEn || base.descriptionEn,
         summary: sejatiNda?.summary || base.summary,
         summaryId: sejatiNda?.summaryId || base.summaryId,
-        summaryEn: sejatiNda?.summaryEn || base.summaryEn,
-        clientSummary: undefined,
-        clientSummaryId: undefined,
-        clientSummaryEn: undefined,
-        documents: [],
+        clientSummary: sejatiNda?.clientSummary || base.clientSummary,
+        clientSummaryId: sejatiNda?.clientSummaryId || base.clientSummaryId,
+        clientSummaryEn: sejatiNda?.clientSummaryEn || base.clientSummaryEn,
+        documents:
+          base.documents && base.documents.length > 0
+            ? base.documents
+            : sejatiNda?.documents || [],
         links: [],
         projectUrl: "",
         githubUrl: "",

@@ -60,14 +60,15 @@ export async function getProjectDetailFromGlio(slug: string) {
         ...project,
         isNda: true,
         isProfessional: true,
-        documents: [],
+        documents: project.documents || [],
         links: [],
-        clientSummary: undefined,
-        clientSummaryId: undefined,
-        clientSummaryEn: undefined,
+        clientSummary: project.clientSummary,
+        clientSummaryId: project.clientSummaryId,
+        clientSummaryEn: project.clientSummaryEn,
         projectUrl: "",
         githubUrl: "",
         description:
+          project.description ||
           "### Arsitektur Sistem Internal [DATA DISENSOR DI BAWAH NDA]\n\nImplementasi modul proprietary meliputi integrasi pipeline sensor data real-time, sinkronisasi inventaris multi-gudang, dan enkripsi payload transmisi telemetry pabrik. Dokumentasi detail teknis, skema database relasional, dan source code repositori internal dilindungi oleh Non-Disclosure Agreement (NDA).",
       };
     }
