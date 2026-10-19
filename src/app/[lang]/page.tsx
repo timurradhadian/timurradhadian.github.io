@@ -69,6 +69,7 @@ export default async function PortfolioPage({ params }: PageProps) {
         locale={locale}
         projects={data.featuredProjects}
         allProjects={allProjects}
+        ndaBlurEnabled={data.ndaBlurEnabled}
       />
       <Certificates locale={locale} certificates={data.certificates} />
       <Contact locale={locale} profile={data.profile} />

@@ -13,27 +13,33 @@ interface FeaturedProjectsProps {
   locale: Locale;
   projects: Project[];
   allProjects?: Project[];
+  ndaBlurEnabled?: boolean;
 }
 
 export function FeaturedProjects({
   locale,
   projects,
   allProjects = [],
+  ndaBlurEnabled = true,
 }: FeaturedProjectsProps) {
   const dict = getDictionary(locale);
   const [filter, setFilter] = useState<"featured" | "all" | "nda">("featured");
 
   const combinedProjects = allProjects.length > 0 ? allProjects : projects;
 
+  const ndaProjects = React.useMemo(() => {
+    return combinedProjects.filter((p) => p.isNda);
+  }, [combinedProjects]);
+
   const filteredProjects = React.useMemo(() => {
     if (filter === "featured") {
       return projects.length > 0 ? projects : combinedProjects.slice(0, 6);
     }
     if (filter === "nda") {
-      return combinedProjects.filter((p) => p.isNda);
+      return ndaProjects;
     }
     return combinedProjects;
-  }, [filter, projects, combinedProjects]);
+  }, [filter, projects, combinedProjects, ndaProjects]);
 
   return (
     <section id="projects" className="space-y-6 pt-6">
@@ -91,7 +97,7 @@ export function FeaturedProjects({
                   : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50"
               }`}
             >
-              {dict.projects.filterNda}
+              {dict.projects.filterNda} ({ndaProjects.length})
             </button>
           </div>
         </Reveal>
@@ -127,7 +133,11 @@ export function FeaturedProjects({
                         alt={title}
                         fill
                         sizes="(max-width: 640px) 100vw, 50vw"
-                        className="object-cover transition-transform duration-300 ease-out group-hover:scale-103"
+                        className={`object-cover transition-all duration-300 ease-out group-hover:scale-103 ${
+                          project.isNda && ndaBlurEnabled
+                            ? "filter blur-[2px] group-hover:blur-none"
+                            : ""
+                        }`}
                       />
                     ) : (
                       <div className="flex size-full items-center justify-center p-4 text-center bg-zinc-100">

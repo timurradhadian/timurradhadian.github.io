@@ -27,6 +27,7 @@ export interface Project {
   githubUrl?: string;
   isFeatured?: boolean;
   isNda?: boolean;
+  isProfessional?: boolean;
   order?: number;
 }
 
@@ -124,6 +125,9 @@ export interface PortfolioData {
   profile: Profile;
   featuredProjects: Project[];
   otherProjects: Project[];
+  ndaProjects?: Project[];
+  ndaSlugs?: string[];
+  ndaBlurEnabled?: boolean;
   experiences: Experience[];
   educations?: Education[];
   skills: Skill[];

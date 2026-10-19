@@ -66,20 +66,29 @@ async function fetchFromGlio<T>(endpoint: string): Promise<T> {
   return (await res.json()) as T;
 }
 
-interface SejatiFeaturedPayload {
+interface SejatiPortfolioResponse {
+  success?: boolean;
+  count?: number;
   featuredSlugs?: string[];
   featuredProjects?: Record<string, unknown>[];
+  ndaCount?: number;
+  ndaSlugs?: string[];
+  ndaBlurEnabled?: boolean;
+  ndaProjects?: Record<string, unknown>[];
 }
 
-async function fetchFeaturedFromSejatiDimedia(): Promise<{
+async function fetchSejatiPortfolioData(): Promise<{
   featuredSlugs: string[];
   featuredProjects: Project[];
+  ndaSlugs: string[];
+  ndaProjects: Project[];
+  ndaBlurEnabled: boolean;
 } | null> {
   try {
     const cleanBase = SEJATIDIMEDIA_API_URL.trim().replace(/\/+$/, "");
-    const targetUrl = cleanBase.endsWith("/api/public/featured-projects")
+    const targetUrl = cleanBase.endsWith("/api/public/portfolio")
       ? cleanBase
-      : `${cleanBase}/api/public/featured-projects`;
+      : `${cleanBase}/api/public/portfolio`;
 
     const res = await fetchWithTimeout(targetUrl, {
       headers: {
@@ -90,34 +99,46 @@ async function fetchFeaturedFromSejatiDimedia(): Promise<{
 
     if (!res.ok) {
       console.warn(
-        `[SejatiDimedia API] Status ${res.status} from ${targetUrl}. Falling back to default featured slugs.`
+        `[SejatiDimedia API] Status ${res.status} from ${targetUrl}. Falling back to default featured & NDA slugs.`
       );
       return null;
     }
 
-    const json = (await res.json()) as SejatiFeaturedPayload;
+    const json = (await res.json()) as SejatiPortfolioResponse;
     const featuredSlugs = Array.isArray(json.featuredSlugs)
       ? json.featuredSlugs
       : [];
+    const ndaSlugs = Array.isArray(json.ndaSlugs) ? json.ndaSlugs : [];
+    const ndaBlurEnabled =
+      typeof json.ndaBlurEnabled === "boolean" ? json.ndaBlurEnabled : true;
 
-    const rawProjects = Array.isArray(json.featuredProjects)
+    const rawFeatured = Array.isArray(json.featuredProjects)
       ? json.featuredProjects
-      : Array.isArray(json)
-      ? (json as Record<string, unknown>[])
       : [];
-
-    const featuredProjects = rawProjects.map((p, idx) => ({
+    const featuredProjects = rawFeatured.map((p, idx) => ({
       ...normalizeGlioProject(p, idx),
       isFeatured: true,
+      isNda: false,
+    }));
+
+    const rawNda = Array.isArray(json.ndaProjects) ? json.ndaProjects : [];
+    const ndaProjects = rawNda.map((p, idx) => ({
+      ...normalizeGlioProject(p, idx),
+      isFeatured: false,
+      isNda: true,
+      isProfessional: true,
     }));
 
     return {
       featuredSlugs,
       featuredProjects,
+      ndaSlugs,
+      ndaProjects,
+      ndaBlurEnabled,
     };
   } catch (err) {
     console.warn(
-      `[SejatiDimedia API] Connection failed (${(err as Error).message}). Falling back to default featured slugs.`
+      `[SejatiDimedia API] Connection failed (${(err as Error).message}). Falling back to default featured & NDA slugs.`
     );
     return null;
   }
@@ -169,6 +190,9 @@ function normalizeGlioProject(raw: Record<string, unknown>, idx: number): Projec
     summary: (raw.summary as string) || "",
     summaryId: (raw.summaryId as string) || (raw.summary as string) || "",
     summaryEn: (raw.summaryEn as string) || (raw.summary as string) || "",
+    description: (raw.description as string) || undefined,
+    descriptionId: (raw.descriptionId as string) || (raw.description as string) || undefined,
+    descriptionEn: (raw.descriptionEn as string) || (raw.description as string) || undefined,
     thumbnailUrl,
     techStack,
     projectUrl:
@@ -181,7 +205,8 @@ function normalizeGlioProject(raw: Record<string, unknown>, idx: number): Projec
       (raw.repoUrl as string) ||
       "",
     isFeatured: false,
-    isNda: Boolean(raw.isNda || raw.clientSummary),
+    isNda: Boolean(raw.isNda),
+    isProfessional: Boolean(raw.isProfessional),
     order: typeof raw.order === "number" ? raw.order : idx,
   };
 }
@@ -380,24 +405,84 @@ const DEFAULT_FEATURED_SLUGS = [
   "katsira-point-of-sales",
 ];
 
+const DEFAULT_NDA_SLUGS = [
+  "wood-tracebility-system-industry-manufaktur",
+  "digitalisasi-sistem-bongkar-muat-material-logistik-kayu-industry-manufaktur",
+  "warehouse-management-system-industry-manufaktur",
+  "digitalisasi-import-monitoring-system-industry-manufaktur",
+  "digitalisasi-sistem-surat-jalan-industry-manufaktur",
+  "erp-digitalisasi-produksi-industry-manufaktur",
+  "report--dashboard-industry-manufaktur",
+];
+
 /**
- * Merges SejatiDimedia featured projects with comprehensive Glio project data.
+ * Merges SejatiDimedia featured and NDA projects with comprehensive Glio project data.
  */
-function mergeFeaturedProjects(
-  sejatiResult: { featuredSlugs: string[]; featuredProjects: Project[] } | null,
+function mergePortfolioProjects(
+  sejatiResult: {
+    featuredSlugs: string[];
+    featuredProjects: Project[];
+    ndaSlugs: string[];
+    ndaProjects: Project[];
+    ndaBlurEnabled: boolean;
+  } | null,
   allGlioProjects: Project[]
-): { featuredProjects: Project[]; otherProjects: Project[] } {
+): {
+  featuredProjects: Project[];
+  ndaProjects: Project[];
+  otherProjects: Project[];
+  ndaBlurEnabled: boolean;
+} {
   const glioMap = new Map<string, Project>();
   allGlioProjects.forEach((p) => glioMap.set(p.slug, p));
 
-  const targetSlugs =
+  const targetFeaturedSlugs =
     sejatiResult?.featuredSlugs && sejatiResult.featuredSlugs.length > 0
       ? sejatiResult.featuredSlugs
       : DEFAULT_FEATURED_SLUGS;
 
-  // 1. Resolve featured projects in exact priority order from SejatiDimedia
+  const targetNdaSlugs =
+    sejatiResult?.ndaSlugs && sejatiResult.ndaSlugs.length > 0
+      ? sejatiResult.ndaSlugs
+      : DEFAULT_NDA_SLUGS;
+
+  const sejatiNdaMap = new Map<string, Project>();
+  (sejatiResult?.ndaProjects || []).forEach((p) => sejatiNdaMap.set(p.slug, p));
+
+  // 1. Process & mark NDA projects with rich redacted data
+  const ndaList: Project[] = [];
+  for (const slug of targetNdaSlugs) {
+    const glioProject = glioMap.get(slug);
+    const sejatiNda = sejatiNdaMap.get(slug);
+
+    if (glioProject || sejatiNda) {
+      const base = glioProject || sejatiNda!;
+      const mergedNda: Project = {
+        ...base,
+        description: sejatiNda?.description || base.description,
+        descriptionId: sejatiNda?.descriptionId || base.descriptionId,
+        descriptionEn: sejatiNda?.descriptionEn || base.descriptionEn,
+        summary: sejatiNda?.summary || base.summary,
+        summaryId: sejatiNda?.summaryId || base.summaryId,
+        summaryEn: sejatiNda?.summaryEn || base.summaryEn,
+        techStack:
+          base.techStack && base.techStack.length > 0
+            ? base.techStack
+            : sejatiNda?.techStack || [],
+        thumbnailUrl: base.thumbnailUrl || sejatiNda?.thumbnailUrl || "",
+        isFeatured: false,
+        isNda: true,
+        isProfessional: true,
+      };
+      ndaList.push(mergedNda);
+      // Update entry in glioMap so that otherProjects and allProjects also have isNda: true
+      glioMap.set(slug, mergedNda);
+    }
+  }
+
+  // 2. Resolve featured projects in exact priority order from SejatiDimedia
   let featuredList: Project[] = [];
-  for (const slug of targetSlugs) {
+  for (const slug of targetFeaturedSlugs) {
     const glioProject = glioMap.get(slug);
     if (glioProject) {
       featuredList.push({
@@ -407,7 +492,7 @@ function mergeFeaturedProjects(
     }
   }
 
-  // 2. If any slug was not in Glio, check if SejatiDimedia returned it directly in featuredProjects
+  // If any slug was not in Glio, fallback to Sejati featuredProjects
   if (sejatiResult?.featuredProjects && sejatiResult.featuredProjects.length > 0) {
     const currentSlugs = new Set(featuredList.map((p) => p.slug));
     for (const sp of sejatiResult.featuredProjects) {
@@ -418,18 +503,23 @@ function mergeFeaturedProjects(
     }
   }
 
-  // 3. Fallback: If still empty, take first 6 from allGlioProjects
+  // If still empty, take first 6 from allGlioProjects
   if (featuredList.length === 0) {
     const sorted = [...allGlioProjects].sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
     featuredList = sorted.slice(0, 6).map((p) => ({ ...p, isFeatured: true }));
   }
 
   const featuredSlugsSet = new Set(featuredList.map((p) => p.slug));
-  const otherProjects = allGlioProjects
+  const otherProjects = Array.from(glioMap.values())
     .filter((p) => !featuredSlugsSet.has(p.slug))
     .sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
 
-  return { featuredProjects: featuredList, otherProjects };
+  return {
+    featuredProjects: featuredList,
+    ndaProjects: ndaList,
+    otherProjects,
+    ndaBlurEnabled: sejatiResult?.ndaBlurEnabled ?? true,
+  };
 }
 
 /**
@@ -460,7 +550,7 @@ export async function getPortfolioData(): Promise<PortfolioData> {
       rawCertificates,
       rawSkills,
       rawProjects,
-      sejatiFeatured,
+      sejatiPortfolio,
     ] = await Promise.all([
       fetchFromGlio<Record<string, unknown>>("/about").catch((err) => {
         console.warn("[Glio API] /about fallback to mock:", (err as Error).message);
@@ -474,7 +564,7 @@ export async function getPortfolioData(): Promise<PortfolioData> {
       fetchFromGlio<Record<string, unknown>[]>("/certificates"),
       fetchFromGlio<Record<string, unknown>[]>("/skills"),
       fetchFromGlio<Record<string, unknown>[]>("/projects"),
-      fetchFeaturedFromSejatiDimedia(),
+      fetchSejatiPortfolioData(),
     ]);
 
     const profile = rawAbout
@@ -492,15 +582,16 @@ export async function getPortfolioData(): Promise<PortfolioData> {
     const skills = (rawSkills || []).map(normalizeGlioSkill);
     const allProjects = (rawProjects || []).map(normalizeGlioProject);
 
-    const { featuredProjects, otherProjects } = mergeFeaturedProjects(
-      sejatiFeatured,
-      allProjects
-    );
+    const { featuredProjects, ndaProjects, otherProjects, ndaBlurEnabled } =
+      mergePortfolioProjects(sejatiPortfolio, allProjects);
 
     return {
       profile,
       featuredProjects,
       otherProjects,
+      ndaProjects,
+      ndaSlugs: sejatiPortfolio?.ndaSlugs || DEFAULT_NDA_SLUGS,
+      ndaBlurEnabled,
       experiences: [...experiences].sort((a, b) => (a.order ?? 99) - (b.order ?? 99)),
       educations,
       skills: [...skills].sort((a, b) => (a.order ?? 99) - (b.order ?? 99)),

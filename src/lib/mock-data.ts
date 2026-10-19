@@ -362,4 +362,15 @@ export const mockPortfolioData: PortfolioData = {
       order: 3,
     },
   ],
+  ndaProjects: [],
+  ndaSlugs: [
+    "wood-tracebility-system-industry-manufaktur",
+    "digitalisasi-sistem-bongkar-muat-material-logistik-kayu-industry-manufaktur",
+    "warehouse-management-system-industry-manufaktur",
+    "digitalisasi-import-monitoring-system-industry-manufaktur",
+    "digitalisasi-sistem-surat-jalan-industry-manufaktur",
+    "erp-digitalisasi-produksi-industry-manufaktur",
+    "report--dashboard-industry-manufaktur",
+  ],
+  ndaBlurEnabled: true,
 };
