@@ -16,6 +16,12 @@ function getSchoolBadge(school: string): { icon: string; className: string } {
       className: "bg-white border-zinc-200/90 shadow-2xs",
     };
   }
+  if (normalized.includes("amikom")) {
+    return {
+      icon: "icon-[lucide--graduation-cap]",
+      className: "bg-purple-50 border-purple-200 text-purple-700 shadow-2xs",
+    };
+  }
   return {
     icon: "icon-[lucide--graduation-cap]",
     className: "bg-zinc-50 border-zinc-200 text-zinc-700 shadow-2xs",

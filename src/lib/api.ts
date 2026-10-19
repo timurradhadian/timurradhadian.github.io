@@ -1,7 +1,9 @@
 import {
   Certificate,
+  Education,
   Experience,
   PortfolioData,
+  Profile,
   Project,
   Skill,
 } from "@/types/portfolio";
@@ -211,6 +213,119 @@ function normalizeGlioCertificate(
 /**
  * Normalizes raw Glio skill payload
  */
+/**
+ * Normalizes raw Glio about/profile payload
+ */
+function normalizeGlioProfile(raw: Record<string, unknown>): Profile {
+  const socials = (raw.socials as Record<string, string>) || {};
+
+  const formatGithub = (gh?: string) => {
+    if (!gh || gh === "#") return mockPortfolioData.profile.githubUrl;
+    return gh.startsWith("http") ? gh : `https://github.com/${gh}`;
+  };
+
+  const formatLinkedin = (li?: string) => {
+    if (!li || li === "#") return mockPortfolioData.profile.linkedinUrl;
+    return li.startsWith("http") ? li : `https://linkedin.com/in/${li}`;
+  };
+
+  const formatInstagram = (ig?: string) => {
+    if (!ig || ig === "#") return undefined;
+    return ig.startsWith("http") ? ig : `https://instagram.com/${ig}`;
+  };
+
+  const formatWebsite = (w?: string) => {
+    if (!w || w === "#") return undefined;
+    return w;
+  };
+
+  const aboutId =
+    (raw.aboutId as string) ||
+    (raw.about as string) ||
+    (raw.summaryId as string) ||
+    (raw.descriptionId as string) ||
+    mockPortfolioData.profile.bioId ||
+    "";
+
+  const aboutEn =
+    (raw.aboutEn as string) ||
+    (raw.summaryEn as string) ||
+    (raw.descriptionEn as string) ||
+    aboutId;
+
+  const bioId = (raw.summaryId as string) || (raw.summary as string) || aboutId;
+  const bioEn = (raw.summaryEn as string) || aboutEn;
+
+  const role = (raw.title as string) || mockPortfolioData.profile.role;
+
+  return {
+    name: (raw.name as string) || mockPortfolioData.profile.name,
+    role,
+    roleId: role,
+    roleEn: role,
+    bio: bioId,
+    bioId,
+    bioEn,
+    about: (raw.about as string) || aboutId,
+    aboutId,
+    aboutEn,
+    description: (raw.description as string) || undefined,
+    descriptionId: (raw.descriptionId as string) || undefined,
+    descriptionEn: (raw.descriptionEn as string) || undefined,
+    expertiseId: (raw.expertiseId as string) || undefined,
+    expertiseEn: (raw.expertiseEn as string) || undefined,
+    summary: (raw.summary as string) || undefined,
+    summaryId: (raw.summaryId as string) || undefined,
+    summaryEn: (raw.summaryEn as string) || undefined,
+    email: (raw.email as string) || mockPortfolioData.profile.email,
+    phone: (raw.phone as string) || undefined,
+    bookingLink: (raw.bookingLink as string) || undefined,
+    githubUrl: formatGithub(socials.github),
+    linkedinUrl: formatLinkedin(socials.linkedin),
+    websiteUrl: formatWebsite(socials.website),
+    instagramUrl: formatInstagram(socials.instagram),
+    twitterUrl: socials.twitter && socials.twitter !== "#" ? socials.twitter : undefined,
+    youtubeUrl: socials.youtube && socials.youtube !== "#" ? socials.youtube : undefined,
+    location: (raw.location as string) || mockPortfolioData.profile.location,
+    workExperience: typeof raw.workExperience === "number" ? raw.workExperience : 5,
+    availableForHire: true,
+    avatarUrl: (raw.profileImage as string) || mockPortfolioData.profile.avatarUrl || "/avatar.png",
+  };
+}
+
+/**
+ * Normalizes raw Glio education payload
+ */
+function normalizeGlioEducation(raw: Record<string, unknown>, idx: number): Education {
+  const school = (raw.school as string) || "University";
+  const degree = (raw.degree as string) || "Bachelor Degree";
+  const desc = (raw.description as string) || "";
+  const descId = (raw.descriptionId as string) || desc;
+  const descEn = (raw.descriptionEn as string) || desc;
+  const startDate = (raw.startDate as string) || "";
+  const endDate = (raw.endDate as string) || null;
+
+  return {
+    id: (raw.id as string) || `edu-${idx}`,
+    school,
+    degree,
+    degreeId: (raw.degreeId as string) || degree,
+    degreeEn: (raw.degreeEn as string) || degree,
+    field: desc,
+    fieldId: descId,
+    fieldEn: descEn,
+    description: desc,
+    descriptionId: descId,
+    descriptionEn: descEn,
+    startDate,
+    endDate,
+    order: typeof raw.order === "number" ? raw.order : idx,
+  };
+}
+
+/**
+ * Normalizes raw Glio skill payload
+ */
 function normalizeGlioSkill(raw: Record<string, unknown>, idx: number): Skill {
   return {
     id: (raw.id as string) || `skill-${idx}`,
@@ -285,14 +400,39 @@ export async function getPortfolioData(): Promise<PortfolioData> {
   }
 
   try {
-    const [rawExperiences, rawCertificates, rawSkills, rawProjects, sejatiFeatured] =
-      await Promise.all([
-        fetchFromGlio<Record<string, unknown>[]>("/experiences"),
-        fetchFromGlio<Record<string, unknown>[]>("/certificates"),
-        fetchFromGlio<Record<string, unknown>[]>("/skills"),
-        fetchFromGlio<Record<string, unknown>[]>("/projects"),
-        fetchFeaturedFromSejatiDimedia(),
-      ]);
+    const [
+      rawAbout,
+      rawEducations,
+      rawExperiences,
+      rawCertificates,
+      rawSkills,
+      rawProjects,
+      sejatiFeatured,
+    ] = await Promise.all([
+      fetchFromGlio<Record<string, unknown>>("/about").catch((err) => {
+        console.warn("[Glio API] /about fallback to mock:", (err as Error).message);
+        return null;
+      }),
+      fetchFromGlio<Record<string, unknown>[]>("/educations").catch((err) => {
+        console.warn("[Glio API] /educations fallback to mock:", (err as Error).message);
+        return null;
+      }),
+      fetchFromGlio<Record<string, unknown>[]>("/experiences"),
+      fetchFromGlio<Record<string, unknown>[]>("/certificates"),
+      fetchFromGlio<Record<string, unknown>[]>("/skills"),
+      fetchFromGlio<Record<string, unknown>[]>("/projects"),
+      fetchFeaturedFromSejatiDimedia(),
+    ]);
+
+    const profile = rawAbout
+      ? normalizeGlioProfile(rawAbout)
+      : mockPortfolioData.profile;
+
+    const glioEducations = (rawEducations || []).map(normalizeGlioEducation);
+    const educations =
+      glioEducations.length > 0
+        ? [...glioEducations].sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
+        : mockPortfolioData.educations;
 
     const experiences = (rawExperiences || []).map(normalizeGlioExperience);
     const certificates = (rawCertificates || []).map(normalizeGlioCertificate);
@@ -305,11 +445,11 @@ export async function getPortfolioData(): Promise<PortfolioData> {
     );
 
     return {
-      profile: mockPortfolioData.profile,
+      profile,
       featuredProjects,
       otherProjects,
       experiences: [...experiences].sort((a, b) => (a.order ?? 99) - (b.order ?? 99)),
-      educations: mockPortfolioData.educations,
+      educations,
       skills: [...skills].sort((a, b) => (a.order ?? 99) - (b.order ?? 99)),
       certificates: [...certificates].sort((a, b) => (a.order ?? 99) - (b.order ?? 99)),
     };

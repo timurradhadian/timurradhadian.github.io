@@ -66,6 +66,9 @@ export interface Education {
   field?: string;
   fieldId?: string;
   fieldEn?: string;
+  description?: string;
+  descriptionId?: string;
+  descriptionEn?: string;
   startDate: string;
   endDate?: string | null;
   location?: string;
@@ -91,10 +94,28 @@ export interface Profile {
   bio: string;
   bioId?: string;
   bioEn?: string;
+  about?: string;
+  aboutId?: string;
+  aboutEn?: string;
+  description?: string;
+  descriptionId?: string;
+  descriptionEn?: string;
+  expertiseId?: string;
+  expertiseEn?: string;
+  summary?: string;
+  summaryId?: string;
+  summaryEn?: string;
   email: string;
+  phone?: string;
+  bookingLink?: string;
   githubUrl: string;
   linkedinUrl: string;
+  websiteUrl?: string;
+  instagramUrl?: string;
+  twitterUrl?: string;
+  youtubeUrl?: string;
   location: string;
+  workExperience?: number;
   availableForHire?: boolean;
   avatarUrl?: string;
 }

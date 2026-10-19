@@ -13,6 +13,10 @@ export function Hero({ locale, profile }: HeroProps) {
   const dict = getDictionary(locale);
   const localizedRole = getLocalized(profile, "role", locale);
   const localizedBio = getLocalized(profile, "bio", locale);
+  const localizedAbout =
+    (locale === "en" ? profile.aboutEn : profile.aboutId) ||
+    profile.about ||
+    dict.hero.aboutBio;
 
   const avatarSrc = profile.avatarUrl || "/avatar.png";
 
@@ -57,8 +61,8 @@ export function Hero({ locale, profile }: HeroProps) {
         </Reveal>
 
         <Reveal delay={0.2} yOffset={12}>
-          <p className="text-sm sm:text-base text-ink-muted leading-relaxed">
-            {dict.hero.aboutBio}
+          <p className="text-sm sm:text-base text-ink-muted leading-relaxed whitespace-pre-line">
+            {localizedAbout}
           </p>
         </Reveal>
       </div>
