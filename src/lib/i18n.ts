@@ -127,7 +127,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
     hero: {
       title: "Halo, saya Timur Dian",
       description:
-        "Software Engineer Fullstack & Arsitek Web. Berfokus pada sistem web performa tinggi, arsitektur headless, dan aplikasi skala enterprise yang terukur.",
+        "Software Engineer Fullstack, Berfokus pada sistem web performa tinggi, arsitektur headless, dan aplikasi skala enterprise yang terukur.",
       aboutTitle: "Tentang",
       aboutBio:
         "Software Engineer Fullstack dan Arsitek Web dengan pengalaman merancang sistem web performa tinggi, arsitektur headless modern, serta aplikasi terdistribusi. Saat ini memimpin rekayasa platform digital di SejatiDimedia, mengembangkan produk web skala produksi dengan Next.js, Go, TypeScript, Node.js, dan arsitektur cloud teruji.",
@@ -248,7 +248,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
     hero: {
       title: "Hi, I'm Timur Dian",
       description:
-        "Fullstack Software Engineer & Web Architect. Focused on high-performance web systems, headless architectures, and scalable enterprise applications.",
+        "Fullstack Software Engineer, Focused on high-performance web systems, headless architectures, and scalable enterprise applications.",
       aboutTitle: "About",
       aboutBio:
         "Fullstack Software Engineer and Web Architect with a passion for high-performance web systems, headless architectures, and clean code. Currently leading digital platforms and software architecture at SejatiDimedia, building production web systems across Next.js, Go, TypeScript, Node.js, and modern cloud infrastructure.",

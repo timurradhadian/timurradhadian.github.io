@@ -120,7 +120,8 @@ export function ProjectDetailModal({
     setActiveProject(project);
     const hasSum = Boolean(
       (project?.clientSummary && project.clientSummary.trim().length > 0) ||
-      (project?.summary && project.summary.trim().length > 0)
+      (project?.clientSummaryId && project.clientSummaryId.trim().length > 0) ||
+      (project?.clientSummaryEn && project.clientSummaryEn.trim().length > 0)
     );
     setActiveTab(hasSum ? "overview" : "details");
     setSelectedImageIndex(0);
@@ -294,10 +295,10 @@ export function ProjectDetailModal({
 
   const summaryContent = useMemo(() => {
     if (!activeProject) return "";
-    const clientSum = clientSummary && clientSummary.trim().length > 0 ? clientSummary.trim() : "";
-    const regularSum = getLocalized(activeProject, "summary", activeLocale)?.trim() || "";
-    return clientSum || regularSum || "";
-  }, [activeProject, clientSummary, activeLocale]);
+    return clientSummary && clientSummary.trim().length > 0
+      ? clientSummary.trim()
+      : "";
+  }, [activeProject, clientSummary]);
 
   const hasDistinctSummary = useMemo(() => {
     if (!activeProject || !summaryContent || summaryContent.trim().length === 0) return false;
@@ -826,6 +827,11 @@ export function ProjectDetailModal({
                         content={description}
                         className="text-sm sm:text-base text-zinc-700"
                       />
+                    ) : isLoadingDetail ? (
+                      <div className="py-12 flex flex-col items-center justify-center gap-3 text-zinc-400 font-mono text-xs">
+                        <span className="size-5 rounded-full border-2 border-zinc-300 border-t-zinc-700 animate-spin" />
+                        <span>Memuat dokumentasi teknis...</span>
+                      </div>
                     ) : (
                       <div className="text-center py-12 text-zinc-400 font-mono text-sm">
                         Dokumentasi studi kasus teknis belum dipublikasikan.
