@@ -137,15 +137,15 @@ export function ProjectDetailModal({
                 if (!prev || prev.slug !== project.slug) return prev;
                 const documents: ProjectDocument[] = Array.isArray(detail.documents)
                   ? detail.documents
-                      .filter((d: unknown): d is Record<string, unknown> => Boolean(d && typeof d === "object"))
-                      .map((d: Record<string, unknown>, idx: number) => ({
-                        id: (typeof d.id === "string" && d.id) || `doc-${idx}`,
-                        name: (typeof d.name === "string" && d.name) || `Screenshot ${idx + 1}`,
-                        type: (typeof d.type === "string" && d.type) || "image/webp",
-                        url: (typeof d.url === "string" && d.url) || "",
-                        size: typeof d.size === "number" ? d.size : undefined,
-                        order: typeof d.order === "number" ? d.order : idx,
-                      }))
+                    .filter((d: unknown): d is Record<string, unknown> => Boolean(d && typeof d === "object"))
+                    .map((d: Record<string, unknown>, idx: number) => ({
+                      id: (typeof d.id === "string" && d.id) || `doc-${idx}`,
+                      name: (typeof d.name === "string" && d.name) || `Screenshot ${idx + 1}`,
+                      type: (typeof d.type === "string" && d.type) || "image/webp",
+                      url: (typeof d.url === "string" && d.url) || "",
+                      size: typeof d.size === "number" ? d.size : undefined,
+                      order: typeof d.order === "number" ? d.order : idx,
+                    }))
                   : prev.documents || [];
 
                 const rawTech =
@@ -384,9 +384,6 @@ export function ProjectDetailModal({
 
               {/* Title & Category Breadcrumb */}
               <div className="min-w-0 flex items-center gap-2">
-                {isNda && (
-                  <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
-                )}
                 <h2 className="text-sm sm:text-base font-bold text-zinc-900 truncate">
                   {title}
                 </h2>
@@ -417,13 +414,6 @@ export function ProjectDetailModal({
                   <span className="icon-[simple-icons--github] size-3.5" />
                   <span>{activeDict.projects.source}</span>
                 </a>
-              )}
-
-              {isNda && (
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-medium">
-                  <span className="icon-[lucide--lock] size-3.5 text-amber-600" />
-                  <span>{activeDict.projects.proprietaryNotice}</span>
-                </span>
               )}
 
               <button
@@ -543,13 +533,6 @@ export function ProjectDetailModal({
                   </div>
                 )}
 
-                {/* Top Badges overlay on banner screen */}
-                <div className="absolute top-3.5 left-3.5 flex flex-wrap items-center gap-2 z-10 pointer-events-none">
-                  {isNda && (
-                    <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
-                  )}
-                </div>
-
                 {/* Next / Previous Screen Controls on Hover */}
                 {!isNda && galleryItems.length > 1 && (
                   <>
@@ -647,6 +630,9 @@ export function ProjectDetailModal({
               {/* ===================================================================
                   TAB 1: RINGKASAN PROYEK (EXECUTIVE SUMMARY / NDA NOTICE)
               =================================================================== */}
+              {/* ===================================================================
+                  TAB 1: RINGKASAN PROYEK (EXECUTIVE SUMMARY & PROJECT SPECS)
+              =================================================================== */}
               {activeTab === "overview" && (
                 <motion.div
                   key="overview"
@@ -654,27 +640,82 @@ export function ProjectDetailModal({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
-                  className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"
+                  className="space-y-6"
                 >
-                  {/* Left Column: Executive Summary & Case Study CTA (7 cols) */}
-                  <div className="lg:col-span-7 space-y-6">
-                    {/* Executive Client Summary */}
-                    {!isNda && summaryContent && (
-                      <div className="p-6 sm:p-7 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-4">
-                        <div className="flex items-center gap-2.5 text-zinc-900 font-bold text-sm uppercase tracking-wider pb-3 border-b border-zinc-100">
-                          <span className="icon-[lucide--briefcase] size-4.5 text-zinc-700" />
-                          <span>{activeDict.projects.clientSummaryTitle}</span>
+                  {/* 1. SPESIFIKASI PROYEK (FULL-WIDTH MODERN SPECIFICATIONS CARD) */}
+                  <div className="p-5 sm:p-6 rounded-2xl bg-white border border-zinc-200/90 shadow-2xs space-y-4">
+                    {/* Header with Title & Key Meta Badges */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-zinc-100">
+                      <div className="flex items-center gap-2">
+                        <span className="icon-[lucide--sliders-horizontal] size-4.5 text-zinc-700" />
+                        <h3 className="text-xs sm:text-sm font-bold tracking-wider text-zinc-950 uppercase font-mono sm:font-sans">
+                          {activeDict.projects.projectSpecsTitle}
+                        </h3>
+                        {isNda && (
+                          <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
+                        )}
+                      </div>
+
+                      {/* Status & Timeline Badges */}
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-50 border border-zinc-200/80">
+                          <span className="text-zinc-500 font-medium">{activeDict.projects.status}:</span>
+                          <div className="flex items-center gap-1.5 font-bold text-zinc-900">
+                            <span className="icon-[lucide--check-circle-2] size-3.5 text-emerald-600 shrink-0" />
+                            <span>{displayStatus}</span>
+                          </div>
                         </div>
-                        <MarkdownContent
-                          content={summaryContent}
-                          className="text-sm sm:text-base text-zinc-700 leading-relaxed"
-                        />
+
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-50 border border-zinc-200/80">
+                          <span className="text-zinc-500 font-medium">{activeDict.projects.timeline}:</span>
+                          <div className="flex items-center gap-1.5 font-bold text-zinc-900">
+                            <span className="icon-[lucide--calendar] size-3.5 text-zinc-700 shrink-0" />
+                            <span>{formattedTimeline}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Row: Teknologi yang Digunakan */}
+                    {normalizedTechStack.length > 0 && (
+                      <div className="space-y-2 pt-0.5">
+                        <span className="text-xs font-semibold text-zinc-600 block uppercase tracking-wider font-mono">
+                          {activeDict.projects.techUsed}
+                        </span>
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          {normalizedTechStack.map((tech, idx) => {
+                            const techInfo = getTechIcon(tech);
+                            return (
+                              <span
+                                key={`${tech}-${idx}`}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-50 text-zinc-800 border border-zinc-200/90 shadow-2xs hover:bg-zinc-100 transition-colors"
+                              >
+                                <span
+                                  className={`${techInfo.iconClass} size-3.5 shrink-0`}
+                                  aria-hidden="true"
+                                />
+                                <span>{tech}</span>
+                              </span>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
+                  </div>
 
-                  {/* NDA Censored Notice & Redacted Architecture Box */}
+                  {/* 2. EXECUTIVE CLIENT SUMMARY (FULL WIDTH SPACIOUS CONTAINER) */}
+                  {!isNda && summaryContent && (
+                    <div className="p-6 sm:p-8 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-4">
+                      <MarkdownContent
+                        content={summaryContent}
+                        className="text-sm sm:text-base text-zinc-700 leading-relaxed"
+                      />
+                    </div>
+                  )}
+
+                  {/* 2b. NDA CENSORED NOTICE & ARCHITECTURE BOX (FULL WIDTH) */}
                   {isNda && (
-                    <div className="p-6 sm:p-7 rounded-2xl border border-amber-300 bg-amber-50/60 shadow-2xs space-y-5">
+                    <div className="p-6 sm:p-8 rounded-2xl border border-amber-300 bg-amber-50/60 shadow-2xs space-y-5">
                       <div className="flex items-start gap-3.5">
                         <div className="size-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0 text-amber-800 mt-0.5">
                           <span className="icon-[lucide--shield-alert] size-5" />
@@ -690,28 +731,28 @@ export function ProjectDetailModal({
                       </div>
 
                       {/* Redacted Data Fields Simulation */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs pt-1">
                         <div className="flex items-center justify-between p-3 rounded-xl bg-white/95 border border-amber-200/70 shadow-2xs">
                           <span className="text-zinc-500 font-medium">Klien / Enterprise:</span>
-                          <span className="bg-zinc-950 text-transparent select-none rounded px-3 py-1 font-mono text-xs tracking-wider">
-                            ████████████
+                          <span className="bg-zinc-950 text-transparent select-none rounded px-2.5 py-0.5 font-mono text-xs tracking-wider">
+                            ████████
                           </span>
                         </div>
                         <div className="flex items-center justify-between p-3 rounded-xl bg-white/95 border border-amber-200/70 shadow-2xs">
                           <span className="text-zinc-500 font-medium">Server Endpoint:</span>
-                          <span className="bg-zinc-950 text-transparent select-none rounded px-3 py-1 font-mono text-xs tracking-wider">
+                          <span className="bg-zinc-950 text-transparent select-none rounded px-2.5 py-0.5 font-mono text-xs tracking-wider">
                             api.internal.████
                           </span>
                         </div>
                         <div className="flex items-center justify-between p-3 rounded-xl bg-white/95 border border-amber-200/70 shadow-2xs">
                           <span className="text-zinc-500 font-medium">Database Cluster:</span>
-                          <span className="bg-zinc-950 text-transparent select-none rounded px-3 py-1 font-mono text-xs tracking-wider">
+                          <span className="bg-zinc-950 text-transparent select-none rounded px-2.5 py-0.5 font-mono text-xs tracking-wider">
                             cluster-db-████
                           </span>
                         </div>
                         <div className="flex items-center justify-between p-3 rounded-xl bg-white/95 border border-amber-200/70 shadow-2xs">
                           <span className="text-zinc-500 font-medium">Source Repository:</span>
-                          <span className="bg-zinc-950 text-transparent select-none rounded px-3 py-1 font-mono text-xs tracking-wider">
+                          <span className="bg-zinc-950 text-transparent select-none rounded px-2.5 py-0.5 font-mono text-xs tracking-wider">
                             git@gitlab.████
                           </span>
                         </div>
@@ -723,129 +764,8 @@ export function ProjectDetailModal({
                       </div>
                     </div>
                   )}
-
-                  {/* Deep-Dive CTA to Tab 2 */}
-                  <div className="p-5 sm:p-6 rounded-2xl bg-zinc-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-                    <div className="space-y-1 text-center sm:text-left">
-                      <h4 className="font-bold text-sm sm:text-base">
-                        {activeLocale === "id"
-                          ? "Tertarik dengan arsitektur & implementasi teknis?"
-                          : "Interested in technical architecture & implementation?"}
-                      </h4>
-                      <p className="text-xs text-zinc-400">
-                        {activeLocale === "id"
-                          ? "Pelajari studi kasus arsitektur, tantangan rekayasa, dan solusi mendalam."
-                          : "Explore deep-dive engineering case studies, challenges, and architectural solutions."}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("details")}
-                      className="px-4 py-2 rounded-xl bg-white text-zinc-950 font-semibold text-xs sm:text-sm hover:bg-zinc-100 transition-colors shadow-xs cursor-pointer shrink-0 flex items-center gap-2"
-                    >
-                      <span>{activeDict.projects.tabDetails}</span>
-                      <span className="icon-[lucide--arrow-right] size-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Right Column: SPESIFIKASI PROYEK & CONSULTATION (Sidebar Widget - 5 cols) */}
-                <div className="lg:col-span-5 lg:sticky lg:top-4 space-y-6">
-                  <div className="p-5 sm:p-6 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-5">
-                    {/* Header: SPESIFIKASI PROYEK with subtle divider */}
-                    <div className="pb-3 border-b border-zinc-100 flex items-center justify-between">
-                      <h3 className="text-xs sm:text-sm font-bold tracking-wider text-zinc-950 uppercase font-mono sm:font-sans">
-                        {activeDict.projects.projectSpecsTitle}
-                      </h3>
-                      {isNda && (
-                        <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
-                      )}
-                    </div>
-
-                    {/* Specification Rows */}
-                    <div className="space-y-3.5 text-xs sm:text-sm">
-                      {/* Row 1: Status */}
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-zinc-500 font-medium">
-                          {activeDict.projects.status}
-                        </span>
-                        <div className="flex items-center gap-1.5 font-bold text-zinc-900">
-                          <span className="icon-[lucide--check-circle-2] size-4 text-emerald-600 shrink-0" />
-                          <span>{displayStatus}</span>
-                        </div>
-                      </div>
-
-                      {/* Row 2: Timeline */}
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-zinc-500 font-medium">
-                          {activeDict.projects.timeline}
-                        </span>
-                        <div className="flex items-center gap-1.5 font-bold text-zinc-900">
-                          <span className="icon-[lucide--calendar] size-3.5 text-zinc-700 shrink-0" />
-                          <span className="text-right">{formattedTimeline}</span>
-                        </div>
-                      </div>
-
-                      {/* Row 3: Teknologi yang Digunakan */}
-                      {normalizedTechStack.length > 0 && (
-                        <div className="space-y-2 pt-1">
-                          <span className="text-zinc-500 font-medium block">
-                            {activeDict.projects.techUsed}
-                          </span>
-                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                            {normalizedTechStack.map((tech, idx) => {
-                              const techInfo = getTechIcon(tech);
-                              return (
-                                <span
-                                  key={`${tech}-${idx}`}
-                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-medium bg-zinc-50 text-zinc-800 border border-zinc-200/90 shadow-2xs hover:bg-zinc-100 transition-colors"
-                                >
-                                  <span
-                                    className={`${techInfo.iconClass} size-3.5 shrink-0`}
-                                    aria-hidden="true"
-                                  />
-                                  <span>{tech}</span>
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Subtle Divider */}
-                    <div className="border-t border-zinc-100 pt-4 space-y-3">
-                      {/* Ingin Proyek Serupa? CTA */}
-                      <div className="space-y-1">
-                        <h4 className="text-sm font-bold text-zinc-950">
-                          {activeDict.projects.similarProjectTitle}
-                        </h4>
-                        <p className="text-xs text-zinc-600 leading-relaxed">
-                          {activeDict.projects.similarProjectSubtitle}
-                        </p>
-                      </div>
-
-                      {/* WhatsApp Button */}
-                      <a
-                        href={whatsAppUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full group inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-semibold text-xs sm:text-sm shadow-xs hover:shadow-md transition-all cursor-pointer"
-                      >
-                        <svg
-                          className="size-4.5 fill-current shrink-0 group-hover:scale-105 transition-transform"
-                          viewBox="0 0 24 24"
-                          aria-hidden="true"
-                        >
-                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.711 1.456h.005c6.554 0 11.89-5.336 11.893-11.893 0-3.177-1.237-6.164-3.48-8.409z" />
-                        </svg>
-                        <span>{activeDict.projects.consultNow}</span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
+                </motion.div>
+              )}
 
               {/* ===================================================================
                   TAB 2: DETAIL PROYEK (CASE STUDY, ARCHITECTURE, ENGINEERING SPEC)
@@ -917,96 +837,96 @@ export function ProjectDetailModal({
         {lightboxIndex !== null &&
           galleryItems[lightboxIndex] &&
           isValidImageUrl(galleryItems[lightboxIndex].url) && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-60 bg-zinc-950/95 backdrop-blur-md flex flex-col items-center justify-between p-4 sm:p-6"
-            onClick={() => setLightboxIndex(null)}
-          >
-            {/* Lightbox Top Bar */}
-            <div
-              className="w-full max-w-5xl flex items-center justify-between text-white pb-3"
-              onClick={(e) => e.stopPropagation()}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-60 bg-zinc-950/95 backdrop-blur-md flex flex-col items-center justify-between p-4 sm:p-6"
+              onClick={() => setLightboxIndex(null)}
             >
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-mono bg-zinc-800/90 px-3 py-1 rounded-md border border-zinc-700">
-                  {lightboxIndex + 1} / {galleryItems.length}
-                </span>
-                <span className="text-sm font-medium truncate max-w-md">
-                  {galleryItems[lightboxIndex].name}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setLightboxIndex(null)}
-                aria-label="Close Preview"
-                className="size-9 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white flex items-center justify-center cursor-pointer transition-colors"
+              {/* Lightbox Top Bar */}
+              <div
+                className="w-full max-w-5xl flex items-center justify-between text-white pb-3"
+                onClick={(e) => e.stopPropagation()}
               >
-                <span className="icon-[lucide--x] size-4" />
-              </button>
-            </div>
-
-            {/* Lightbox Image Container */}
-            <div
-              className="relative w-full max-w-5xl flex-1 flex items-center justify-center min-h-0"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="relative size-full max-h-[75vh]">
-                <Image
-                  src={galleryItems[lightboxIndex].url}
-                  alt={galleryItems[lightboxIndex].name || "Screenshot Preview"}
-                  fill
-                  className="object-contain"
-                  sizes="100vw"
-                  priority
-                />
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-mono bg-zinc-800/90 px-3 py-1 rounded-md border border-zinc-700">
+                    {lightboxIndex + 1} / {galleryItems.length}
+                  </span>
+                  <span className="text-sm font-medium truncate max-w-md">
+                    {galleryItems[lightboxIndex].name}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setLightboxIndex(null)}
+                  aria-label="Close Preview"
+                  className="size-9 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white flex items-center justify-center cursor-pointer transition-colors"
+                >
+                  <span className="icon-[lucide--x] size-4" />
+                </button>
               </div>
 
-              {/* Prev / Next Buttons */}
-              {galleryItems.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setLightboxIndex((prev) =>
-                        prev === null || prev === 0
-                          ? galleryItems.length - 1
-                          : prev - 1
-                      )
-                    }
-                    aria-label="Previous Screenshot"
-                    className="absolute left-2 sm:-left-12 size-10 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-white border border-zinc-700 flex items-center justify-center cursor-pointer transition-colors"
-                  >
-                    <span className="icon-[lucide--chevron-left] size-5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setLightboxIndex((prev) =>
-                        prev === null || prev === galleryItems.length - 1
-                          ? 0
-                          : prev + 1
-                      )
-                    }
-                    aria-label="Next Screenshot"
-                    className="absolute right-2 sm:-right-12 size-10 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-white border border-zinc-700 flex items-center justify-center cursor-pointer transition-colors"
-                  >
-                    <span className="icon-[lucide--chevron-right] size-5" />
-                  </button>
-                </>
-              )}
-            </div>
+              {/* Lightbox Image Container */}
+              <div
+                className="relative w-full max-w-5xl flex-1 flex items-center justify-center min-h-0"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="relative size-full max-h-[75vh]">
+                  <Image
+                    src={galleryItems[lightboxIndex].url}
+                    alt={galleryItems[lightboxIndex].name || "Screenshot Preview"}
+                    fill
+                    className="object-contain"
+                    sizes="100vw"
+                    priority
+                  />
+                </div>
 
-            {/* Lightbox Bottom Caption */}
-            <div
-              className="w-full max-w-5xl text-center text-xs text-zinc-400 pt-3"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {galleryItems[lightboxIndex].name}
-            </div>
-          </motion.div>
-        )}
+                {/* Prev / Next Buttons */}
+                {galleryItems.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setLightboxIndex((prev) =>
+                          prev === null || prev === 0
+                            ? galleryItems.length - 1
+                            : prev - 1
+                        )
+                      }
+                      aria-label="Previous Screenshot"
+                      className="absolute left-2 sm:-left-12 size-10 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-white border border-zinc-700 flex items-center justify-center cursor-pointer transition-colors"
+                    >
+                      <span className="icon-[lucide--chevron-left] size-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setLightboxIndex((prev) =>
+                          prev === null || prev === galleryItems.length - 1
+                            ? 0
+                            : prev + 1
+                        )
+                      }
+                      aria-label="Next Screenshot"
+                      className="absolute right-2 sm:-right-12 size-10 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-white border border-zinc-700 flex items-center justify-center cursor-pointer transition-colors"
+                    >
+                      <span className="icon-[lucide--chevron-right] size-5" />
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {/* Lightbox Bottom Caption */}
+              <div
+                className="w-full max-w-5xl text-center text-xs text-zinc-400 pt-3"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {galleryItems[lightboxIndex].name}
+              </div>
+            </motion.div>
+          )}
       </div>
     </AnimatePresence>
   );
