@@ -1,8 +1,8 @@
 # Personal Portfolio — Timur Dian Radha Sejati
 
-[![Deploy to GitHub Pages](https://github.com/SejatiDimedia/sejatidimedia.github.io/actions/workflows/deploy.yml/badge.svg)](https://github.com/SejatiDimedia/sejatidimedia.github.io/actions/workflows/deploy.yml)
+[![Deploy to GitHub Pages](https://github.com/timurradhadian/timurradhadian.github.io/actions/workflows/deploy.yml/badge.svg)](https://github.com/timurradhadian/timurradhadian.github.io/actions/workflows/deploy.yml)
 
-🌐 **Live Website**: [https://sejatidimedia.github.io/](https://sejatidimedia.github.io/)
+🌐 **Live Website**: [https://timurradhadian.github.io/](https://timurradhadian.github.io/)
 
 Situs portofolio personal software engineer berbasis **Next.js (App Router)**, **Tailwind CSS v4**, **Iconify**, dan **Framer Motion**, yang di-export statis dan di-deploy otomatis ke **GitHub Pages**.
 
