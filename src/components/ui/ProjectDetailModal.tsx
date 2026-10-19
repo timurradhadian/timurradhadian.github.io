@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { Locale, Project, ProjectDocument } from "@/types/portfolio";
-import { Dictionary, getLocalized } from "@/lib/i18n";
+import { Dictionary, getDictionary, getLocalized } from "@/lib/i18n";
 import { getTechIcon } from "@/lib/tech-icons";
 import { NdaBadge } from "@/components/ui/NdaBadge";
 import { MarkdownContent } from "@/components/ui/MarkdownContent";
@@ -25,6 +25,39 @@ interface GalleryItem {
   label: string;
   url: string;
   isCover?: boolean;
+}
+
+function isValidImageUrl(url: unknown): url is string {
+  return typeof url === "string" && url.trim().length > 0;
+}
+
+function checkIsNda(p: Project | null | undefined): boolean {
+  if (!p) return false;
+  if (p.isNda) return true;
+  if (typeof p.slug === "string") {
+    const s = p.slug.toLowerCase();
+    return (
+      s.includes("industry-manufaktur") ||
+      s.includes("manufacturing") ||
+      s.includes("tanjung-kreasi")
+    );
+  }
+  return false;
+}
+
+function normalizeTechStack(techs: unknown): string[] {
+  if (!Array.isArray(techs)) return [];
+  return techs
+    .map((item) => {
+      if (typeof item === "string") return item.trim();
+      if (item && typeof item === "object") {
+        const obj = item as Record<string, unknown>;
+        const val = obj.name || obj.label || obj.title || obj.id || "";
+        return typeof val === "string" ? val.trim() : String(val);
+      }
+      return item != null ? String(item).trim() : "";
+    })
+    .filter((s) => s.length > 0);
 }
 
 function formatProjectTimeline(
@@ -74,7 +107,7 @@ export function ProjectDetailModal({
 }: ProjectDetailModalProps) {
   const { locale: contextLocale, dict: contextDict } = useLocale();
   const activeLocale = contextLocale || fallbackLocale;
-  const activeDict = contextDict || fallbackDict;
+  const activeDict = contextDict || fallbackDict || getDictionary(activeLocale);
 
   const [activeProject, setActiveProject] = useState<Project | null>(project);
   const [activeTab, setActiveTab] = useState<"overview" | "details">("overview");
@@ -92,54 +125,61 @@ export function ProjectDetailModal({
     if (!project) return;
 
     // If non-NDA project and missing full description or documents, fetch fresh from Glio
-    const isNda =
-      project.isNda ||
-      project.slug.includes("industry-manufaktur");
+    const isNda = checkIsNda(project);
 
     if (!isNda && (!project.description || !project.documents || project.documents.length === 0)) {
-      setIsLoadingDetail(true);
-      getProjectDetailFromGlio(project.slug)
-        .then((detail) => {
-          if (detail) {
-            setActiveProject((prev) => {
-              if (!prev || prev.slug !== project.slug) return prev;
-              const documents: ProjectDocument[] = Array.isArray(detail.documents)
-                ? detail.documents.map((d: Record<string, unknown>, idx: number) => ({
-                  id: (d.id as string) || `doc-${idx}`,
-                  name: (d.name as string) || `Screenshot ${idx + 1}`,
-                  type: (d.type as string) || "image/webp",
-                  url: (d.url as string) || "",
-                  size: typeof d.size === "number" ? d.size : undefined,
-                  order: typeof d.order === "number" ? d.order : idx,
-                }))
-                : prev.documents || [];
+      if (typeof project.slug === "string" && project.slug.trim().length > 0) {
+        setIsLoadingDetail(true);
+        getProjectDetailFromGlio(project.slug)
+          .then((detail) => {
+            if (detail) {
+              setActiveProject((prev) => {
+                if (!prev || prev.slug !== project.slug) return prev;
+                const documents: ProjectDocument[] = Array.isArray(detail.documents)
+                  ? detail.documents
+                      .filter((d: unknown): d is Record<string, unknown> => Boolean(d && typeof d === "object"))
+                      .map((d: Record<string, unknown>, idx: number) => ({
+                        id: (typeof d.id === "string" && d.id) || `doc-${idx}`,
+                        name: (typeof d.name === "string" && d.name) || `Screenshot ${idx + 1}`,
+                        type: (typeof d.type === "string" && d.type) || "image/webp",
+                        url: (typeof d.url === "string" && d.url) || "",
+                        size: typeof d.size === "number" ? d.size : undefined,
+                        order: typeof d.order === "number" ? d.order : idx,
+                      }))
+                  : prev.documents || [];
 
-              return {
-                ...prev,
-                description: (detail.description as string) || prev.description,
-                descriptionId: (detail.descriptionId as string) || prev.descriptionId,
-                descriptionEn: (detail.descriptionEn as string) || prev.descriptionEn,
-                clientSummary: (detail.clientSummary as string) || prev.clientSummary,
-                clientSummaryId: (detail.clientSummaryId as string) || prev.clientSummaryId,
-                clientSummaryEn: (detail.clientSummaryEn as string) || prev.clientSummaryEn,
-                bannerImage: (detail.bannerImage as string) || prev.bannerImage,
-                startDate: (detail.startDate as string) || prev.startDate,
-                endDate: (detail.endDate as string) || prev.endDate,
-                status: (detail.status as string) || prev.status,
-                techStack:
+                const rawTech =
                   Array.isArray(detail.technologies) && detail.technologies.length > 0
-                    ? (detail.technologies as string[])
+                    ? detail.technologies
                     : Array.isArray(detail.techStack) && detail.techStack.length > 0
-                      ? (detail.techStack as string[])
-                      : prev.techStack,
-                documents,
-              };
-            });
-          }
-        })
-        .finally(() => {
-          setIsLoadingDetail(false);
-        });
+                      ? detail.techStack
+                      : prev.techStack;
+
+                return {
+                  ...prev,
+                  description: (typeof detail.description === "string" && detail.description) || prev.description,
+                  descriptionId: (typeof detail.descriptionId === "string" && detail.descriptionId) || prev.descriptionId,
+                  descriptionEn: (typeof detail.descriptionEn === "string" && detail.descriptionEn) || prev.descriptionEn,
+                  clientSummary: (typeof detail.clientSummary === "string" && detail.clientSummary) || prev.clientSummary,
+                  clientSummaryId: (typeof detail.clientSummaryId === "string" && detail.clientSummaryId) || prev.clientSummaryId,
+                  clientSummaryEn: (typeof detail.clientSummaryEn === "string" && detail.clientSummaryEn) || prev.clientSummaryEn,
+                  bannerImage: (typeof detail.bannerImage === "string" && detail.bannerImage) || prev.bannerImage,
+                  startDate: (typeof detail.startDate === "string" && detail.startDate) || prev.startDate,
+                  endDate: (typeof detail.endDate === "string" && detail.endDate) || prev.endDate,
+                  status: (typeof detail.status === "string" && detail.status) || prev.status,
+                  techStack: normalizeTechStack(rawTech),
+                  documents,
+                };
+              });
+            }
+          })
+          .catch((err) => {
+            console.error("Error loading project detail:", err);
+          })
+          .finally(() => {
+            setIsLoadingDetail(false);
+          });
+      }
     }
   }, [project]);
 
@@ -167,12 +207,14 @@ export function ProjectDetailModal({
   }, [project, onClose, lightboxIndex]);
 
   // Unified Gallery Items: Project Thumbnail, Banner, and all Document Screenshots
+  const isNda = checkIsNda(activeProject);
+
   const galleryItems = useMemo<GalleryItem[]>(() => {
     if (!activeProject) return [];
     const items: GalleryItem[] = [];
 
     // 1. Project Primary Thumbnail / Cover
-    if (activeProject.thumbnailUrl) {
+    if (isValidImageUrl(activeProject.thumbnailUrl)) {
       items.push({
         id: "primary-thumbnail",
         name: "Thumbnail Utama (Cover)",
@@ -184,7 +226,7 @@ export function ProjectDetailModal({
 
     // 2. Project Banner Image (if distinct from thumbnailUrl)
     if (
-      activeProject.bannerImage &&
+      isValidImageUrl(activeProject.bannerImage) &&
       activeProject.bannerImage !== activeProject.thumbnailUrl
     ) {
       items.unshift({
@@ -197,13 +239,16 @@ export function ProjectDetailModal({
     }
 
     // 3. Document Screenshots (if not NDA)
-    if (!activeProject.isNda) {
-      (activeProject.documents || []).forEach((doc, idx) => {
+    if (!checkIsNda(activeProject) && Array.isArray(activeProject.documents)) {
+      activeProject.documents.forEach((doc, idx) => {
         if (
-          doc.url &&
+          doc &&
+          typeof doc === "object" &&
+          isValidImageUrl(doc.url) &&
           doc.url !== activeProject.thumbnailUrl &&
           doc.url !== activeProject.bannerImage &&
-          (doc.type?.startsWith("image/") || /\.(webp|png|jpe?g|gif|avif)$/i.test(doc.url))
+          ((typeof doc.type === "string" && doc.type.startsWith("image/")) ||
+            /\.(webp|png|jpe?g|gif|avif)($|\?)/i.test(doc.url))
         ) {
           items.push({
             id: doc.id || `doc-${idx}`,
@@ -218,20 +263,85 @@ export function ProjectDetailModal({
     return items;
   }, [activeProject]);
 
-  if (!project || !activeProject) return null;
+  const normalizedTechStack = useMemo(() => {
+    if (!activeProject) return [];
+    return normalizeTechStack(activeProject.techStack);
+  }, [activeProject]);
 
-  const title = getLocalized(activeProject, "title", activeLocale);
-  const description = getLocalized(activeProject, "description", activeLocale);
-  const clientSummary = getLocalized(activeProject, "clientSummary", activeLocale);
-  const category = getLocalized(activeProject, "category", activeLocale);
-  const summaryContent =
-    clientSummary && clientSummary.trim().length > 0
+  const title = useMemo(() => {
+    if (!activeProject) return "";
+    return getLocalized(activeProject, "title", activeLocale);
+  }, [activeProject, activeLocale]);
+
+  const description = useMemo(() => {
+    if (!activeProject) return "";
+    return getLocalized(activeProject, "description", activeLocale);
+  }, [activeProject, activeLocale]);
+
+  const clientSummary = useMemo(() => {
+    if (!activeProject) return "";
+    return getLocalized(activeProject, "clientSummary", activeLocale);
+  }, [activeProject, activeLocale]);
+
+  const category = useMemo(() => {
+    if (!activeProject) return "";
+    return getLocalized(activeProject, "category", activeLocale);
+  }, [activeProject, activeLocale]);
+
+  const summaryContent = useMemo(() => {
+    if (!activeProject) return "";
+    return clientSummary && clientSummary.trim().length > 0
       ? clientSummary
       : getLocalized(activeProject, "summary", activeLocale);
+  }, [activeProject, clientSummary, activeLocale]);
+
+  const formattedTimeline = useMemo(() => {
+    if (!activeProject) return "";
+    return formatProjectTimeline(
+      activeProject.startDate,
+      activeProject.endDate,
+      activeLocale
+    );
+  }, [activeProject?.startDate, activeProject?.endDate, activeLocale]);
+
+  const displayStatus = useMemo(() => {
+    if (!activeProject) return "";
+    let rawStatus = "";
+    if (typeof activeProject.status === "string") {
+      rawStatus = activeProject.status;
+    } else if (activeProject.status && typeof activeProject.status === "object") {
+      const obj = activeProject.status as Record<string, unknown>;
+      rawStatus = String(obj.label || obj.name || obj.id || obj.status || "");
+    }
+    const upper = rawStatus.toUpperCase().trim();
+    if (!upper || upper === "COMPLETE" || upper === "COMPLETED") {
+      return activeDict?.projects?.statusCompleted || (activeLocale === "id" ? "Selesai" : "Completed");
+    }
+    if (upper === "IN_PROGRESS" || upper === "PROGRESS") {
+      return activeLocale === "id" ? "Dalam Pengerjaan" : "In Progress";
+    }
+    return rawStatus;
+  }, [activeProject?.status, activeDict, activeLocale]);
+
+  const whatsAppMessage = useMemo(() => {
+    if (!activeProject) return "";
+    if (isNda) {
+      return activeLocale === "id"
+        ? `Halo Timur, saya melihat portofolio proyek enterprise Anda (${title}) dan tertarik untuk konsultasi arsitektur sistem serupa.`
+        : `Hello Timur, I saw your enterprise project (${title}) in your portfolio and would like to consult about building a similar system architecture.`;
+    }
+    return activeLocale === "id"
+      ? `Halo Timur, saya melihat proyek "${title}" di portfolio Anda dan tertarik untuk konsultasi sistem software serupa.`
+      : `Hello Timur, I saw your project "${title}" in your portfolio and would like to consult about building a similar software system.`;
+  }, [activeProject, isNda, activeLocale, title]);
+
+  // Early return only after all React Hooks have been declared
+  if (!project || !activeProject) return null;
 
   const activeShowcase = galleryItems[selectedImageIndex] || galleryItems[0];
-  const currentShowcaseUrl =
+  const rawShowcaseUrl =
     activeShowcase?.url || activeProject.bannerImage || activeProject.thumbnailUrl;
+  const currentShowcaseUrl = isValidImageUrl(rawShowcaseUrl) ? rawShowcaseUrl : "";
   const currentShowcaseName = activeShowcase?.name || title;
 
   const handlePrevShowcase = (e: React.MouseEvent) => {
@@ -245,36 +355,6 @@ export function ProjectDetailModal({
     if (galleryItems.length === 0) return;
     setSelectedImageIndex((prev) => (prev === galleryItems.length - 1 ? 0 : prev + 1));
   };
-
-  const formattedTimeline = useMemo(() => {
-    return formatProjectTimeline(
-      activeProject.startDate,
-      activeProject.endDate,
-      activeLocale
-    );
-  }, [activeProject.startDate, activeProject.endDate, activeLocale]);
-
-  const displayStatus = useMemo(() => {
-    const rawStatus = activeProject.status?.toUpperCase();
-    if (!rawStatus || rawStatus === "COMPLETE" || rawStatus === "COMPLETED") {
-      return activeDict.projects.statusCompleted;
-    }
-    if (rawStatus === "IN_PROGRESS" || rawStatus === "PROGRESS") {
-      return activeLocale === "id" ? "Dalam Pengerjaan" : "In Progress";
-    }
-    return activeProject.status;
-  }, [activeProject.status, activeDict.projects.statusCompleted, activeLocale]);
-
-  const whatsAppMessage = useMemo(() => {
-    if (activeProject.isNda) {
-      return activeLocale === "id"
-        ? `Halo Timur, saya melihat portofolio proyek enterprise Anda (${title}) dan tertarik untuk konsultasi arsitektur sistem serupa.`
-        : `Hello Timur, I saw your enterprise project (${title}) in your portfolio and would like to consult about building a similar system architecture.`;
-    }
-    return activeLocale === "id"
-      ? `Halo Timur, saya melihat proyek "${title}" di portfolio Anda dan tertarik untuk konsultasi sistem software serupa.`
-      : `Hello Timur, I saw your project "${title}" in your portfolio and would like to consult about building a similar software system.`;
-  }, [activeProject.isNda, activeLocale, title]);
 
   const whatsAppUrl = `https://wa.me/6289508436275?text=${encodeURIComponent(whatsAppMessage)}`;
 
@@ -304,7 +384,7 @@ export function ProjectDetailModal({
 
               {/* Title & Category Breadcrumb */}
               <div className="min-w-0 flex items-center gap-2">
-                {activeProject.isNda && (
+                {isNda && (
                   <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
                 )}
                 <h2 className="text-sm sm:text-base font-bold text-zinc-900 truncate">
@@ -315,7 +395,7 @@ export function ProjectDetailModal({
 
             {/* Right: Quick Action Buttons & Close Icon */}
             <div className="flex items-center gap-2 shrink-0">
-              {!activeProject.isNda && activeProject.projectUrl && (
+              {!isNda && activeProject.projectUrl && (
                 <a
                   href={activeProject.projectUrl}
                   target="_blank"
@@ -327,7 +407,7 @@ export function ProjectDetailModal({
                 </a>
               )}
 
-              {!activeProject.isNda && activeProject.githubUrl && (
+              {!isNda && activeProject.githubUrl && (
                 <a
                   href={activeProject.githubUrl}
                   target="_blank"
@@ -339,8 +419,8 @@ export function ProjectDetailModal({
                 </a>
               )}
 
-              {activeProject.isNda && (
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-medium">
+              {isNda && (
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-medium">
                   <span className="icon-[lucide--lock] size-3.5 text-amber-600" />
                   <span>{activeDict.projects.proprietaryNotice}</span>
                 </span>
@@ -376,7 +456,7 @@ export function ProjectDetailModal({
                       }`}
                   />
                   <span>{activeDict.projects.tabOverview}</span>
-                  {galleryItems.length > 0 && !activeProject.isNda && (
+                  {galleryItems.length > 0 && !isNda && (
                     <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono font-medium bg-zinc-100 text-zinc-600 border border-zinc-200">
                       {galleryItems.length} foto
                     </span>
@@ -421,20 +501,20 @@ export function ProjectDetailModal({
               {/* Main Banner Image Display */}
               <div
                 onClick={() =>
-                  !activeProject.isNda &&
+                  !isNda &&
                   galleryItems.length > 0 &&
                   setLightboxIndex(selectedImageIndex)
                 }
-                className={`group relative aspect-[16/9] sm:aspect-[2.1/1] w-full rounded-xl overflow-hidden border border-zinc-200/90 bg-zinc-950 shadow-xs ${!activeProject.isNda && galleryItems.length > 0 ? "cursor-zoom-in" : ""
+                className={`group relative aspect-[16/9] sm:aspect-[2.1/1] w-full rounded-xl overflow-hidden border border-zinc-200/90 bg-zinc-950 shadow-xs ${!isNda && galleryItems.length > 0 ? "cursor-zoom-in" : ""
                   }`}
               >
-                {currentShowcaseUrl ? (
+                {isValidImageUrl(currentShowcaseUrl) ? (
                   <Image
-                    src={currentShowcaseUrl as string}
-                    alt={currentShowcaseName || title}
+                    src={currentShowcaseUrl}
+                    alt={currentShowcaseName || title || "Preview"}
                     fill
                     sizes="(max-width: 1200px) 100vw, 1024px"
-                    className={`object-contain sm:object-cover transition-all duration-300 ${activeProject.isNda && ndaBlurEnabled
+                    className={`object-contain sm:object-cover transition-all duration-300 ${isNda && ndaBlurEnabled
                       ? "filter blur-[5px] scale-105"
                       : ""
                       }`}
@@ -442,12 +522,12 @@ export function ProjectDetailModal({
                   />
                 ) : (
                   <div className="flex size-full items-center justify-center bg-zinc-100 text-zinc-400 font-mono text-sm uppercase tracking-wider">
-                    {category}
+                    {category || title || "Preview"}
                   </div>
                 )}
 
                 {/* Watermark Overlay for NDA Projects */}
-                {activeProject.isNda && (
+                {isNda && (
                   <div className="absolute inset-0 bg-zinc-950/40 backdrop-blur-[2px] flex items-center justify-center p-4">
                     <div className="px-4 py-2.5 rounded-xl bg-zinc-900/95 border border-white/20 backdrop-blur-md shadow-2xl flex items-center gap-3 text-white text-center">
                       <span className="icon-[lucide--shield-lock] size-5 text-amber-400 shrink-0" />
@@ -465,13 +545,13 @@ export function ProjectDetailModal({
 
                 {/* Top Badges overlay on banner screen */}
                 <div className="absolute top-3.5 left-3.5 flex flex-wrap items-center gap-2 z-10 pointer-events-none">
-                  {activeProject.isNda && (
+                  {isNda && (
                     <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
                   )}
                 </div>
 
                 {/* Next / Previous Screen Controls on Hover */}
-                {!activeProject.isNda && galleryItems.length > 1 && (
+                {!isNda && galleryItems.length > 1 && (
                   <>
                     <button
                       type="button"
@@ -493,7 +573,7 @@ export function ProjectDetailModal({
                 )}
 
                 {/* Counter & Zoom Indicator in Bottom Right */}
-                {!activeProject.isNda && galleryItems.length > 0 && (
+                {!isNda && galleryItems.length > 0 && (
                   <div className="absolute bottom-3 right-3 flex items-center gap-2 z-10">
                     <span className="px-2.5 py-1 rounded-md bg-zinc-900/85 backdrop-blur-xs border border-white/20 text-white font-mono text-[11px] font-medium shadow-xs">
                       {selectedImageIndex + 1} / {galleryItems.length}
@@ -508,7 +588,7 @@ export function ProjectDetailModal({
               {/* =========================================================================
                   THUMBNAILS DI BAWAH BANNER IMAGE
               ========================================================================= */}
-              {!activeProject.isNda && galleryItems.length > 0 && (
+              {!isNda && galleryItems.length > 0 && (
                 <div className="space-y-2 pt-1">
                   <div className="flex items-center justify-between text-xs text-zinc-500 font-mono">
                     <span className="flex items-center gap-1.5 font-semibold text-zinc-700">
@@ -534,13 +614,15 @@ export function ProjectDetailModal({
                             : "border-zinc-200/90 hover:border-zinc-400 opacity-75 hover:opacity-100"
                             }`}
                         >
-                          <Image
-                            src={item.url}
-                            alt={item.name || `Thumbnail ${idx + 1}`}
-                            fill
-                            sizes="130px"
-                            className="object-cover"
-                          />
+                          {isValidImageUrl(item.url) && (
+                            <Image
+                              src={item.url}
+                              alt={item.name || `Thumbnail ${idx + 1}`}
+                              fill
+                              sizes="130px"
+                              className="object-cover"
+                            />
+                          )}
                           {isSelected && (
                             <div className="absolute inset-0 bg-zinc-950/15 pointer-events-none" />
                           )}
@@ -577,7 +659,7 @@ export function ProjectDetailModal({
                   {/* Left Column: Executive Summary & Case Study CTA (7 cols) */}
                   <div className="lg:col-span-7 space-y-6">
                     {/* Executive Client Summary */}
-                    {!activeProject.isNda && summaryContent && (
+                    {!isNda && summaryContent && (
                       <div className="p-6 sm:p-7 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-4">
                         <div className="flex items-center gap-2.5 text-zinc-900 font-bold text-sm uppercase tracking-wider pb-3 border-b border-zinc-100">
                           <span className="icon-[lucide--briefcase] size-4.5 text-zinc-700" />
@@ -591,7 +673,7 @@ export function ProjectDetailModal({
                     )}
 
                   {/* NDA Censored Notice & Redacted Architecture Box */}
-                  {activeProject.isNda && (
+                  {isNda && (
                     <div className="p-6 sm:p-7 rounded-2xl border border-amber-300 bg-amber-50/60 shadow-2xs space-y-5">
                       <div className="flex items-start gap-3.5">
                         <div className="size-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0 text-amber-800 mt-0.5">
@@ -675,7 +757,7 @@ export function ProjectDetailModal({
                       <h3 className="text-xs sm:text-sm font-bold tracking-wider text-zinc-950 uppercase font-mono sm:font-sans">
                         {activeDict.projects.projectSpecsTitle}
                       </h3>
-                      {activeProject.isNda && (
+                      {isNda && (
                         <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
                       )}
                     </div>
@@ -705,17 +787,17 @@ export function ProjectDetailModal({
                       </div>
 
                       {/* Row 3: Teknologi yang Digunakan */}
-                      {activeProject.techStack && activeProject.techStack.length > 0 && (
+                      {normalizedTechStack.length > 0 && (
                         <div className="space-y-2 pt-1">
                           <span className="text-zinc-500 font-medium block">
                             {activeDict.projects.techUsed}
                           </span>
                           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                            {activeProject.techStack.map((tech) => {
+                            {normalizedTechStack.map((tech, idx) => {
                               const techInfo = getTechIcon(tech);
                               return (
                                 <span
-                                  key={tech}
+                                  key={`${tech}-${idx}`}
                                   className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-medium bg-zinc-50 text-zinc-800 border border-zinc-200/90 shadow-2xs hover:bg-zinc-100 transition-colors"
                                 >
                                   <span
@@ -782,7 +864,7 @@ export function ProjectDetailModal({
                       <div className="flex items-center gap-2.5 text-zinc-900 font-bold text-base sm:text-lg">
                         <span className="icon-[lucide--cpu] size-5 text-zinc-700" />
                         <span>
-                          {activeProject.isNda
+                          {isNda
                             ? "Spesifikasi Arsitektur Sistem (High-Level)"
                             : activeDict.projects.caseStudyTitle}
                         </span>
@@ -790,7 +872,7 @@ export function ProjectDetailModal({
                     </div>
 
                     {/* NDA Banner inside Details */}
-                    {activeProject.isNda && (
+                    {isNda && (
                       <div className="rounded-xl border border-amber-300 bg-amber-50/70 p-4 flex items-start gap-3">
                         <span className="icon-[lucide--lock] size-4 text-amber-700 mt-0.5 shrink-0" />
                         <div className="text-xs text-amber-900 leading-relaxed">
@@ -832,7 +914,9 @@ export function ProjectDetailModal({
         {/* =========================================================================
             SCREENSHOT LIGHTBOX OVERLAY
         ========================================================================= */}
-        {lightboxIndex !== null && galleryItems[lightboxIndex] && (
+        {lightboxIndex !== null &&
+          galleryItems[lightboxIndex] &&
+          isValidImageUrl(galleryItems[lightboxIndex].url) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

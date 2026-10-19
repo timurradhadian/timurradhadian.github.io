@@ -53,8 +53,13 @@ const DEFAULT_MANUFACTURING_PROJECTS: Array<{
   title: string;
   titleId?: string;
   titleEn?: string;
+  summary: string;
   summaryId: string;
   summaryEn: string;
+  category: string;
+  categoryId?: string;
+  categoryEn?: string;
+  isNda: boolean;
   techStack: string[];
 }> = [
     {
@@ -63,10 +68,16 @@ const DEFAULT_MANUFACTURING_PROJECTS: Array<{
       title: "ERP Digitalisasi Produksi (Industry Manufaktur)",
       titleId: "ERP Digitalisasi Produksi (Industry Manufaktur)",
       titleEn: "Production Digitalization ERP (Manufacturing Industry)",
+      summary:
+        "Sistem ERP produksi berbasis barcode & data staging engine untuk sinkronisasi data transaksi lantai pabrik dengan sistem SAP.",
       summaryId:
         "Sistem ERP produksi berbasis barcode & data staging engine untuk sinkronisasi data transaksi lantai pabrik dengan sistem SAP.",
       summaryEn:
         "Barcode-based production ERP with data staging architecture for SAP data ingestion and real-time shop floor validation.",
+      category: "Manufacturing ERP",
+      categoryId: "ERP Manufaktur",
+      categoryEn: "Manufacturing ERP",
+      isNda: true,
       techStack: ["Angular", "Laravel", "Javascript", "Mysql"],
     },
     {
@@ -75,10 +86,16 @@ const DEFAULT_MANUFACTURING_PROJECTS: Array<{
       title: "Warehouse Management System (Industry Manufaktur)",
       titleId: "Warehouse Management System (Industry Manufaktur)",
       titleEn: "Warehouse Management System (Manufacturing Industry)",
+      summary:
+        "WMS multi-gudang berbasis barcode terintegrasi SAP API. Otomasi mutasi fisik Bahan Baku hingga Jadi serta mempercepat stock opname digital real-time.",
       summaryId:
         "WMS multi-gudang berbasis barcode terintegrasi SAP API. Otomasi mutasi fisik Bahan Baku hingga Jadi serta mempercepat stock opname digital real-time.",
       summaryEn:
         "Multi-warehouse barcode-driven WMS integrated with SAP API for automated material movements and digital stock reconciliation.",
+      category: "Supply Chain & Logistics",
+      categoryId: "Logistik & Supply Chain",
+      categoryEn: "Supply Chain & Logistics",
+      isNda: true,
       techStack: ["Angular", "Laravel", "Javascript", "Mysql"],
     },
     {
@@ -87,10 +104,16 @@ const DEFAULT_MANUFACTURING_PROJECTS: Array<{
       title: "Report & Dashboard (Industry Manufaktur)",
       titleId: "Report & Dashboard (Industry Manufaktur)",
       titleEn: "Report & Dashboard (Manufacturing Industry)",
+      summary:
+        "Dashboard untuk monitoring produksi, grade, komposisi material, dan kualitas — menyatukan laporan yang sebelumnya tersebar di banyak file Excel.",
       summaryId:
         "Dashboard untuk monitoring produksi, grade, komposisi material, dan kualitas — menyatukan laporan yang sebelumnya tersebar di banyak file Excel.",
       summaryEn:
         "Analytics dashboard for monitoring production output, product grading, material composition, and quality control metrics.",
+      category: "Analytics & Reporting",
+      categoryId: "Analisis & Laporan",
+      categoryEn: "Analytics & Reporting",
+      isNda: true,
       techStack: ["Laravel", "Angular", "Mysql"],
     },
     {
@@ -99,10 +122,16 @@ const DEFAULT_MANUFACTURING_PROJECTS: Array<{
       title: "Digitalisasi Sistem Surat Jalan (Industry Manufaktur)",
       titleId: "Digitalisasi Sistem Surat Jalan (Industry Manufaktur)",
       titleEn: "Delivery Note Digitalization System (Manufacturing Industry)",
+      summary:
+        "Sistem digitalisasi surat jalan & tally material untuk pabrik manufaktur kayu — dari portal vendor hingga STTM otomatis yang siap audit Bea Cukai.",
       summaryId:
         "Sistem digitalisasi surat jalan & tally material untuk pabrik manufaktur kayu — dari portal vendor hingga STTM otomatis yang siap audit Bea Cukai.",
       summaryEn:
         "Digital delivery note & material tally platform for wood manufacturing — bridging vendor input to automated Customs-compliant receipts.",
+      category: "Enterprise System",
+      categoryId: "Sistem Enterprise",
+      categoryEn: "Enterprise System",
+      isNda: true,
       techStack: ["Laravel", "Angular", "Javascript", "Mysql"],
     },
     {
@@ -111,10 +140,16 @@ const DEFAULT_MANUFACTURING_PROJECTS: Array<{
       title: "Digitalisasi Import Monitoring System (Industry Manufaktur)",
       titleId: "Digitalisasi Import Monitoring System (Industry Manufaktur)",
       titleEn: "Import Monitoring Digitalization System (Manufacturing Industry)",
+      summary:
+        "Sistem monitoring impor dengan pelacakan kapal real-time dan validasi dokumen PR-PO-Packing List terkunci untuk kepatuhan Bea Cukai.",
       summaryId:
         "Sistem monitoring impor dengan pelacakan kapal real-time dan validasi dokumen PR-PO-Packing List terkunci untuk kepatuhan Bea Cukai.",
       summaryEn:
         "An import monitoring platform featuring real-time vessel tracking and locked PR-PO-Packing List document validation for Customs compliance.",
+      category: "Compliance & Logistics",
+      categoryId: "Kepatuhan & Logistik",
+      categoryEn: "Compliance & Logistics",
+      isNda: true,
       techStack: ["Laravel", "Angular", "Javascript", "Mysql"],
     },
     {
@@ -123,10 +158,16 @@ const DEFAULT_MANUFACTURING_PROJECTS: Array<{
       title: "Digitalisasi Sistem Bongkar Muat Material Logistik Kayu (Industry Manufaktur)",
       titleId: "Digitalisasi Sistem Bongkar Muat Material Logistik Kayu (Industry Manufaktur)",
       titleEn: "Timber Logistics Loading & Unloading Digitalization (Manufacturing Industry)",
+      summary:
+        "Modul digitalisasi area bongkar muat dengan kalkulator tally otomatis, approval workflow, dan broadcast data real-time ke Vendor, PPIC, dan Accounting.",
       summaryId:
         "Modul digitalisasi area bongkar muat dengan kalkulator tally otomatis, approval workflow, dan broadcast data real-time ke Vendor, PPIC, dan Accounting.",
       summaryEn:
         "Material unloading digitalization module featuring automated tally calculators, approval workflows, and real-time data broadcasting to Vendor, PPIC, and Accounting.",
+      category: "Logistics Automation",
+      categoryId: "Otomasi Logistik",
+      categoryEn: "Logistics Automation",
+      isNda: true,
       techStack: ["Angular", "Javascript", "Laravel"],
     },
     {
@@ -135,10 +176,16 @@ const DEFAULT_MANUFACTURING_PROJECTS: Array<{
       title: "Wood Tracebility System (Industry Manufaktur)",
       titleId: "Wood Tracebility System (Industry Manufaktur)",
       titleEn: "Wood Traceability System (Manufacturing Industry)",
+      summary:
+        "Sistem traceability kayu berbasis GIS untuk kepatuhan SVLK & EUDR — memvalidasi titik tebang terhadap batas lahan dan mengunci identitas legalitas dari hulu hingga produk jadi.",
       summaryId:
         "Sistem traceability kayu berbasis GIS untuk kepatuhan SVLK & EUDR — memvalidasi titik tebang terhadap batas lahan dan mengunci identitas legalitas dari hulu hingga produk jadi.",
       summaryEn:
         "Google Maps-driven timber traceability platform for SVLK & EUDR compliance — validating harvest coordinates against land boundaries and securing chain of custody barcodes.",
+      category: "GIS & Traceability",
+      categoryId: "GIS & Penelusuran",
+      categoryEn: "GIS & Traceability",
+      isNda: true,
       techStack: ["Angular", "Javascript", "GMaps API", "Laravel", "Mysql"],
     },
   ];

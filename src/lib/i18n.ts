@@ -368,30 +368,38 @@ export function getDictionary(locale: Locale): Dictionary {
  * 2. Alternate locale field
  * 3. Default generic field (e.g., summary)
  */
+function extractStringValue(val: unknown): string {
+  if (typeof val === "string") return val;
+  if (val && typeof val === "object") {
+    const obj = val as Record<string, unknown>;
+    return (
+      (obj.name as string) ||
+      (obj.label as string) ||
+      (obj.title as string) ||
+      (obj.value as string) ||
+      ""
+    );
+  }
+  return "";
+}
+
 export function getLocalized<T extends object>(
   item: T,
   field: string,
   locale: Locale
 ): string {
+  if (!item || typeof item !== "object") return "";
   const idKey = `${field}Id`;
   const enKey = `${field}En`;
 
   const itemRecord = item as Record<string, unknown>;
 
   if (locale === "id") {
-    return (
-      (itemRecord[idKey] as string) ||
-      (itemRecord[enKey] as string) ||
-      (itemRecord[field] as string) ||
-      ""
-    );
+    const val = itemRecord[idKey] ?? itemRecord[enKey] ?? itemRecord[field];
+    return extractStringValue(val);
   } else {
-    return (
-      (itemRecord[enKey] as string) ||
-      (itemRecord[idKey] as string) ||
-      (itemRecord[field] as string) ||
-      ""
-    );
+    const val = itemRecord[enKey] ?? itemRecord[idKey] ?? itemRecord[field];
+    return extractStringValue(val);
   }
 }
 

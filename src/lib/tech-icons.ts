@@ -8,8 +8,15 @@ export interface TechIconInfo {
  * Prioritizes official multi-color vector SVGs from @iconify-json/logos and @iconify-json/devicon
  * so colors are naturally embedded without artificial CSS overrides.
  */
-export function getTechIcon(name: string): TechIconInfo {
-  const normalized = name.toLowerCase().trim();
+export function getTechIcon(name: unknown): TechIconInfo {
+  let str = "";
+  if (typeof name === "string") {
+    str = name;
+  } else if (name && typeof name === "object") {
+    const obj = name as Record<string, unknown>;
+    str = (obj.name as string) || (obj.label as string) || (obj.title as string) || "";
+  }
+  const normalized = (str || "").toLowerCase().trim();
 
   // 1. Programming Languages & Runtimes
   if (normalized === "typescript" || normalized === "ts") {
