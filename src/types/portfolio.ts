@@ -57,6 +57,22 @@ export interface Skill {
   order?: number;
 }
 
+export interface Education {
+  id: string;
+  school: string;
+  degree: string;
+  degreeId?: string;
+  degreeEn?: string;
+  field?: string;
+  fieldId?: string;
+  fieldEn?: string;
+  startDate: string;
+  endDate?: string | null;
+  location?: string;
+  logo?: string;
+  order?: number;
+}
+
 export interface Certificate {
   id: string;
   title: string;
@@ -80,6 +96,7 @@ export interface Profile {
   linkedinUrl: string;
   location: string;
   availableForHire?: boolean;
+  avatarUrl?: string;
 }
 
 export interface PortfolioData {
@@ -87,6 +104,7 @@ export interface PortfolioData {
   featuredProjects: Project[];
   otherProjects: Project[];
   experiences: Experience[];
+  educations?: Education[];
   skills: Skill[];
   certificates: Certificate[];
 }

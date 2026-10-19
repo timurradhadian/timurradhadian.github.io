@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Locale, Profile } from "@/types/portfolio";
 import { getDictionary, getLocalized } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
@@ -13,85 +14,64 @@ export function Hero({ locale, profile }: HeroProps) {
   const localizedRole = getLocalized(profile, "role", locale);
   const localizedBio = getLocalized(profile, "bio", locale);
 
+  const avatarSrc = profile.avatarUrl || "/avatar.png";
+
   return (
-    <section className="relative pt-20 pb-24 md:pt-28 md:pb-32 overflow-hidden">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        {profile.availableForHire && (
-          <Reveal delay={0.05} yOffset={10}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 mb-6">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span>{dict.hero.availableBadge}</span>
-            </div>
+    <section id="hero" className="space-y-8 pt-6 sm:pt-10">
+      {/* Hero Header with Avatar */}
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-6 sm:gap-8">
+        <div className="space-y-3 flex-1">
+          <Reveal delay={0.05} yOffset={14}>
+            <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-ink">
+              {dict.hero.title}
+            </h1>
           </Reveal>
-        )}
 
-        <Reveal delay={0.1} yOffset={16}>
-          <p className="text-sm md:text-base font-mono uppercase tracking-wider text-cobalt font-semibold mb-3">
-            {dict.hero.greeting}
-          </p>
+          <Reveal delay={0.1} yOffset={14}>
+            <p className="text-base sm:text-lg text-ink-muted leading-relaxed max-w-xl">
+              {localizedRole}. {dict.hero.description}
+            </p>
+          </Reveal>
+
+          {profile.availableForHire && (
+            <Reveal delay={0.15} yOffset={10}>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 mt-1">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span>{dict.hero.availableBadge}</span>
+              </div>
+            </Reveal>
+          )}
+        </div>
+
+        <Reveal delay={0.1} yOffset={0}>
+          <div className="relative size-24 sm:size-28 md:size-32 rounded-full overflow-hidden border border-border shadow-xs shrink-0 bg-surface">
+            <Image
+              src={avatarSrc}
+              alt={profile.name}
+              width={128}
+              height={128}
+              priority
+              className="size-full object-cover"
+            />
+          </div>
         </Reveal>
+      </div>
 
-        <Reveal delay={0.15} yOffset={20}>
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-ink max-w-3xl leading-[1.1]">
-            {profile.name}
-          </h1>
-        </Reveal>
-
-        <Reveal delay={0.2} yOffset={20}>
-          <h2 className="mt-4 text-xl sm:text-2xl font-serif text-ink-muted max-w-2xl font-normal">
-            {localizedRole}
+      {/* About Section */}
+      <div id="about" className="space-y-3 pt-2">
+        <Reveal delay={0.2} yOffset={14}>
+          <h2 className="text-xl font-bold tracking-tight text-ink">
+            {dict.hero.aboutTitle}
           </h2>
         </Reveal>
 
-        <Reveal delay={0.25} yOffset={24}>
-          <p className="mt-6 text-base sm:text-lg text-ink-muted max-w-2xl leading-relaxed">
-            {localizedBio}
+        <Reveal delay={0.25} yOffset={14}>
+          <p className="text-sm sm:text-base text-ink-muted leading-relaxed">
+            {dict.hero.aboutBio}
           </p>
-        </Reveal>
-
-        <Reveal delay={0.3} yOffset={24}>
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <a
-              href={`mailto:${profile.email}`}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cobalt text-white hover:bg-cobalt-hover font-medium text-sm transition-all shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-cobalt"
-            >
-              <span className="icon-[lucide--mail] size-4 inline-block" aria-hidden="true" />
-              <span>{dict.hero.contactBtn}</span>
-            </a>
-
-            <a
-              href="#projects"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-border bg-surface text-ink hover:text-cobalt hover:border-cobalt/40 font-medium text-sm transition-all shadow-xs focus-visible:outline-2 focus-visible:outline-cobalt"
-            >
-              <span>{dict.hero.projectsBtn}</span>
-              <span className="icon-[lucide--arrow-down] size-4 inline-block" aria-hidden="true" />
-            </a>
-
-            <div className="flex items-center gap-2 ml-auto sm:ml-2">
-              <a
-                href={profile.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub Profile"
-                className="p-3 rounded-xl border border-border bg-surface text-ink hover:text-cobalt hover:border-cobalt/40 transition-colors focus-visible:outline-2 focus-visible:outline-cobalt"
-              >
-                <span className="icon-[lucide--github] size-5 inline-block" aria-hidden="true" />
-              </a>
-
-              <a
-                href={profile.linkedinUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn Profile"
-                className="p-3 rounded-xl border border-border bg-surface text-ink hover:text-cobalt hover:border-cobalt/40 transition-colors focus-visible:outline-2 focus-visible:outline-cobalt"
-              >
-                <span className="icon-[lucide--linkedin] size-5 inline-block" aria-hidden="true" />
-              </a>
-            </div>
-          </div>
         </Reveal>
       </div>
     </section>

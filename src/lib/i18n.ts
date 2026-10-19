@@ -8,21 +8,32 @@ export interface Dictionary {
     about: string;
     projects: string;
     experience: string;
+    education: string;
     skills: string;
     certificates: string;
     contact: string;
   };
   hero: {
-    greeting: string;
-    contactBtn: string;
-    projectsBtn: string;
+    title: string;
+    description: string;
+    aboutTitle: string;
+    aboutBio: string;
     availableBadge: string;
   };
+  education: {
+    title: string;
+  };
   projects: {
+    badge: string;
     featuredTitle: string;
     featuredSubtitle: string;
     otherTitle: string;
     otherSubtitle: string;
+    filterAll: string;
+    filterFeatured: string;
+    filterNda: string;
+    website: string;
+    source: string;
     viewCode: string;
     liveDemo: string;
     ndaBadge: string;
@@ -37,19 +48,35 @@ export interface Dictionary {
   skills: {
     title: string;
     subtitle: string;
-    categories: {
-      frontend: string;
-      backend: string;
-      cloud: string;
-      tools: string;
-    };
   };
   certificates: {
+    badge: string;
     title: string;
     subtitle: string;
     issuedOn: string;
     credentialId: string;
     verifyLink: string;
+  };
+  contact: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    chatBtn: string;
+  };
+  dock: {
+    home: string;
+    about: string;
+    experience: string;
+    education: string;
+    skills: string;
+    projects: string;
+    certificates: string;
+    contact: string;
+    github: string;
+    linkedin: string;
+    email: string;
+    toggleTheme: string;
+    switchLang: string;
   };
   footer: {
     builtWith: string;
@@ -68,23 +95,36 @@ export const dictionaries: Record<Locale, Dictionary> = {
       about: "Tentang",
       projects: "Proyek",
       experience: "Pengalaman",
+      education: "Pendidikan",
       skills: "Keahlian",
       certificates: "Sertifikat",
       contact: "Kontak",
     },
     hero: {
-      greeting: "Halo, saya",
-      contactBtn: "Hubungi Saya",
-      projectsBtn: "Lihat Karya",
+      title: "Halo, saya Timur Dian 👋",
+      description:
+        "Software Engineer Fullstack & Arsitek Web. Berfokus pada sistem web performa tinggi, arsitektur headless, dan aplikasi skala enterprise yang terukur.",
+      aboutTitle: "Tentang",
+      aboutBio:
+        "Software Engineer Fullstack dan Arsitek Web dengan pengalaman merancang sistem web performa tinggi, arsitektur headless modern, serta aplikasi terdistribusi. Saat ini memimpin rekayasa platform digital di SejatiDimedia, mengembangkan produk web skala produksi dengan Next.js, Go, TypeScript, Node.js, dan arsitektur cloud teruji.",
       availableBadge: "Tersedia untuk proyek & peluang baru",
     },
+    education: {
+      title: "Pendidikan",
+    },
     projects: {
-      featuredTitle: "Proyek Unggulan",
+      badge: "Proyek",
+      featuredTitle: "Karya & Proyek Terpilih",
       featuredSubtitle:
-        "Koleksi terpilih dari proyek skala enterprise, platform agency SejatiDimedia, dan arsitektur web modern.",
+        "Koleksi proyek mulai dari web aplikasi modern, sistem enterprise, hingga arsitektur headless berkinerja tinggi.",
       otherTitle: "Eksplorasi & Proyek Lainnya",
       otherSubtitle:
         "Kumpulan proyek open-source, alat pengembang, dan microservices mandiri.",
+      filterAll: "Semua Proyek",
+      filterFeatured: "Unggulan",
+      filterNda: "Terikat NDA",
+      website: "Website",
+      source: "Source",
       viewCode: "Sumber Kode",
       liveDemo: "Lihat Demo",
       ndaBadge: "Terikat NDA",
@@ -93,29 +133,46 @@ export const dictionaries: Record<Locale, Dictionary> = {
       stackLabel: "Teknologi",
     },
     experience: {
-      title: "Jejak Pengalaman",
+      title: "Pengalaman Kerja",
       subtitle:
         "Perjalanan profesional merancang, membangun, dan mengoptimalkan sistem digital berskala tinggi.",
       present: "Saat Ini",
     },
     skills: {
-      title: "Keahlian & Domain Teknis",
+      title: "Keahlian",
       subtitle:
         "Kombinasi teknologi frontend, backend berkinerja tinggi, dan otomatisasi infrastruktur cloud.",
-      categories: {
-        frontend: "Frontend & Antarmuka",
-        backend: "Backend & Basis Data",
-        cloud: "Cloud & DevOps",
-        tools: "Sistem & Alur Kerja",
-      },
     },
     certificates: {
+      badge: "Sertifikasi",
       title: "Sertifikasi & Kredensial",
       subtitle:
-        "Validasi keahlian industri yang terverifikasi dalam arsitektur cloud dan pengembangan perangkat lunak.",
+        "Pembelajaran berkelanjutan, kredensial terverifikasi, dan sertifikasi spesialisasi arsitektur cloud.",
       issuedOn: "Diterbitkan",
       credentialId: "ID Kredensial",
-      verifyLink: "Verifikasi Kredensial",
+      verifyLink: "Verifikasi",
+    },
+    contact: {
+      badge: "Kontak",
+      title: "Mari Terhubung",
+      subtitle:
+        "Tertarik berkolaborasi, mendiskusikan arsitektur web modern, atau peluang proyek baru? Jangan ragu mengirim email langsung.",
+      chatBtn: "Kirim Email",
+    },
+    dock: {
+      home: "Beranda",
+      about: "Tentang",
+      experience: "Pengalaman Kerja",
+      education: "Pendidikan",
+      skills: "Keahlian",
+      projects: "Proyek",
+      certificates: "Sertifikat",
+      contact: "Kontak",
+      github: "GitHub",
+      linkedin: "LinkedIn",
+      email: "Email",
+      toggleTheme: "Ganti Tema",
+      switchLang: "Ganti Bahasa (Switch to EN)",
     },
     footer: {
       builtWith: "Dibangun dengan Next.js statis, Tailwind CSS, & Framer Motion.",
@@ -132,23 +189,36 @@ export const dictionaries: Record<Locale, Dictionary> = {
       about: "About",
       projects: "Projects",
       experience: "Experience",
+      education: "Education",
       skills: "Skills",
       certificates: "Certificates",
       contact: "Contact",
     },
     hero: {
-      greeting: "Hello, I am",
-      contactBtn: "Get in Touch",
-      projectsBtn: "View Work",
+      title: "Hi, I'm Timur Dian 👋",
+      description:
+        "Fullstack Software Engineer & Web Architect. Focused on high-performance web systems, headless architectures, and scalable enterprise applications.",
+      aboutTitle: "About",
+      aboutBio:
+        "Fullstack Software Engineer and Web Architect with a passion for high-performance web systems, headless architectures, and clean code. Currently leading digital platforms and software architecture at SejatiDimedia, building production web systems across Next.js, Go, TypeScript, Node.js, and modern cloud infrastructure.",
       availableBadge: "Available for new projects & opportunities",
     },
+    education: {
+      title: "Education",
+    },
     projects: {
-      featuredTitle: "Featured Projects",
+      badge: "Projects",
+      featuredTitle: "Check out my latest work",
       featuredSubtitle:
-        "Selected high-impact enterprise initiatives, SejatiDimedia agency systems, and modern web architectures.",
+        "I've worked on a variety of projects, from simple websites to complex web applications. Here are a few of my favorites.",
       otherTitle: "Selected Other Work",
       otherSubtitle:
         "A collection of open-source utilities, developer tooling, and standalone microservices.",
+      filterAll: "All Projects",
+      filterFeatured: "Featured",
+      filterNda: "NDA Protected",
+      website: "Website",
+      source: "Source",
       viewCode: "Source Code",
       liveDemo: "Live Preview",
       ndaBadge: "NDA Protected",
@@ -163,23 +233,40 @@ export const dictionaries: Record<Locale, Dictionary> = {
       present: "Present",
     },
     skills: {
-      title: "Skills & Technical Stack",
+      title: "Skills",
       subtitle:
         "Proficiency across modern frontend ecosystems, robust backend systems, and automated cloud workflows.",
-      categories: {
-        frontend: "Frontend & Interface",
-        backend: "Backend & Databases",
-        cloud: "Cloud & DevOps",
-        tools: "Systems & Tooling",
-      },
     },
     certificates: {
-      title: "Certificates & Credentials",
+      badge: "Certifications",
+      title: "I like building & learning",
       subtitle:
-        "Industry-recognized certifications in cloud architecture and professional software engineering.",
+        "Lifelong learning, verified credentials, and specialized engineering certifications.",
       issuedOn: "Issued",
       credentialId: "Credential ID",
-      verifyLink: "Verify Credential",
+      verifyLink: "Verify",
+    },
+    contact: {
+      badge: "Contact",
+      title: "Get in Touch",
+      subtitle:
+        "Want to chat? Just shoot me an email directly or connect on LinkedIn and I'll respond as soon as I can.",
+      chatBtn: "Send Email",
+    },
+    dock: {
+      home: "Home",
+      about: "About",
+      experience: "Work Experience",
+      education: "Education",
+      skills: "Skills",
+      projects: "Projects",
+      certificates: "Certifications",
+      contact: "Contact",
+      github: "GitHub",
+      linkedin: "LinkedIn",
+      email: "Email",
+      toggleTheme: "Toggle Theme",
+      switchLang: "Switch Language (Ganti ke ID)",
     },
     footer: {
       builtWith: "Crafted with static Next.js, Tailwind CSS, & Framer Motion.",

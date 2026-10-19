@@ -12,65 +12,88 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
   const dict = getDictionary(locale);
 
   return (
-    <section id="certificates" className="py-20 border-t border-border/60">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <Reveal>
-          <div className="max-w-2xl">
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-ink">
-              {dict.certificates.title}
-            </h2>
-            <p className="mt-3 text-base text-ink-muted">
-              {dict.certificates.subtitle}
-            </p>
-          </div>
+    <section id="certifications" className="space-y-6 pt-6">
+      {/* Centered Section Header */}
+      <div className="flex flex-col items-center text-center space-y-2">
+        <Reveal delay={0.05} yOffset={10}>
+          <span className="inline-block rounded-md bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900 px-3 py-1 text-xs font-semibold shadow-xs">
+            {dict.certificates.badge}
+          </span>
         </Reveal>
 
-        <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {certificates.map((cert, idx) => (
-            <Reveal key={cert.id || cert.title} delay={0.06 * idx}>
-              <div className="h-full rounded-xl border border-border/70 bg-surface/70 p-6 flex flex-col justify-between hover:border-cobalt/40 transition-colors shadow-xs">
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="p-2 rounded-lg bg-cobalt/10 text-cobalt">
-                      <span className="icon-[lucide--award] size-5 inline-block" aria-hidden="true" />
-                    </span>
-                    <span className="text-xs font-mono text-ink-muted">
-                      {cert.issueDate}
-                    </span>
-                  </div>
+        <Reveal delay={0.1} yOffset={14}>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-ink">
+            {dict.certificates.title}
+          </h2>
+        </Reveal>
 
-                  <h3 className="font-serif text-base font-bold text-ink">
-                    {cert.title}
-                  </h3>
+        <Reveal delay={0.15} yOffset={14}>
+          <p className="text-sm sm:text-base text-ink-muted max-w-xl mx-auto leading-relaxed">
+            {dict.certificates.subtitle}
+          </p>
+        </Reveal>
+      </div>
 
-                  <p className="mt-1.5 text-xs text-ink-muted">
-                    {cert.issuer}
-                  </p>
+      {/* Timeline List */}
+      <div className="relative pl-6 sm:pl-8 space-y-6 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-border/60">
+        {certificates.map((cert, idx) => {
+          const monogram = cert.issuer
+            ? cert.issuer
+                .split(" ")
+                .map((w) => w[0])
+                .slice(0, 2)
+                .join("")
+                .toUpperCase()
+            : "CERT";
 
-                  {cert.credentialId && (
-                    <p className="mt-3 text-[11px] font-mono text-ink-muted/80">
-                      ID: {cert.credentialId}
-                    </p>
-                  )}
+          return (
+            <Reveal key={cert.id} delay={0.1 + idx * 0.05} yOffset={12}>
+              <div className="relative group">
+                {/* Timeline Node Bullet */}
+                <div className="absolute -left-6 sm:-left-8 top-1.5 size-6 sm:size-7 rounded-full border border-border bg-canvas flex items-center justify-center font-bold text-[10px] text-ink group-hover:scale-110 transition-transform shadow-xs">
+                  {monogram}
                 </div>
 
-                {cert.credentialUrl && (
-                  <div className="mt-6 pt-4 border-t border-border/50">
-                    <a
-                      href={cert.credentialUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-cobalt hover:text-cobalt-hover transition-colors focus-visible:outline-2 focus-visible:outline-cobalt"
-                    >
-                      <span>{dict.certificates.verifyLink}</span>
-                      <span className="icon-[lucide--external-link] size-3.5 inline-block" />
-                    </a>
+                <div className="rounded-xl border border-border/70 bg-surface/40 hover:bg-surface/80 p-4 transition-all space-y-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="font-semibold text-sm sm:text-base text-ink">
+                        {cert.title}
+                      </h3>
+                      <p className="text-xs text-ink-muted">{cert.issuer}</p>
+                    </div>
+
+                    <div className="text-xs text-ink-muted tabular-nums shrink-0 text-right">
+                      {cert.issueDate}
+                    </div>
                   </div>
-                )}
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/40 text-xs">
+                    {cert.credentialId ? (
+                      <span className="font-mono text-[11px] text-ink-muted">
+                        ID: {cert.credentialId}
+                      </span>
+                    ) : (
+                      <span />
+                    )}
+
+                    {cert.credentialUrl && (
+                      <a
+                        href={cert.credentialUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-ink hover:underline"
+                      >
+                        <span>{dict.certificates.verifyLink}</span>
+                        <span className="icon-[lucide--external-link] size-3 inline-block" />
+                      </a>
+                    )}
+                  </div>
+                </div>
               </div>
             </Reveal>
-          ))}
-        </div>
+          );
+        })}
       </div>
     </section>
   );

@@ -4,11 +4,12 @@ import { Locale } from "@/types/portfolio";
 import { LOCALES, getLocalized } from "@/lib/i18n";
 import { getPortfolioData } from "@/lib/api";
 import { Hero } from "@/components/sections/Hero";
-import { FeaturedProjects } from "@/components/sections/FeaturedProjects";
-import { OtherProjects } from "@/components/sections/OtherProjects";
 import { Experiences } from "@/components/sections/Experiences";
+import { Education } from "@/components/sections/Education";
 import { Skills } from "@/components/sections/Skills";
+import { FeaturedProjects } from "@/components/sections/FeaturedProjects";
 import { Certificates } from "@/components/sections/Certificates";
+import { Contact } from "@/components/sections/Contact";
 
 interface PageProps {
   params: Promise<{ lang: string }>;
@@ -52,14 +53,21 @@ export default async function PortfolioPage({ params }: PageProps) {
   const locale: Locale = lang === "en" ? "en" : "id";
   const data = await getPortfolioData();
 
+  const allProjects = [...data.featuredProjects, ...data.otherProjects];
+
   return (
-    <div className="space-y-0">
+    <>
       <Hero locale={locale} profile={data.profile} />
-      <FeaturedProjects locale={locale} projects={data.featuredProjects} />
-      <OtherProjects locale={locale} projects={data.otherProjects} />
       <Experiences locale={locale} experiences={data.experiences} />
+      <Education locale={locale} educations={data.educations} />
       <Skills locale={locale} skills={data.skills} />
+      <FeaturedProjects
+        locale={locale}
+        projects={data.featuredProjects}
+        allProjects={allProjects}
+      />
       <Certificates locale={locale} certificates={data.certificates} />
-    </div>
+      <Contact locale={locale} profile={data.profile} />
+    </>
   );
 }

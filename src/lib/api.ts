@@ -309,6 +309,7 @@ export async function getPortfolioData(): Promise<PortfolioData> {
       featuredProjects,
       otherProjects,
       experiences: [...experiences].sort((a, b) => (a.order ?? 99) - (b.order ?? 99)),
+      educations: mockPortfolioData.educations,
       skills: [...skills].sort((a, b) => (a.order ?? 99) - (b.order ?? 99)),
       certificates: [...certificates].sort((a, b) => (a.order ?? 99) - (b.order ?? 99)),
     };
