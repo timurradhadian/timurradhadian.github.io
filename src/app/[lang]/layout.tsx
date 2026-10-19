@@ -3,7 +3,6 @@ import { Locale } from "@/types/portfolio";
 import { LOCALES, getDictionary } from "@/lib/i18n";
 import { getPortfolioData } from "@/lib/api";
 import { FloatingDock } from "@/components/ui/FloatingDock";
-import { Footer } from "@/components/layout/Footer";
 import { Particles } from "@/components/ui/Particles";
 import { DotPattern } from "@/components/ui/DotPattern";
 
@@ -59,12 +58,10 @@ export default async function LocaleLayout({
 
       <main
         id="main-content"
-        className="relative z-10 flex-1 max-w-2xl mx-auto px-6 py-12 md:py-20 w-full space-y-12 md:space-y-16"
+        className="relative z-10 flex-1 max-w-2xl mx-auto px-6 pt-12 md:pt-20 pb-28 sm:pb-32 w-full space-y-12 md:space-y-16"
       >
         {children}
       </main>
-
-      <Footer locale={locale} profile={data.profile} />
 
       <FloatingDock
         locale={locale}

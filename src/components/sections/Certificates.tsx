@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Certificate, Locale } from "@/types/portfolio";
 import { getDictionary } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
@@ -8,8 +9,33 @@ interface CertificatesProps {
   certificates: Certificate[];
 }
 
-function getIssuerInfo(issuer: string, title: string): { icon: string; bgClass: string } {
+function getIssuerInfo(
+  issuer: string,
+  title: string
+): { image?: string; icon?: string; bgClass: string } {
   const normalized = `${issuer} ${title}`.toLowerCase();
+  if (
+    normalized.includes("buildwithangga") ||
+    normalized.includes("bwa") ||
+    normalized.includes("angga")
+  ) {
+    return {
+      image: "/certificates/buildwithangga.png",
+      bgClass: "bg-white border-zinc-200/90 shadow-2xs",
+    };
+  }
+  if (normalized.includes("udemy")) {
+    return {
+      image: "/certificates/udemy.png",
+      bgClass: "bg-white border-zinc-200/90 shadow-2xs",
+    };
+  }
+  if (normalized.includes("algoritma")) {
+    return {
+      image: "/certificates/algoritma.png",
+      bgClass: "bg-white border-zinc-200/90 shadow-2xs",
+    };
+  }
   if (normalized.includes("aws") || normalized.includes("amazon")) {
     return { icon: "icon-[logos--aws]", bgClass: "bg-white border-zinc-200" };
   }
@@ -19,13 +45,17 @@ function getIssuerInfo(issuer: string, title: string): { icon: string; bgClass: 
   if (normalized.includes("google")) {
     return { icon: "icon-[logos--google-icon]", bgClass: "bg-white border-zinc-200" };
   }
-  if (normalized.includes("linux") || normalized.includes("kubernetes") || normalized.includes("cncf")) {
+  if (
+    normalized.includes("linux") ||
+    normalized.includes("kubernetes") ||
+    normalized.includes("cncf")
+  ) {
     return { icon: "icon-[logos--linux-tux]", bgClass: "bg-white border-zinc-200" };
   }
-  if (normalized.includes("udemy")) {
-    return { icon: "icon-[logos--udemy-icon]", bgClass: "bg-white border-zinc-200" };
-  }
-  return { icon: "icon-[lucide--award]", bgClass: "bg-zinc-50 border-zinc-200 text-zinc-700" };
+  return {
+    icon: "icon-[lucide--award]",
+    bgClass: "bg-zinc-50 border-zinc-200 text-zinc-700",
+  };
 }
 
 export function Certificates({ locale, certificates }: CertificatesProps) {
@@ -55,7 +85,7 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
       </div>
 
       {/* Timeline List */}
-      <div className="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-zinc-200">
+      <div className="relative pl-7 sm:pl-9 space-y-4 before:absolute before:left-3.5 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-zinc-200">
         {certificates.map((cert, idx) => {
           const issuerInfo = getIssuerInfo(cert.issuer, cert.title);
 
@@ -64,11 +94,22 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
               <div className="relative group">
                 {/* Timeline Node Bullet */}
                 <div
-                  className={`absolute -left-6 sm:-left-8 top-2 size-6 sm:size-7 rounded-full border flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs ${issuerInfo.bgClass}`}
+                  className={`absolute -left-7 sm:-left-9 top-2.5 size-7 sm:size-8 rounded-full border flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden p-1 ${issuerInfo.bgClass}`}
                 >
-                  <span
-                    className={`${issuerInfo.icon} size-3.5 inline-block shrink-0`}
-                  />
+                  {issuerInfo.image ? (
+                    <div className="relative size-full">
+                      <Image
+                        src={issuerInfo.image}
+                        alt={cert.issuer}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <span
+                      className={`${issuerInfo.icon} size-3.5 inline-block shrink-0`}
+                    />
+                  )}
                 </div>
 
                 <div className="rounded-xl border border-zinc-200/90 bg-white hover:border-zinc-300 p-4 transition-all space-y-2 shadow-xs">
