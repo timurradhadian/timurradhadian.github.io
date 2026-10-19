@@ -58,7 +58,11 @@ export default async function PortfolioPage({ params }: PageProps) {
   return (
     <>
       <Hero locale={locale} profile={data.profile} />
-      <Experiences locale={locale} experiences={data.experiences} />
+      <Experiences
+        locale={locale}
+        experiences={data.experiences}
+        allProjects={allProjects}
+      />
       <Education locale={locale} educations={data.educations} />
       <Skills locale={locale} skills={data.skills} />
       <FeaturedProjects
