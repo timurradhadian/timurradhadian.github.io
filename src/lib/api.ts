@@ -158,59 +158,92 @@ function parseBulletPoints(text?: string | null): string[] {
 /**
  * Normalizes raw Glio project payload into our standard Project type
  */
-function normalizeGlioProject(raw: Record<string, unknown>, idx: number): Project {
-  const title = (raw.title as string) || (raw.name as string) || "Untitled Project";
-  const slug = (raw.slug as string) || `project-${idx}`;
-  const id = (raw.id as string) || slug;
+function normalizeGlioProject(
+  raw: Record<string, unknown>,
+  idx: number,
+  detail?: Record<string, unknown> | null
+): Project {
+  const merged = { ...raw, ...(detail || {}) };
+  const title = (merged.title as string) || (merged.name as string) || "Untitled Project";
+  const slug = (merged.slug as string) || `project-${idx}`;
+  const id = (merged.id as string) || slug;
   const techStack =
-    Array.isArray(raw.technologies) && raw.technologies.length > 0
-      ? (raw.technologies as string[])
-      : Array.isArray(raw.techStack) && raw.techStack.length > 0
-      ? (raw.techStack as string[])
+    Array.isArray(merged.technologies) && merged.technologies.length > 0
+      ? (merged.technologies as string[])
+      : Array.isArray(merged.techStack) && merged.techStack.length > 0
+      ? (merged.techStack as string[])
       : [];
 
   const thumbnailUrl =
-    (raw.thumbnail as string) ||
-    (raw.thumbnailUrl as string) ||
-    (raw.bannerImage as string) ||
+    (merged.thumbnail as string) ||
+    (merged.thumbnailUrl as string) ||
+    (merged.bannerImage as string) ||
     "";
+
+  const bannerImage =
+    (merged.bannerImage as string) || (merged.thumbnail as string) || undefined;
+
+  const documents = Array.isArray(merged.documents)
+    ? (merged.documents as Array<Record<string, unknown>>).map((doc, dIdx) => ({
+        id: (doc.id as string) || `doc-${dIdx}`,
+        name: (doc.name as string) || `Screenshot ${dIdx + 1}`,
+        type: (doc.type as string) || "image/webp",
+        url: (doc.url as string) || "",
+        size: typeof doc.size === "number" ? doc.size : undefined,
+        order: typeof doc.order === "number" ? doc.order : dIdx,
+      }))
+    : undefined;
+
+  const links = Array.isArray(merged.links)
+    ? (merged.links as Array<Record<string, unknown>>).map((lnk) => ({
+        label: (lnk.label as string) || undefined,
+        url: (lnk.url as string) || "",
+        type: (lnk.type as string) || undefined,
+      }))
+    : undefined;
 
   return {
     id,
     slug,
     title,
-    titleId: (raw.titleId as string) || (raw.nameId as string) || title,
-    titleEn: (raw.titleEn as string) || (raw.nameEn as string) || title,
+    titleId: (merged.titleId as string) || (merged.nameId as string) || title,
+    titleEn: (merged.titleEn as string) || (merged.nameEn as string) || title,
     category:
-      Array.isArray(raw.categories) && raw.categories.length > 0
-        ? typeof raw.categories[0] === "string"
+      Array.isArray(merged.categories) && merged.categories.length > 0
+        ? typeof merged.categories[0] === "string"
           ? "Fullstack Application"
-          : ((raw.categories[0] as Record<string, unknown>).name as string) || "Fullstack Application"
-        : (raw.category as string) || "Fullstack Application",
-    summary: (raw.summary as string) || "",
-    summaryId: (raw.summaryId as string) || (raw.summary as string) || "",
-    summaryEn: (raw.summaryEn as string) || (raw.summary as string) || "",
-    description: (raw.description as string) || undefined,
-    descriptionId: (raw.descriptionId as string) || (raw.description as string) || undefined,
-    descriptionEn: (raw.descriptionEn as string) || (raw.description as string) || undefined,
+          : ((merged.categories[0] as Record<string, unknown>).name as string) || "Fullstack Application"
+        : (merged.category as string) || "Fullstack Application",
+    summary: (merged.summary as string) || "",
+    summaryId: (merged.summaryId as string) || (merged.summary as string) || "",
+    summaryEn: (merged.summaryEn as string) || (merged.summary as string) || "",
+    clientSummary: (merged.clientSummary as string) || undefined,
+    clientSummaryId: (merged.clientSummaryId as string) || (merged.clientSummary as string) || undefined,
+    clientSummaryEn: (merged.clientSummaryEn as string) || (merged.clientSummary as string) || undefined,
+    description: (merged.description as string) || undefined,
+    descriptionId: (merged.descriptionId as string) || (merged.description as string) || undefined,
+    descriptionEn: (merged.descriptionEn as string) || (merged.description as string) || undefined,
     thumbnailUrl,
+    bannerImage,
     techStack,
     projectUrl:
-      (raw.projectUrl as string) ||
-      (raw.demoUrl as string) ||
-      (raw.liveUrl as string) ||
+      (merged.projectUrl as string) ||
+      (merged.demoUrl as string) ||
+      (merged.liveUrl as string) ||
       "",
     githubUrl:
-      (raw.githubUrl as string) ||
-      (raw.repoUrl as string) ||
+      (merged.githubUrl as string) ||
+      (merged.repoUrl as string) ||
       "",
+    links,
+    documents,
     isFeatured: false,
-    isNda: Boolean(raw.isNda),
-    isProfessional: Boolean(raw.isProfessional),
-    startDate: (raw.startDate as string) || undefined,
-    endDate: (raw.endDate as string) || undefined,
-    status: (raw.status as string) || undefined,
-    order: typeof raw.order === "number" ? raw.order : idx,
+    isNda: Boolean(merged.isNda),
+    isProfessional: Boolean(merged.isProfessional),
+    startDate: (merged.startDate as string) || undefined,
+    endDate: (merged.endDate as string) || undefined,
+    status: (merged.status as string) || undefined,
+    order: typeof merged.order === "number" ? merged.order : idx,
   };
 }
 
@@ -468,6 +501,13 @@ function mergePortfolioProjects(
         summary: sejatiNda?.summary || base.summary,
         summaryId: sejatiNda?.summaryId || base.summaryId,
         summaryEn: sejatiNda?.summaryEn || base.summaryEn,
+        clientSummary: undefined,
+        clientSummaryId: undefined,
+        clientSummaryEn: undefined,
+        documents: [],
+        links: [],
+        projectUrl: "",
+        githubUrl: "",
         techStack:
           base.techStack && base.techStack.length > 0
             ? base.techStack
@@ -586,7 +626,33 @@ export async function getPortfolioData(): Promise<PortfolioData> {
     const experiences = (rawExperiences || []).map(normalizeGlioExperience);
     const certificates = (rawCertificates || []).map(normalizeGlioCertificate);
     const skills = (rawSkills || []).map(normalizeGlioSkill);
-    const allProjects = (rawProjects || []).map(normalizeGlioProject);
+
+    // Fetch comprehensive project details for rich modal presentation
+    const detailMap = new Map<string, Record<string, unknown>>();
+    const projectSlugs = (rawProjects || [])
+      .map((p) => p.slug as string)
+      .filter(Boolean);
+
+    const BATCH_SIZE = 8;
+    for (let i = 0; i < projectSlugs.length; i += BATCH_SIZE) {
+      const batch = projectSlugs.slice(i, i + BATCH_SIZE);
+      const batchResults = await Promise.all(
+        batch.map((slug) =>
+          fetchFromGlio<Record<string, unknown>>(`/projects/${slug}`).catch(() => null)
+        )
+      );
+      batchResults.forEach((detail) => {
+        if (detail && detail.slug) {
+          detailMap.set(detail.slug as string, detail);
+        }
+      });
+    }
+
+    const allProjects = (rawProjects || []).map((raw, idx) => {
+      const slug = raw.slug as string;
+      const detail = detailMap.get(slug);
+      return normalizeGlioProject(raw, idx, detail);
+    });
 
     const { featuredProjects, ndaProjects, otherProjects, ndaBlurEnabled } =
       mergePortfolioProjects(sejatiPortfolio, allProjects);

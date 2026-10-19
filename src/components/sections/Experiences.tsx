@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Experience, Locale, Project } from "@/types/portfolio";
 import { getDictionary, getLocalized, getLocalizedArray } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
+import { ProjectDetailModal } from "@/components/ui/ProjectDetailModal";
 
 interface ExperiencesProps {
   locale: Locale;
@@ -151,6 +152,7 @@ export function Experiences({
   const [expandedId, setExpandedId] = useState<string | null>(
     experiences[0]?.id || null
   );
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -316,12 +318,17 @@ export function Experiences({
                               return (
                                 <div
                                   key={proj.id || proj.slug}
-                                  className="rounded-lg border border-zinc-200/90 bg-zinc-50/60 p-3 space-y-1.5 hover:bg-zinc-50 transition-colors"
+                                  onClick={() => setSelectedProject(proj)}
+                                  className="group rounded-lg border border-zinc-200/90 bg-zinc-50/60 p-3 space-y-1.5 hover:bg-zinc-100/90 hover:border-zinc-300 transition-all cursor-pointer shadow-2xs"
                                 >
                                   <div className="flex items-start justify-between gap-2">
-                                    <h4 className="font-semibold text-xs sm:text-sm text-zinc-900 leading-snug">
-                                      {pTitle}
+                                    <h4 className="font-semibold text-xs sm:text-sm text-zinc-900 group-hover:text-zinc-950 leading-snug flex items-center gap-1.5">
+                                      <span>{pTitle}</span>
+                                      <span className="icon-[lucide--info] size-3.5 text-zinc-400 group-hover:text-zinc-700 shrink-0 inline-block" />
                                     </h4>
+                                    <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200 shrink-0">
+                                      NDA
+                                    </span>
                                   </div>
 
                                   {pSummary && (
@@ -356,6 +363,15 @@ export function Experiences({
           );
         })}
       </div>
+
+      {/* Project Detail Modal */}
+      <ProjectDetailModal
+        project={selectedProject}
+        onClose={() => setSelectedProject(null)}
+        locale={locale}
+        dict={dict}
+        ndaBlurEnabled={true}
+      />
     </section>
   );
 }

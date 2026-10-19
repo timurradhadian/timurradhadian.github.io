@@ -50,6 +50,10 @@ export interface Dictionary {
     timeline: string;
     status: string;
     statusCompleted: string;
+    clientSummaryTitle: string;
+    galleryTitle: string;
+    caseStudyTitle: string;
+    ndaRestrictedGallery: string;
   };
   experience: {
     title: string;
@@ -154,6 +158,11 @@ export const dictionaries: Record<Locale, Dictionary> = {
       timeline: "Periode Pengerjaan",
       status: "Status Proyek",
       statusCompleted: "Selesai",
+      clientSummaryTitle: "Ringkasan Eksekutif Klien",
+      galleryTitle: "Galeri & Tangkapan Layar",
+      caseStudyTitle: "Studi Kasus & Detail Teknis",
+      ndaRestrictedGallery:
+        "Arsip tangkapan layar antarmuka dan skema sistem internal dilindungi oleh NDA dan tidak dipublikasikan.",
     },
     experience: {
       title: "Pengalaman Kerja",
@@ -260,6 +269,11 @@ export const dictionaries: Record<Locale, Dictionary> = {
       timeline: "Timeline",
       status: "Project Status",
       statusCompleted: "Completed",
+      clientSummaryTitle: "Executive Client Summary",
+      galleryTitle: "Screenshots & Gallery",
+      caseStudyTitle: "Technical Case Study & Architecture",
+      ndaRestrictedGallery:
+        "UI screenshots and internal system architecture are restricted by NDA and not publicly disclosed.",
     },
     experience: {
       title: "Work Experience",

@@ -6,6 +6,21 @@ export interface LocalizedString {
   default: string;
 }
 
+export interface ProjectDocument {
+  id: string;
+  name: string;
+  type: string;
+  url: string;
+  size?: number;
+  order?: number;
+}
+
+export interface ProjectLink {
+  label?: string;
+  url: string;
+  type?: string;
+}
+
 export interface Project {
   id: string;
   slug: string;
@@ -18,13 +33,19 @@ export interface Project {
   summary: string;
   summaryId?: string;
   summaryEn?: string;
+  clientSummary?: string;
+  clientSummaryId?: string;
+  clientSummaryEn?: string;
   description?: string;
   descriptionId?: string;
   descriptionEn?: string;
   thumbnailUrl?: string;
+  bannerImage?: string;
   techStack: string[];
   projectUrl?: string;
   githubUrl?: string;
+  links?: ProjectLink[];
+  documents?: ProjectDocument[];
   isFeatured?: boolean;
   isNda?: boolean;
   isProfessional?: boolean;
