@@ -8,24 +8,24 @@ interface CertificatesProps {
   certificates: Certificate[];
 }
 
-function getIssuerInfo(issuer: string, title: string): { icon: string; color: string; bgClass: string } {
+function getIssuerInfo(issuer: string, title: string): { icon: string; bgClass: string } {
   const normalized = `${issuer} ${title}`.toLowerCase();
   if (normalized.includes("aws") || normalized.includes("amazon")) {
-    return { icon: "icon-[simple-icons--amazonwebservices]", color: "#FF9900", bgClass: "bg-amber-50 border-amber-200" };
+    return { icon: "icon-[logos--aws]", bgClass: "bg-white border-zinc-200" };
   }
   if (normalized.includes("meta")) {
-    return { icon: "icon-[simple-icons--meta]", color: "#0668E1", bgClass: "bg-blue-50 border-blue-200" };
+    return { icon: "icon-[logos--meta-icon]", bgClass: "bg-white border-zinc-200" };
   }
   if (normalized.includes("google")) {
-    return { icon: "icon-[simple-icons--google]", color: "#4285F4", bgClass: "bg-blue-50 border-blue-200" };
+    return { icon: "icon-[logos--google-icon]", bgClass: "bg-white border-zinc-200" };
   }
   if (normalized.includes("linux") || normalized.includes("kubernetes") || normalized.includes("cncf")) {
-    return { icon: "icon-[simple-icons--linuxfoundation]", color: "#003366", bgClass: "bg-slate-50 border-slate-200" };
+    return { icon: "icon-[logos--linux-tux]", bgClass: "bg-white border-zinc-200" };
   }
-  if (normalized.includes("alibaba")) {
-    return { icon: "icon-[simple-icons--alibabacloud]", color: "#FF6A00", bgClass: "bg-orange-50 border-orange-200" };
+  if (normalized.includes("udemy")) {
+    return { icon: "icon-[logos--udemy-icon]", bgClass: "bg-white border-zinc-200" };
   }
-  return { icon: "icon-[lucide--award]", color: "#4F46E5", bgClass: "bg-indigo-50 border-indigo-200" };
+  return { icon: "icon-[lucide--award]", bgClass: "bg-zinc-50 border-zinc-200 text-zinc-700" };
 }
 
 export function Certificates({ locale, certificates }: CertificatesProps) {
@@ -68,7 +68,6 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
                 >
                   <span
                     className={`${issuerInfo.icon} size-3.5 inline-block shrink-0`}
-                    style={{ color: issuerInfo.color }}
                   />
                 </div>
 

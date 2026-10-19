@@ -187,7 +187,6 @@ export function FeaturedProjects({
                           >
                             <span
                               className={`${techInfo.iconClass} size-3 inline-block shrink-0`}
-                              style={{ color: techInfo.color }}
                               aria-hidden="true"
                             />
                             <span>{tech}</span>

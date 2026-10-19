@@ -8,18 +8,17 @@ interface EducationProps {
   educations?: EducationType[];
 }
 
-function getSchoolBadge(school: string): { icon: string; className: string; iconColor?: string } {
+function getSchoolBadge(school: string): { icon: string; className: string } {
   const normalized = school.toLowerCase();
   if (normalized.includes("google") || normalized.includes("bangkit")) {
     return {
-      icon: "icon-[simple-icons--google]",
-      className: "bg-blue-50 border-blue-200 text-[#4285F4]",
-      iconColor: "#4285F4",
+      icon: "icon-[logos--google-icon]",
+      className: "bg-white border-zinc-200/90 shadow-2xs",
     };
   }
   return {
     icon: "icon-[lucide--graduation-cap]",
-    className: "bg-amber-50 border-amber-200 text-amber-700",
+    className: "bg-zinc-50 border-zinc-200 text-zinc-700 shadow-2xs",
   };
 }
 
@@ -57,7 +56,6 @@ export function Education({ locale, educations = [] }: EducationProps) {
                     >
                       <span
                         className={`${badge.icon} size-5 inline-block shrink-0`}
-                        style={badge.iconColor ? { color: badge.iconColor } : undefined}
                       />
                     </div>
 
