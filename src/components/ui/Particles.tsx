@@ -70,7 +70,6 @@ type Circle = {
   translateY: number;
   size: number;
   alpha: number;
-  targetAlpha: number;
   dx: number;
   dy: number;
   magnetism: number;
@@ -78,12 +77,12 @@ type Circle = {
 
 export const Particles: React.FC<ParticlesProps> = ({
   className = "",
-  quantity = 120,
-  staticity = 50,
+  quantity = 150,
+  staticity = 40,
   ease = 50,
-  size = 0.5,
+  size = 1.2,
   refresh = false,
-  color = "#000000",
+  color = "#18181b",
   vx = 0,
   vy = 0,
   ...props
@@ -104,13 +103,19 @@ export const Particles: React.FC<ParticlesProps> = ({
 
   const resizeCanvas = () => {
     if (canvasContainerRef.current && canvasRef.current && context.current) {
-      canvasSize.current.w = canvasContainerRef.current.offsetWidth;
-      canvasSize.current.h = canvasContainerRef.current.offsetHeight;
+      const width =
+        canvasContainerRef.current.offsetWidth ||
+        (typeof window !== "undefined" ? window.innerWidth : 800);
+      const height =
+        canvasContainerRef.current.offsetHeight || 280;
 
-      canvasRef.current.width = canvasSize.current.w * dpr;
-      canvasRef.current.height = canvasSize.current.h * dpr;
-      canvasRef.current.style.width = `${canvasSize.current.w}px`;
-      canvasRef.current.style.height = `${canvasSize.current.h}px`;
+      canvasSize.current.w = width;
+      canvasSize.current.h = height;
+
+      canvasRef.current.width = width * dpr;
+      canvasRef.current.height = height * dpr;
+      canvasRef.current.style.width = `${width}px`;
+      canvasRef.current.style.height = `${height}px`;
       context.current.scale(dpr, dpr);
 
       circles.current = [];
@@ -122,16 +127,18 @@ export const Particles: React.FC<ParticlesProps> = ({
   };
 
   const circleParams = (): Circle => {
-    const x = Math.floor(Math.random() * (canvasSize.current.w || 800));
-    const y = Math.floor(Math.random() * (canvasSize.current.h || 240));
+    const width = canvasSize.current.w || (typeof window !== "undefined" ? window.innerWidth : 800);
+    const height = canvasSize.current.h || 280;
+    const x = Math.floor(Math.random() * width);
+    const y = Math.floor(Math.random() * height);
     const translateX = 0;
     const translateY = 0;
-    const pSize = Math.floor(Math.random() * 2) + size;
-    const alpha = 0;
-    const targetAlpha = parseFloat((Math.random() * 0.45 + 0.1).toFixed(2));
-    const dx = (Math.random() - 0.5) * 0.12;
-    const dy = (Math.random() - 0.5) * 0.12;
-    const magnetism = 0.1 + Math.random() * 4;
+    const pSize = Math.random() * 1.5 + size;
+    // Visible alpha between 0.25 and 0.75 for crisp light mode dots
+    const alpha = parseFloat((Math.random() * 0.5 + 0.25).toFixed(2));
+    const dx = (Math.random() - 0.5) * 0.15;
+    const dy = (Math.random() - 0.5) * 0.15;
+    const magnetism = 0.2 + Math.random() * 4;
     return {
       x,
       y,
@@ -139,7 +146,6 @@ export const Particles: React.FC<ParticlesProps> = ({
       translateY,
       size: pSize,
       alpha,
-      targetAlpha,
       dx,
       dy,
       magnetism,
@@ -184,39 +190,9 @@ export const Particles: React.FC<ParticlesProps> = ({
     }
   };
 
-  const remapValue = (
-    value: number,
-    start1: number,
-    end1: number,
-    start2: number,
-    end2: number
-  ): number => {
-    const remapped =
-      ((value - start1) * (end2 - start2)) / (end1 - start1) + start2;
-    return remapped > 0 ? remapped : 0;
-  };
-
   const animate = () => {
     clearContext();
     circles.current.forEach((circle: Circle, i: number) => {
-      const edge = [
-        circle.x + circle.translateX - circle.size,
-        canvasSize.current.w - circle.x - circle.translateX - circle.size,
-        circle.y + circle.translateY - circle.size,
-        canvasSize.current.h - circle.y - circle.translateY - circle.size,
-      ];
-      const closestEdge = edge.reduce((a, b) => Math.min(a, b), Infinity);
-      const remapClosestEdge = parseFloat(
-        remapValue(closestEdge, 0, 20, 0, 1).toFixed(2)
-      );
-      if (remapClosestEdge > 1) {
-        circle.alpha += 0.02;
-        if (circle.alpha > circle.targetAlpha) {
-          circle.alpha = circle.targetAlpha;
-        }
-      } else {
-        circle.alpha = circle.targetAlpha * remapClosestEdge;
-      }
       circle.x += circle.dx + vx;
       circle.y += circle.dy + vy;
       circle.translateX +=
@@ -228,11 +204,12 @@ export const Particles: React.FC<ParticlesProps> = ({
 
       drawCircle(circle, true);
 
+      // Reposition when circle drifts completely out of bounds
       if (
-        circle.x < -circle.size ||
-        circle.x > canvasSize.current.w + circle.size ||
-        circle.y < -circle.size ||
-        circle.y > canvasSize.current.h + circle.size
+        circle.x < -circle.size * 2 ||
+        circle.x > canvasSize.current.w + circle.size * 2 ||
+        circle.y < -circle.size * 2 ||
+        circle.y > canvasSize.current.h + circle.size * 2
       ) {
         circles.current.splice(i, 1);
         const newCircle = circleParams();
@@ -278,7 +255,7 @@ export const Particles: React.FC<ParticlesProps> = ({
       }
       resizeTimeout.current = setTimeout(() => {
         initCanvasRef.current();
-      }, 200);
+      }, 150);
     };
 
     window.addEventListener("resize", handleResize);
@@ -304,12 +281,12 @@ export const Particles: React.FC<ParticlesProps> = ({
 
   return (
     <div
-      className={cn("pointer-events-none", className)}
+      className={cn("pointer-events-none relative", className)}
       ref={canvasContainerRef}
       aria-hidden="true"
       {...props}
     >
-      <canvas ref={canvasRef} className="size-full" />
+      <canvas ref={canvasRef} className="size-full block" />
     </div>
   );
 };

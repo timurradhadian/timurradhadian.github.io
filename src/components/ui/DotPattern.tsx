@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 
 interface DotPatternProps extends React.SVGProps<SVGSVGElement> {
@@ -19,24 +19,24 @@ export function DotPattern({
   y = 0,
   cx = 1,
   cy = 1,
-  cr = 1,
+  cr = 1.2,
   className,
   ...props
 }: DotPatternProps) {
-  const id = useId();
+  const patternId = "ambient-dot-grid-pattern";
 
   return (
     <svg
       aria-hidden="true"
       className={cn(
-        "pointer-events-none absolute inset-0 size-full fill-zinc-400/40",
+        "pointer-events-none absolute inset-0 size-full fill-zinc-900/15",
         className
       )}
       {...props}
     >
       <defs>
         <pattern
-          id={id}
+          id={patternId}
           width={width}
           height={height}
           patternUnits="userSpaceOnUse"
@@ -44,10 +44,10 @@ export function DotPattern({
           x={x}
           y={y}
         >
-          <circle id="pattern-circle" cx={cx} cy={cy} r={cr} />
+          <circle cx={cx} cy={cy} r={cr} />
         </pattern>
       </defs>
-      <rect width="100%" height="100%" strokeWidth={0} fill={`url(#${id})`} />
+      <rect width="100%" height="100%" strokeWidth={0} fill={`url(#${patternId})`} />
     </svg>
   );
 }
