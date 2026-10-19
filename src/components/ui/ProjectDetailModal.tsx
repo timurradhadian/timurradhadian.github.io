@@ -32,13 +32,15 @@ export function ProjectDetailModal({
 
   const [activeProject, setActiveProject] = useState<Project | null>(project);
   const [activeTab, setActiveTab] = useState<"overview" | "details">("overview");
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  // Sync active project and reset tab when project prop changes
+  // Sync active project and reset states when project prop changes
   useEffect(() => {
     setActiveProject(project);
     setActiveTab("overview");
+    setSelectedImageIndex(0);
     setLightboxIndex(null);
 
     if (!project) return;
@@ -112,23 +114,11 @@ export function ProjectDetailModal({
   if (!project || !activeProject) return null;
 
   const title = getLocalized(activeProject, "title", activeLocale);
-  const summary = getLocalized(activeProject, "summary", activeLocale);
   const description = getLocalized(activeProject, "description", activeLocale);
   const clientSummary = getLocalized(activeProject, "clientSummary", activeLocale);
   const category = getLocalized(activeProject, "category", activeLocale);
 
-  const formatTimeline = () => {
-    if (activeProject.startDate && activeProject.endDate) {
-      const start = new Date(activeProject.startDate).getFullYear();
-      const end = new Date(activeProject.endDate).getFullYear();
-      return start === end ? `${start}` : `${start} – ${end}`;
-    }
-    return null;
-  };
-
-  const timelineStr = formatTimeline();
-
-  // Filter image documents for screenshot gallery
+  // Filter image documents for screenshot showcase gallery
   const imageDocs = (activeProject.documents || []).filter(
     (doc) =>
       doc.url &&
@@ -137,6 +127,26 @@ export function ProjectDetailModal({
   );
 
   const heroImage = activeProject.bannerImage || activeProject.thumbnailUrl;
+  const currentShowcaseUrl =
+    imageDocs.length > 0 && imageDocs[selectedImageIndex]
+      ? imageDocs[selectedImageIndex].url
+      : heroImage;
+  const currentShowcaseName =
+    imageDocs.length > 0 && imageDocs[selectedImageIndex]
+      ? imageDocs[selectedImageIndex].name
+      : title;
+
+  const handlePrevShowcase = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (imageDocs.length === 0) return;
+    setSelectedImageIndex((prev) => (prev === 0 ? imageDocs.length - 1 : prev - 1));
+  };
+
+  const handleNextShowcase = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (imageDocs.length === 0) return;
+    setSelectedImageIndex((prev) => (prev === imageDocs.length - 1 ? 0 : prev + 1));
+  };
 
   return (
     <AnimatePresence>
@@ -243,7 +253,7 @@ export function ProjectDetailModal({
                   <span>{activeDict.projects.tabOverview}</span>
                   {imageDocs.length > 0 && !activeProject.isNda && (
                     <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono font-medium bg-zinc-100 text-zinc-600 border border-zinc-200">
-                      {imageDocs.length} foto
+                      {imageDocs.length} screens
                     </span>
                   )}
                 </button>
@@ -280,10 +290,10 @@ export function ProjectDetailModal({
             MAIN SCROLLABLE CONTENT AREA
         ========================================================================= */}
         <div className="flex-1 overflow-y-auto overscroll-contain bg-zinc-50/40">
-          <main className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-10">
+          <main className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-8">
             <AnimatePresence mode="wait">
               {/* ===================================================================
-                  TAB 1: RINGKASAN PROYEK (OVERVIEW, TECHSTACK UNDER HERO, COMPACT GALLERY)
+                  TAB 1: RINGKASAN PROYEK (SHOWCASE AT TOP, TECHSTACK, CLIENT SUMMARY)
               =================================================================== */}
               {activeTab === "overview" && (
                 <motion.div
@@ -294,78 +304,209 @@ export function ProjectDetailModal({
                   transition={{ duration: 0.2 }}
                   className="space-y-6"
                 >
-                  {/* Hero Showcase Banner */}
-                  <div className="relative aspect-[21/9] sm:aspect-[2.2/1] w-full rounded-2xl overflow-hidden border border-zinc-200/90 bg-zinc-100 shadow-sm">
-                    {heroImage ? (
-                      <Image
-                        src={heroImage as string}
-                        alt={title}
-                        fill
-                        sizes="(max-width: 1200px) 100vw, 1024px"
-                        className={`object-cover ${
-                          activeProject.isNda && ndaBlurEnabled
-                            ? "filter blur-[4px] scale-105"
-                            : ""
-                        }`}
-                        priority
-                      />
-                    ) : (
-                      <div className="flex size-full items-center justify-center bg-zinc-100 text-zinc-400 font-mono text-sm uppercase tracking-wider">
-                        {category}
-                      </div>
-                    )}
+                  {/* =========================================================================
+                      TOP SHOWCASE GALLERY (VISIBLE IMMEDIATELY WITHOUT SCROLLING)
+                  ========================================================================= */}
+                  <div className="p-3.5 sm:p-5 rounded-2xl bg-white border border-zinc-200/90 shadow-2xs space-y-3.5">
+                    {/* Main Active Preview Screen */}
+                    <div
+                      onClick={() =>
+                        !activeProject.isNda &&
+                        imageDocs.length > 0 &&
+                        setLightboxIndex(selectedImageIndex)
+                      }
+                      className={`group relative aspect-[16/9] sm:aspect-[2.1/1] w-full rounded-xl overflow-hidden border border-zinc-200/90 bg-zinc-950 shadow-xs ${
+                        !activeProject.isNda && imageDocs.length > 0 ? "cursor-zoom-in" : ""
+                      }`}
+                    >
+                      {currentShowcaseUrl ? (
+                        <Image
+                          src={currentShowcaseUrl as string}
+                          alt={currentShowcaseName || title}
+                          fill
+                          sizes="(max-width: 1200px) 100vw, 1024px"
+                          className={`object-contain sm:object-cover transition-all duration-300 ${
+                            activeProject.isNda && ndaBlurEnabled
+                              ? "filter blur-[5px] scale-105"
+                              : ""
+                          }`}
+                          priority
+                        />
+                      ) : (
+                        <div className="flex size-full items-center justify-center bg-zinc-100 text-zinc-400 font-mono text-sm uppercase tracking-wider">
+                          {category}
+                        </div>
+                      )}
 
-                    {/* Watermark Overlay for NDA Projects */}
-                    {activeProject.isNda && (
-                      <div className="absolute inset-0 bg-zinc-950/40 backdrop-blur-[2px] flex items-center justify-center p-4">
-                        <div className="px-4 py-2.5 rounded-xl bg-zinc-900/95 border border-white/20 backdrop-blur-md shadow-2xl flex items-center gap-3 text-white text-center">
-                          <span className="icon-[lucide--shield-lock] size-5 text-amber-400 shrink-0" />
-                          <div className="text-left">
-                            <span className="font-mono text-xs uppercase tracking-widest font-bold block text-amber-300">
-                              {activeDict.projects.confidentialStamp}
-                            </span>
-                            <span className="text-[10px] text-zinc-300 font-mono block">
-                              PROTECTED ENTERPRISE SYSTEM // REDACTED DATA
-                            </span>
+                      {/* Watermark Overlay for NDA Projects */}
+                      {activeProject.isNda && (
+                        <div className="absolute inset-0 bg-zinc-950/40 backdrop-blur-[2px] flex items-center justify-center p-4">
+                          <div className="px-4 py-2.5 rounded-xl bg-zinc-900/95 border border-white/20 backdrop-blur-md shadow-2xl flex items-center gap-3 text-white text-center">
+                            <span className="icon-[lucide--shield-lock] size-5 text-amber-400 shrink-0" />
+                            <div className="text-left">
+                              <span className="font-mono text-xs uppercase tracking-widest font-bold block text-amber-300">
+                                {activeDict.projects.confidentialStamp}
+                              </span>
+                              <span className="text-[10px] text-zinc-300 font-mono block">
+                                PROTECTED ENTERPRISE SYSTEM // REDACTED DATA
+                              </span>
+                            </div>
                           </div>
+                        </div>
+                      )}
+
+                      {/* Top Badges overlay on main screen */}
+                      <div className="absolute top-3.5 left-3.5 flex flex-wrap items-center gap-2 z-10 pointer-events-none">
+                        <span className="px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider font-semibold bg-white/95 text-zinc-800 border border-zinc-200/80 backdrop-blur-xs shadow-xs">
+                          {category}
+                        </span>
+                        {activeProject.isNda && (
+                          <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
+                        )}
+                        {activeProject.status && (
+                          <span className="px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider font-semibold bg-emerald-50/95 text-emerald-800 border border-emerald-200 shadow-xs">
+                            {activeProject.status === "COMPLETE"
+                              ? activeDict.projects.statusCompleted
+                              : activeProject.status}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Next / Previous Screen Controls on Hover (for multi-screen showcase) */}
+                      {!activeProject.isNda && imageDocs.length > 1 && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={handlePrevShowcase}
+                            aria-label="Previous Screen"
+                            className="absolute left-3 top-1/2 -translate-y-1/2 size-9 rounded-full bg-zinc-900/75 hover:bg-zinc-900 text-white border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+                          >
+                            <span className="icon-[lucide--chevron-left] size-5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleNextShowcase}
+                            aria-label="Next Screen"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 size-9 rounded-full bg-zinc-900/75 hover:bg-zinc-900 text-white border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+                          >
+                            <span className="icon-[lucide--chevron-right] size-5" />
+                          </button>
+                        </>
+                      )}
+
+                      {/* Screen Counter & Zoom Indicator in Bottom Right */}
+                      {!activeProject.isNda && imageDocs.length > 0 && (
+                        <div className="absolute bottom-3 right-3 flex items-center gap-2 z-10">
+                          <span className="px-2.5 py-1 rounded-md bg-zinc-900/85 backdrop-blur-xs border border-white/20 text-white font-mono text-[11px] font-medium shadow-xs">
+                            {selectedImageIndex + 1} / {imageDocs.length}
+                          </span>
+                          <span className="p-1 rounded-md bg-zinc-900/85 backdrop-blur-xs border border-white/20 text-white shadow-xs">
+                            <span className="icon-[lucide--maximize-2] size-3.5 block" />
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Horizontal Showcase Thumbnail Strip (Immediately below the preview) */}
+                    {!activeProject.isNda && imageDocs.length > 1 && (
+                      <div className="space-y-2 pt-1">
+                        <div className="flex items-center justify-between text-xs text-zinc-500 font-mono">
+                          <span className="flex items-center gap-1.5 font-semibold text-zinc-700">
+                            <span className="icon-[lucide--layout-grid] size-3.5 text-zinc-500" />
+                            <span>Showcase Screens ({imageDocs.length})</span>
+                          </span>
+                          <span className="text-[11px] text-zinc-400">
+                            Klik thumbnail untuk beralih tampilan
+                          </span>
+                        </div>
+
+                        {/* Scrollable Compact Thumbnails Row */}
+                        <div className="flex items-center gap-2.5 overflow-x-auto pb-1.5 pt-0.5 scrollbar-thin">
+                          {imageDocs.map((doc, idx) => {
+                            const isSelected = idx === selectedImageIndex;
+                            return (
+                              <button
+                                key={doc.id || idx}
+                                type="button"
+                                onClick={() => setSelectedImageIndex(idx)}
+                                className={`group relative shrink-0 aspect-[16/10] w-24 sm:w-28 md:w-32 rounded-lg overflow-hidden border transition-all cursor-pointer ${
+                                  isSelected
+                                    ? "ring-2 ring-zinc-950 border-zinc-950 shadow-sm scale-102"
+                                    : "border-zinc-200/90 hover:border-zinc-400 opacity-75 hover:opacity-100"
+                                }`}
+                              >
+                                <Image
+                                  src={doc.url}
+                                  alt={doc.name || `Screenshot ${idx + 1}`}
+                                  fill
+                                  sizes="130px"
+                                  className="object-cover"
+                                />
+                                {isSelected && (
+                                  <div className="absolute inset-0 bg-zinc-950/15 pointer-events-none" />
+                                )}
+                                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-zinc-950/85 to-transparent p-1">
+                                  <span className="text-[9px] text-white font-mono block truncate leading-tight">
+                                    {doc.name.replace(/\.(webp|png|jpe?g)$/i, "")}
+                                  </span>
+                                </div>
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
-
-                    {/* Top Floating Badges */}
-                    <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2 z-10">
-                      <span className="px-3 py-1 rounded-lg text-xs font-mono uppercase tracking-wider font-semibold bg-white/95 text-zinc-800 border border-zinc-200/80 backdrop-blur-xs shadow-xs">
-                        {category}
-                      </span>
-                      {activeProject.isNda && (
-                        <NdaBadge label={activeDict.projects.ndaBadge} size="sm" />
-                      )}
-                      {activeProject.status && (
-                        <span className="px-2.5 py-1 rounded-lg text-xs font-mono uppercase tracking-wider font-semibold bg-emerald-50/95 text-emerald-800 border border-emerald-200 shadow-xs">
-                          {activeProject.status === "COMPLETE"
-                            ? activeDict.projects.statusCompleted
-                            : activeProject.status}
-                        </span>
-                      )}
-                    </div>
                   </div>
 
                   {/* =========================================================================
-                      TECH STACK (DISPLAYED DIRECTLY BELOW HERO BANNER)
+                      PROJECT TITLE & TECH STACK (DIRECTLY BELOW SHOWCASE GALLERY)
                   ========================================================================= */}
-                  {activeProject.techStack && activeProject.techStack.length > 0 && (
-                    <div className="p-4 sm:p-5 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-2.5">
-                      <div className="flex items-center gap-2 text-zinc-500 font-mono text-xs uppercase tracking-wider font-semibold">
-                        <span className="icon-[lucide--layers] size-4 text-zinc-500" />
-                        <span>{activeDict.projects.techStackTitle}</span>
+                  <div className="p-6 sm:p-7 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-zinc-950">
+                        {title}
+                      </h1>
+
+                      {/* Quick External Links for Desktop */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        {!activeProject.isNda && activeProject.projectUrl && (
+                          <a
+                            href={activeProject.projectUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-zinc-900 text-white font-medium text-xs hover:bg-zinc-800 transition-colors shadow-2xs"
+                          >
+                            <span className="icon-[lucide--globe] size-3.5" />
+                            <span>{activeDict.projects.website}</span>
+                          </a>
+                        )}
+
+                        {!activeProject.isNda && activeProject.githubUrl && (
+                          <a
+                            href={activeProject.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-medium text-xs transition-colors shadow-2xs"
+                          >
+                            <span className="icon-[simple-icons--github] size-3.5" />
+                            <span>{activeDict.projects.source}</span>
+                          </a>
+                        )}
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                    </div>
+
+                    {/* Tech Stack Badges directly under Title */}
+                    {activeProject.techStack && activeProject.techStack.length > 0 && (
+                      <div className="pt-2 border-t border-zinc-100 flex flex-wrap items-center gap-2">
+                        <span className="text-zinc-400 font-mono text-[11px] uppercase tracking-wider font-semibold mr-1">
+                          Stack:
+                        </span>
                         {activeProject.techStack.map((tech) => {
                           const techInfo = getTechIcon(tech);
                           return (
                             <span
                               key={tech}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-50 text-zinc-800 border border-zinc-200/90 shadow-2xs hover:bg-zinc-100 transition-colors"
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-zinc-50 text-zinc-800 border border-zinc-200/90 shadow-2xs hover:bg-zinc-100 transition-colors"
                             >
                               <span
                                 className={`${techInfo.iconClass} size-3.5 inline-block shrink-0`}
@@ -376,66 +517,7 @@ export function ProjectDetailModal({
                           );
                         })}
                       </div>
-                    </div>
-                  )}
-
-                  {/* At-a-Glance Metadata Cards Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="p-3.5 rounded-xl bg-white border border-zinc-200/80 shadow-2xs space-y-1">
-                      <div className="flex items-center gap-1.5 text-zinc-400 text-xs font-mono uppercase tracking-wider">
-                        <span className="icon-[lucide--folder] size-3.5" />
-                        <span>Kategori</span>
-                      </div>
-                      <p className="font-semibold text-xs sm:text-sm text-zinc-900 truncate">
-                        {category}
-                      </p>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-white border border-zinc-200/80 shadow-2xs space-y-1">
-                      <div className="flex items-center gap-1.5 text-zinc-400 text-xs font-mono uppercase tracking-wider">
-                        <span className="icon-[lucide--calendar] size-3.5" />
-                        <span>Periode</span>
-                      </div>
-                      <p className="font-semibold text-xs sm:text-sm text-zinc-900">
-                        {timelineStr || "2024 – 2025"}
-                      </p>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-white border border-zinc-200/80 shadow-2xs space-y-1">
-                      <div className="flex items-center gap-1.5 text-zinc-400 text-xs font-mono uppercase tracking-wider">
-                        <span className="icon-[lucide--check-circle-2] size-3.5 text-emerald-600" />
-                        <span>Status</span>
-                      </div>
-                      <p className="font-semibold text-xs sm:text-sm text-emerald-700">
-                        {activeProject.status === "COMPLETE"
-                          ? activeDict.projects.statusCompleted
-                          : activeProject.status || "Completed"}
-                      </p>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-white border border-zinc-200/80 shadow-2xs space-y-1">
-                      <div className="flex items-center gap-1.5 text-zinc-400 text-xs font-mono uppercase tracking-wider">
-                        {activeProject.isNda ? (
-                          <span className="icon-[lucide--lock] size-3.5 text-amber-600" />
-                        ) : (
-                          <span className="icon-[lucide--globe] size-3.5 text-blue-600" />
-                        )}
-                        <span>Aksesibilitas</span>
-                      </div>
-                      <p className="font-semibold text-xs sm:text-sm text-zinc-900 truncate">
-                        {activeProject.isNda ? "Terikat NDA (Redacted)" : "Publik / Live"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Project Title & Summary Card */}
-                  <div className="p-6 sm:p-7 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-3">
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-zinc-950">
-                      {title}
-                    </h1>
-                    <p className="text-base sm:text-lg text-zinc-600 leading-relaxed font-normal">
-                      {summary}
-                    </p>
+                    )}
                   </div>
 
                   {/* =========================================================================
@@ -506,51 +588,6 @@ export function ProjectDetailModal({
                     </div>
                   )}
 
-                  {/* =========================================================================
-                      COMPACT SCREENSHOTS GALLERY (NEAT THUMBNAILS - NOT TOO LARGE)
-                  ========================================================================= */}
-                  {!activeProject.isNda && imageDocs.length > 0 && (
-                    <div className="p-5 sm:p-6 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-3.5">
-                      <div className="flex items-center justify-between pb-2 border-b border-zinc-100">
-                        <div className="flex items-center gap-2 text-zinc-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
-                          <span className="icon-[lucide--image] size-4 text-zinc-600" />
-                          <span>{activeDict.projects.galleryTitle}</span>
-                        </div>
-                        <span className="px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-700 text-[11px] font-mono font-semibold border border-zinc-200">
-                          {imageDocs.length} Foto
-                        </span>
-                      </div>
-
-                      {/* Compact Multi-Column Grid of Thumbnails */}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
-                        {imageDocs.map((doc, idx) => (
-                          <button
-                            key={doc.id || idx}
-                            type="button"
-                            onClick={() => setLightboxIndex(idx)}
-                            className="group relative aspect-[16/10] w-full rounded-lg overflow-hidden border border-zinc-200 bg-zinc-100 hover:border-zinc-400 transition-all shadow-2xs hover:shadow-xs cursor-pointer text-left"
-                          >
-                            <Image
-                              src={doc.url}
-                              alt={doc.name || `Screenshot ${idx + 1}`}
-                              fill
-                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 180px"
-                              className="object-cover group-hover:scale-104 transition-transform duration-300"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/75 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-1.5 sm:p-2">
-                              <span className="text-[10px] text-white font-medium truncate max-w-[85%] leading-tight">
-                                {doc.name || `Screenshot ${idx + 1}`}
-                              </span>
-                              <span className="size-4.5 rounded bg-white/20 backdrop-blur-xs flex items-center justify-center text-white shrink-0">
-                                <span className="icon-[lucide--maximize-2] size-2.5" />
-                              </span>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
                   {/* Call-to-action banner to switch to Tab 2 (Detail & Studi Kasus) */}
                   <div className="p-5 sm:p-6 rounded-2xl bg-zinc-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md">
                     <div className="space-y-1 text-center sm:text-left">
@@ -585,20 +622,33 @@ export function ProjectDetailModal({
                   transition={{ duration: 0.2 }}
                   className="space-y-6"
                 >
-                  {/* Tech Stack Pills in Details Tab as well */}
-                  {activeProject.techStack && activeProject.techStack.length > 0 && (
-                    <div className="p-4 sm:p-5 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-2.5">
-                      <div className="flex items-center gap-2 text-zinc-500 font-mono text-xs uppercase tracking-wider font-semibold">
-                        <span className="icon-[lucide--layers] size-4 text-zinc-500" />
-                        <span>{activeDict.projects.techStackTitle}</span>
+                  <div className="p-6 sm:p-8 md:p-10 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-zinc-100">
+                      <div className="flex items-center gap-2.5 text-zinc-900 font-bold text-base sm:text-lg">
+                        <span className="icon-[lucide--cpu] size-5 text-zinc-700" />
+                        <span>
+                          {activeProject.isNda
+                            ? "Spesifikasi Arsitektur Sistem (High-Level)"
+                            : activeDict.projects.caseStudyTitle}
+                        </span>
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <span className="px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider font-semibold bg-zinc-100 text-zinc-700 border border-zinc-200 self-start sm:self-auto">
+                        {category}
+                      </span>
+                    </div>
+
+                    {/* Tech Stack Badges in Details Tab */}
+                    {activeProject.techStack && activeProject.techStack.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        <span className="text-zinc-400 font-mono text-[11px] uppercase tracking-wider font-semibold mr-1">
+                          Stack:
+                        </span>
                         {activeProject.techStack.map((tech) => {
                           const techInfo = getTechIcon(tech);
                           return (
                             <span
                               key={tech}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-50 text-zinc-800 border border-zinc-200/90 shadow-2xs hover:bg-zinc-100 transition-colors"
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-zinc-50 text-zinc-800 border border-zinc-200/90 shadow-2xs"
                             >
                               <span
                                 className={`${techInfo.iconClass} size-3.5 inline-block shrink-0`}
@@ -609,23 +659,7 @@ export function ProjectDetailModal({
                           );
                         })}
                       </div>
-                    </div>
-                  )}
-
-                  <div className="p-6 sm:p-8 md:p-10 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-6">
-                    <div className="flex items-center justify-between pb-4 border-b border-zinc-100">
-                      <div className="flex items-center gap-2.5 text-zinc-900 font-bold text-base sm:text-lg">
-                        <span className="icon-[lucide--cpu] size-5 text-zinc-700" />
-                        <span>
-                          {activeProject.isNda
-                            ? "Spesifikasi Arsitektur Sistem (High-Level)"
-                            : activeDict.projects.caseStudyTitle}
-                        </span>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider font-semibold bg-zinc-100 text-zinc-700 border border-zinc-200">
-                        {category}
-                      </span>
-                    </div>
+                    )}
 
                     {/* NDA Banner inside Details */}
                     {activeProject.isNda && (
