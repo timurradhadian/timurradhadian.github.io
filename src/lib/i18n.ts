@@ -101,7 +101,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       contact: "Kontak",
     },
     hero: {
-      title: "Halo, saya Timur Dian 👋",
+      title: "Halo, saya Timur Dian",
       description:
         "Software Engineer Fullstack & Arsitek Web. Berfokus pada sistem web performa tinggi, arsitektur headless, dan aplikasi skala enterprise yang terukur.",
       aboutTitle: "Tentang",
@@ -195,7 +195,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       contact: "Contact",
     },
     hero: {
-      title: "Hi, I'm Timur Dian 👋",
+      title: "Hi, I'm Timur Dian",
       description:
         "Fullstack Software Engineer & Web Architect. Focused on high-performance web systems, headless architectures, and scalable enterprise applications.",
       aboutTitle: "About",

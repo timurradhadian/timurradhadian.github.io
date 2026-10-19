@@ -21,9 +21,11 @@ export function DotPattern({
   cy = 1,
   cr = 1.2,
   className,
+  id: customId,
   ...props
 }: DotPatternProps) {
-  const patternId = "ambient-dot-grid-pattern";
+  const reactId = React.useId();
+  const patternId = customId || `dot-pattern-${reactId.replace(/:/g, "")}`;
 
   return (
     <svg
