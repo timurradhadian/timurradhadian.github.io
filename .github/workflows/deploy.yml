@@ -29,7 +29,7 @@ jobs:
       CI: true
       GLIO_API_URL: ${{ secrets.GLIO_API_URL || 'https://glio.vercel.app/api/public' }}
       GLIO_API_KEY: ${{ secrets.GLIO_API_KEY }}
-      SEJATIDIMEDIA_API_URL: ${{ secrets.SEJATIDIMEDIA_API_URL || 'https://api.sejatidimedia.com' }}
+      SEJATIDIMEDIA_API_URL: ${{ secrets.SEJATIDIMEDIA_API_URL || 'https://www.sejatidimedia.web.id' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

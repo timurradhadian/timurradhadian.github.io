@@ -18,7 +18,7 @@ function getGlioBaseUrl(): string {
 
 const GLIO_API_KEY = process.env.GLIO_API_KEY;
 const SEJATIDIMEDIA_API_URL =
-  process.env.SEJATIDIMEDIA_API_URL || "https://api.sejatidimedia.com";
+  process.env.SEJATIDIMEDIA_API_URL || "https://www.sejatidimedia.web.id";
 
 interface FetchOptions {
   timeoutMs?: number;
@@ -66,23 +66,58 @@ async function fetchFromGlio<T>(endpoint: string): Promise<T> {
   return (await res.json()) as T;
 }
 
-async function fetchFeaturedFromSejatiDimedia(): Promise<Project[] | null> {
+interface SejatiFeaturedPayload {
+  featuredSlugs?: string[];
+  featuredProjects?: Record<string, unknown>[];
+}
+
+async function fetchFeaturedFromSejatiDimedia(): Promise<{
+  featuredSlugs: string[];
+  featuredProjects: Project[];
+} | null> {
   try {
-    const cleanUrl = SEJATIDIMEDIA_API_URL.trim().replace(/\/+$/, "");
-    const res = await fetchWithTimeout(`${cleanUrl}/api/public/featured-projects`, {
-      headers: { Accept: "application/json" },
+    const cleanBase = SEJATIDIMEDIA_API_URL.trim().replace(/\/+$/, "");
+    const targetUrl = cleanBase.endsWith("/api/public/featured-projects")
+      ? cleanBase
+      : `${cleanBase}/api/public/featured-projects`;
+
+    const res = await fetchWithTimeout(targetUrl, {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "Portfolio-Static-Builder/1.0",
+      },
     });
+
     if (!res.ok) {
       console.warn(
-        `[SejatiDimedia API] Status ${res.status}. Falling back to Glio featured projects.`
+        `[SejatiDimedia API] Status ${res.status} from ${targetUrl}. Falling back to default featured slugs.`
       );
       return null;
     }
-    const data = await res.json();
-    return Array.isArray(data) ? data : data.data || null;
+
+    const json = (await res.json()) as SejatiFeaturedPayload;
+    const featuredSlugs = Array.isArray(json.featuredSlugs)
+      ? json.featuredSlugs
+      : [];
+
+    const rawProjects = Array.isArray(json.featuredProjects)
+      ? json.featuredProjects
+      : Array.isArray(json)
+      ? (json as Record<string, unknown>[])
+      : [];
+
+    const featuredProjects = rawProjects.map((p, idx) => ({
+      ...normalizeGlioProject(p, idx),
+      isFeatured: true,
+    }));
+
+    return {
+      featuredSlugs,
+      featuredProjects,
+    };
   } catch (err) {
     console.warn(
-      `[SejatiDimedia API] Connection failed (${(err as Error).message}). Falling back to Glio featured projects.`
+      `[SejatiDimedia API] Connection failed (${(err as Error).message}). Falling back to default featured slugs.`
     );
     return null;
   }
@@ -336,44 +371,62 @@ function normalizeGlioSkill(raw: Record<string, unknown>, idx: number): Skill {
   };
 }
 
+const DEFAULT_FEATURED_SLUGS = [
+  "absensi-hris-app-face-recognition--gps",
+  "supportsense-ai",
+  "routeforce",
+  "flash-sale--event-ticketing-platform",
+  "telemedhub---telemedicine--smart-pharmacy",
+  "katsira-point-of-sales",
+];
+
 /**
  * Merges SejatiDimedia featured projects with comprehensive Glio project data.
  */
 function mergeFeaturedProjects(
-  sejatiFeatured: Project[] | null,
+  sejatiResult: { featuredSlugs: string[]; featuredProjects: Project[] } | null,
   allGlioProjects: Project[]
 ): { featuredProjects: Project[]; otherProjects: Project[] } {
   const glioMap = new Map<string, Project>();
   allGlioProjects.forEach((p) => glioMap.set(p.slug, p));
 
-  let featuredList: Project[] = [];
+  const targetSlugs =
+    sejatiResult?.featuredSlugs && sejatiResult.featuredSlugs.length > 0
+      ? sejatiResult.featuredSlugs
+      : DEFAULT_FEATURED_SLUGS;
 
-  if (sejatiFeatured && sejatiFeatured.length > 0) {
-    featuredList = sejatiFeatured.slice(0, 6).map((sejatiProject) => {
-      const glioProject = glioMap.get(sejatiProject.slug);
-      if (glioProject) {
-        return {
-          ...sejatiProject,
-          ...glioProject,
-          isFeatured: true,
-        };
-      }
-      return {
-        ...sejatiProject,
+  // 1. Resolve featured projects in exact priority order from SejatiDimedia
+  let featuredList: Project[] = [];
+  for (const slug of targetSlugs) {
+    const glioProject = glioMap.get(slug);
+    if (glioProject) {
+      featuredList.push({
+        ...glioProject,
         isFeatured: true,
-      };
-    });
+      });
+    }
   }
 
-  // Fallback: If SejatiDimedia had no results, take first 6 from Glio
+  // 2. If any slug was not in Glio, check if SejatiDimedia returned it directly in featuredProjects
+  if (sejatiResult?.featuredProjects && sejatiResult.featuredProjects.length > 0) {
+    const currentSlugs = new Set(featuredList.map((p) => p.slug));
+    for (const sp of sejatiResult.featuredProjects) {
+      if (!currentSlugs.has(sp.slug) && featuredList.length < 6) {
+        featuredList.push({ ...sp, isFeatured: true });
+        currentSlugs.add(sp.slug);
+      }
+    }
+  }
+
+  // 3. Fallback: If still empty, take first 6 from allGlioProjects
   if (featuredList.length === 0) {
     const sorted = [...allGlioProjects].sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
     featuredList = sorted.slice(0, 6).map((p) => ({ ...p, isFeatured: true }));
   }
 
-  const featuredSlugs = new Set(featuredList.map((p) => p.slug));
+  const featuredSlugsSet = new Set(featuredList.map((p) => p.slug));
   const otherProjects = allGlioProjects
-    .filter((p) => !featuredSlugs.has(p.slug))
+    .filter((p) => !featuredSlugsSet.has(p.slug))
     .sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
 
   return { featuredProjects: featuredList, otherProjects };
