@@ -23,23 +23,16 @@ export function FeaturedProjects({
   ndaBlurEnabled = true,
 }: FeaturedProjectsProps) {
   const dict = getDictionary(locale);
-  const [filter, setFilter] = useState<"featured" | "all" | "nda">("featured");
+  const [filter, setFilter] = useState<"featured" | "all">("featured");
 
   const combinedProjects = allProjects.length > 0 ? allProjects : projects;
-
-  const ndaProjects = React.useMemo(() => {
-    return combinedProjects.filter((p) => p.isNda);
-  }, [combinedProjects]);
 
   const filteredProjects = React.useMemo(() => {
     if (filter === "featured") {
       return projects.length > 0 ? projects : combinedProjects.slice(0, 6);
     }
-    if (filter === "nda") {
-      return ndaProjects;
-    }
     return combinedProjects;
-  }, [filter, projects, combinedProjects, ndaProjects]);
+  }, [filter, projects, combinedProjects]);
 
   return (
     <section id="projects" className="space-y-6 pt-6">
@@ -88,17 +81,6 @@ export function FeaturedProjects({
             >
               {dict.projects.filterAll} ({combinedProjects.length})
             </button>
-            <button
-              type="button"
-              onClick={() => setFilter("nda")}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-                filter === "nda"
-                  ? "bg-zinc-900 text-white font-semibold shadow-xs"
-                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50"
-              }`}
-            >
-              {dict.projects.filterNda} ({ndaProjects.length})
-            </button>
           </div>
         </Reveal>
       </div>
@@ -126,7 +108,7 @@ export function FeaturedProjects({
               >
                 <div>
                   {/* Thumbnail / Media Container */}
-                  <div className="relative aspect-video w-full overflow-hidden bg-zinc-50 border-b border-zinc-200/70">
+                  <div className="relative aspect-video w-full overflow-hidden bg-zinc-50">
                     {project.thumbnailUrl ? (
                       <Image
                         src={project.thumbnailUrl}
@@ -187,7 +169,7 @@ export function FeaturedProjects({
                 <div className="p-4 pt-0 space-y-3">
                   {project.techStack && project.techStack.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
-                      {project.techStack.slice(0, 5).map((tech) => {
+                      {project.techStack.map((tech) => {
                         const techInfo = getTechIcon(tech);
 
                         return (
@@ -203,16 +185,11 @@ export function FeaturedProjects({
                           </span>
                         );
                       })}
-                      {project.techStack.length > 5 && (
-                        <span className="px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-50 text-zinc-500 border border-zinc-200/80">
-                          +{project.techStack.length - 5}
-                        </span>
-                      )}
                     </div>
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex items-center gap-2 pt-2.5 border-t border-zinc-100 text-xs">
+                  <div className="flex items-center gap-2 pt-1 text-xs">
                     {project.projectUrl && (
                       <a
                         href={project.projectUrl}
@@ -240,7 +217,7 @@ export function FeaturedProjects({
                     {project.isNda && (
                       <span className="text-[11px] text-amber-800 italic flex items-center gap-1 font-medium bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
                         <span className="icon-[lucide--lock] size-3 inline-block" />
-                        <span>NDA Protected</span>
+                        <span>{dict.projects.ndaBadge}</span>
                       </span>
                     )}
                   </div>
