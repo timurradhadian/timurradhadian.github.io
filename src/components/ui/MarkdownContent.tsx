@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { MermaidDiagram } from "@/components/ui/MermaidDiagram";
 
 interface MarkdownContentProps {
   content?: string | null;
@@ -273,7 +274,18 @@ export function MarkdownContent({ content, className = "" }: MarkdownContentProp
                 {renderInline(block.text)}
               </blockquote>
             );
-          case "code":
+          case "code": {
+            const isMermaid =
+              block.lang?.toLowerCase() === "mermaid" ||
+              (!block.lang &&
+                /^\s*(graph\s+|flowchart\s+|sequenceDiagram|classDiagram|stateDiagram|erDiagram|journey|gantt|pie)/.test(
+                  block.code
+                ));
+
+            if (isMermaid) {
+              return <MermaidDiagram key={idx} chart={block.code} />;
+            }
+
             return (
               <div key={idx} className="my-3 rounded-xl overflow-hidden border border-zinc-800 bg-zinc-950 text-zinc-100">
                 {block.lang && (
@@ -286,6 +298,7 @@ export function MarkdownContent({ content, className = "" }: MarkdownContentProp
                 </pre>
               </div>
             );
+          }
           case "ul":
             return (
               <ul key={idx} className="space-y-1.5 pl-1 my-2">
