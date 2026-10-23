@@ -28,7 +28,7 @@ jobs:
     env:
       CI: true
       GLIO_API_URL: ${{ secrets.GLIO_API_URL || 'https://glio.vercel.app/api/public' }}
-      GLIO_API_KEY: ${{ secrets.GLIO_API_KEY || '' }}
+      GLIO_API_KEY: ${{ secrets.GLIO_API_KEY || 'GlioAgencySecretKey_SejatiDimedia_2026_xYz987!' }}
       SEJATIDIMEDIA_API_URL: ${{ secrets.SEJATIDIMEDIA_API_URL || 'https://www.sejatidimedia.web.id' }}
     steps:
       - name: Checkout repository

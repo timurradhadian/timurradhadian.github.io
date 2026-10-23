@@ -608,10 +608,22 @@ export async function getPortfolioData(): Promise<PortfolioData> {
         console.warn("[Glio API] /educations fallback to mock:", (err as Error).message);
         return null;
       }),
-      fetchFromGlio<Record<string, unknown>[]>("/experiences"),
-      fetchFromGlio<Record<string, unknown>[]>("/certificates"),
-      fetchFromGlio<Record<string, unknown>[]>("/skills"),
-      fetchFromGlio<Record<string, unknown>[]>("/projects"),
+      fetchFromGlio<Record<string, unknown>[]>("/experiences").catch((err) => {
+        console.warn("[Glio API] /experiences fallback to mock:", (err as Error).message);
+        return null;
+      }),
+      fetchFromGlio<Record<string, unknown>[]>("/certificates").catch((err) => {
+        console.warn("[Glio API] /certificates fallback to mock:", (err as Error).message);
+        return null;
+      }),
+      fetchFromGlio<Record<string, unknown>[]>("/skills").catch((err) => {
+        console.warn("[Glio API] /skills fallback to mock:", (err as Error).message);
+        return null;
+      }),
+      fetchFromGlio<Record<string, unknown>[]>("/projects").catch((err) => {
+        console.warn("[Glio API] /projects fallback to mock:", (err as Error).message);
+        return null;
+      }),
       fetchSejatiPortfolioData(),
     ]);
 
@@ -625,9 +637,23 @@ export async function getPortfolioData(): Promise<PortfolioData> {
         ? [...glioEducations].sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
         : mockPortfolioData.educations;
 
-    const experiences = (rawExperiences || []).map(normalizeGlioExperience);
-    const certificates = (rawCertificates || []).map(normalizeGlioCertificate);
-    const skills = (rawSkills || []).map(normalizeGlioSkill);
+    const glioExperiences = (rawExperiences || []).map(normalizeGlioExperience);
+    const experiences =
+      glioExperiences.length > 0
+        ? [...glioExperiences].sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
+        : mockPortfolioData.experiences;
+
+    const glioCertificates = (rawCertificates || []).map(normalizeGlioCertificate);
+    const certificates =
+      glioCertificates.length > 0
+        ? [...glioCertificates].sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
+        : mockPortfolioData.certificates;
+
+    const glioSkills = (rawSkills || []).map(normalizeGlioSkill);
+    const skills =
+      glioSkills.length > 0
+        ? [...glioSkills].sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
+        : mockPortfolioData.skills;
 
     // Fetch comprehensive project details for rich modal presentation
     const detailMap = new Map<string, Record<string, unknown>>();
