@@ -47,6 +47,7 @@ export interface Project {
   links?: ProjectLink[];
   documents?: ProjectDocument[];
   isFeatured?: boolean;
+  isPublic?: boolean;
   isNda?: boolean;
   isProfessional?: boolean;
   startDate?: string;

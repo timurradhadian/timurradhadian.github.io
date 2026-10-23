@@ -238,6 +238,7 @@ function normalizeGlioProject(
     links,
     documents,
     isFeatured: false,
+    isPublic: typeof merged.isPublic === "boolean" ? merged.isPublic : true,
     isNda: Boolean(merged.isNda),
     isProfessional: Boolean(merged.isProfessional),
     startDate: (merged.startDate as string) || undefined,
@@ -493,6 +494,8 @@ function mergePortfolioProjects(
 
     if (glioProject || sejatiNda) {
       const base = glioProject || sejatiNda!;
+      if (base.isPublic === false) continue;
+
       const mergedNda: Project = {
         ...base,
         description: sejatiNda?.description || base.description,
@@ -519,6 +522,7 @@ function mergePortfolioProjects(
         endDate: sejatiNda?.endDate || base.endDate,
         status: sejatiNda?.status || base.status,
         isFeatured: false,
+        isPublic: base.isPublic ?? true,
         isNda: true,
         isProfessional: true,
       };
@@ -532,7 +536,7 @@ function mergePortfolioProjects(
   let featuredList: Project[] = [];
   for (const slug of targetFeaturedSlugs) {
     const glioProject = glioMap.get(slug);
-    if (glioProject) {
+    if (glioProject && glioProject.isPublic !== false) {
       featuredList.push({
         ...glioProject,
         isFeatured: true,
@@ -544,7 +548,7 @@ function mergePortfolioProjects(
   if (sejatiResult?.featuredProjects && sejatiResult.featuredProjects.length > 0) {
     const currentSlugs = new Set(featuredList.map((p) => p.slug));
     for (const sp of sejatiResult.featuredProjects) {
-      if (!currentSlugs.has(sp.slug) && featuredList.length < 6) {
+      if (!currentSlugs.has(sp.slug) && featuredList.length < 6 && sp.isPublic !== false) {
         featuredList.push({ ...sp, isFeatured: true });
         currentSlugs.add(sp.slug);
       }
@@ -553,13 +557,15 @@ function mergePortfolioProjects(
 
   // If still empty, take first 6 from allGlioProjects
   if (featuredList.length === 0) {
-    const sorted = [...allGlioProjects].sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+    const sorted = [...allGlioProjects]
+      .filter((p) => p.isPublic !== false)
+      .sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
     featuredList = sorted.slice(0, 6).map((p) => ({ ...p, isFeatured: true }));
   }
 
   const featuredSlugsSet = new Set(featuredList.map((p) => p.slug));
   const otherProjects = Array.from(glioMap.values())
-    .filter((p) => !featuredSlugsSet.has(p.slug))
+    .filter((p) => !featuredSlugsSet.has(p.slug) && p.isPublic !== false)
     .sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
 
   return {
@@ -655,9 +661,12 @@ export async function getPortfolioData(): Promise<PortfolioData> {
         ? [...glioSkills].sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
         : mockPortfolioData.skills;
 
-    // Fetch comprehensive project details for rich modal presentation
+    // Fetch comprehensive project details only for public projects
     const detailMap = new Map<string, Record<string, unknown>>();
-    const projectSlugs = (rawProjects || [])
+    const publicRawProjects = (rawProjects || []).filter(
+      (p) => p.isPublic !== false
+    );
+    const projectSlugs = publicRawProjects
       .map((p) => p.slug as string)
       .filter(Boolean);
 
@@ -676,11 +685,13 @@ export async function getPortfolioData(): Promise<PortfolioData> {
       });
     }
 
-    const allProjects = (rawProjects || []).map((raw, idx) => {
-      const slug = raw.slug as string;
-      const detail = detailMap.get(slug);
-      return normalizeGlioProject(raw, idx, detail);
-    });
+    const allProjects = publicRawProjects
+      .map((raw, idx) => {
+        const slug = raw.slug as string;
+        const detail = detailMap.get(slug);
+        return normalizeGlioProject(raw, idx, detail);
+      })
+      .filter((p) => p.isPublic !== false);
 
     const { featuredProjects, ndaProjects, otherProjects, ndaBlurEnabled } =
       mergePortfolioProjects(sejatiPortfolio, allProjects);

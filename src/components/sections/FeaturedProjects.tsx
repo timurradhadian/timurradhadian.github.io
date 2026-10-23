@@ -27,14 +27,25 @@ export function FeaturedProjects({
   const [filter, setFilter] = useState<"featured" | "all">("featured");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  const combinedProjects = allProjects.length > 0 ? allProjects : projects;
+  const validProjects = React.useMemo(
+    () => projects.filter((p) => p.isPublic !== false),
+    [projects]
+  );
+  const validAllProjects = React.useMemo(
+    () => allProjects.filter((p) => p.isPublic !== false),
+    [allProjects]
+  );
+  const combinedProjects =
+    validAllProjects.length > 0 ? validAllProjects : validProjects;
 
   const filteredProjects = React.useMemo(() => {
     if (filter === "featured") {
-      return projects.length > 0 ? projects : combinedProjects.slice(0, 6);
+      return validProjects.length > 0
+        ? validProjects
+        : combinedProjects.slice(0, 6);
     }
     return combinedProjects;
-  }, [filter, projects, combinedProjects]);
+  }, [filter, validProjects, combinedProjects]);
 
   return (
     <section id="projects" className="space-y-6 pt-6">
