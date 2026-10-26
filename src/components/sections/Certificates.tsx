@@ -68,19 +68,13 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
     <section id="certifications" className="space-y-6 pt-6">
       {/* Centered Section Header */}
       <div className="flex flex-col items-center text-center space-y-2">
-        <Reveal delay={0.05} yOffset={10}>
-          <span className="inline-block rounded-md bg-zinc-100 text-zinc-900 border border-zinc-200 px-3 py-1 text-xs font-semibold shadow-2xs">
-            {dict.certificates.badge}
-          </span>
-        </Reveal>
-
-        <Reveal delay={0.1} yOffset={12}>
+        <Reveal delay={0.05} yOffset={12}>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-ink">
             {dict.certificates.title}
           </h2>
         </Reveal>
 
-        <Reveal delay={0.15} yOffset={12}>
+        <Reveal delay={0.1} yOffset={12}>
           <p className="text-sm sm:text-base text-ink-muted max-w-xl mx-auto leading-relaxed">
             {dict.certificates.subtitle}
           </p>

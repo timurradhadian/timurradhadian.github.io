@@ -28,17 +28,17 @@ export default async function LocaleLayout({
     <LocaleProvider initialLocale={locale}>
       <div className="flex min-h-screen flex-col bg-canvas text-ink transition-colors selection:bg-zinc-900 selection:text-white relative overflow-x-hidden">
         {/* Top Ambient Halftone Shader Banner */}
-        <div className="absolute top-0 left-0 right-0 h-56 sm:h-72 w-full overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-0 left-0 right-0 h-64 sm:h-84 w-full overflow-hidden pointer-events-none z-0">
           <HalftoneShader
-            dotSpacing={15}
-            dotColor="#18181b"
-            alpha={0.22}
-            angleDeg={45}
-            minRadius={0.06}
-            maxRadius={0.42}
-            speed={0.8}
+            shape="square"
+            dotSpacing={11}
+            dotColor="#52525b"
+            alpha={0.78}
+            angleDeg={0}
+            minRadius={0.03}
+            maxRadius={0.45}
+            speed={0.9}
             interactive={true}
-            fadeBottom={true}
           />
         </div>
 

@@ -29,18 +29,19 @@ export function Contact({ locale, profile }: ContactProps) {
 
         {/* Contained Framed Card */}
         <div className="relative rounded-2xl sm:rounded-3xl border border-zinc-200/90 bg-white overflow-hidden px-6 py-12 sm:px-10 sm:py-16 text-center shadow-xs">
-          {/* Ambient Interactive Halftone Shader Banner */}
-          <div className="absolute top-0 left-0 right-0 h-48 sm:h-64 w-full overflow-hidden pointer-events-none z-0">
+          {/* Ambient Interactive Halftone Shader Banner (Bottom Anchored) */}
+          <div className="absolute bottom-0 left-0 right-0 h-44 sm:h-56 w-full overflow-hidden pointer-events-none z-0">
             <HalftoneShader
-              dotSpacing={14}
-              dotColor="#18181b"
-              alpha={0.24}
-              angleDeg={45}
-              minRadius={0.06}
-              maxRadius={0.42}
-              speed={0.8}
+              shape="square"
+              dotSpacing={11}
+              dotColor="#52525b"
+              alpha={0.78}
+              angleDeg={0}
+              minRadius={0.03}
+              maxRadius={0.45}
+              speed={0.9}
               interactive={true}
-              fadeBottom={true}
+              invertGradient={true}
             />
           </div>
 
