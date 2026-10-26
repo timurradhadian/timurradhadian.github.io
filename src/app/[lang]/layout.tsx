@@ -4,8 +4,7 @@ import { LOCALES, getDictionary } from "@/lib/i18n";
 import { getPortfolioData } from "@/lib/api";
 import { LocaleProvider } from "@/context/LocaleContext";
 import { FloatingDock } from "@/components/ui/FloatingDock";
-import { Particles } from "@/components/ui/Particles";
-import { DotPattern } from "@/components/ui/DotPattern";
+import { HalftoneShader } from "@/components/ui/HalftoneShader";
 
 export async function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
@@ -28,29 +27,18 @@ export default async function LocaleLayout({
   return (
     <LocaleProvider initialLocale={locale}>
       <div className="flex min-h-screen flex-col bg-canvas text-ink transition-colors selection:bg-zinc-900 selection:text-white relative overflow-x-hidden">
-        {/* Top Ambient Particle & Dot Pattern Banner */}
-        <div
-          className="absolute top-0 left-0 right-0 h-52 sm:h-72 w-full overflow-hidden pointer-events-none z-0"
-          style={{
-            WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 45%, rgba(0,0,0,0) 100%)",
-            maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 45%, rgba(0,0,0,0) 100%)",
-          }}
-        >
-          <DotPattern
-            width={16}
-            height={16}
-            cx={1}
-            cy={1}
-            cr={1.2}
-            className="fill-zinc-900/15"
-          />
-          <Particles
-            className="absolute inset-0 size-full"
-            quantity={140}
-            ease={60}
-            size={1.2}
-            color="#18181b"
-            refresh
+        {/* Top Ambient Halftone Shader Banner */}
+        <div className="absolute top-0 left-0 right-0 h-56 sm:h-72 w-full overflow-hidden pointer-events-none z-0">
+          <HalftoneShader
+            dotSpacing={15}
+            dotColor="#18181b"
+            alpha={0.22}
+            angleDeg={45}
+            minRadius={0.06}
+            maxRadius={0.42}
+            speed={0.8}
+            interactive={true}
+            fadeBottom={true}
           />
         </div>
 
