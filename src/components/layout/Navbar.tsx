@@ -15,10 +15,8 @@ export function Navbar({ locale }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { href: `#projects`, label: dict.nav.projects },
     { href: `#experience`, label: dict.nav.experience },
     { href: `#skills`, label: dict.nav.skills },
-    { href: `#certificates`, label: dict.nav.certificates },
   ];
 
   return (

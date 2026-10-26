@@ -121,8 +121,6 @@ export function FloatingDock({
     { title: dict.dock.experience, icon: "icon-[lucide--briefcase]", href: `#experience` },
     { title: dict.dock.education, icon: "icon-[lucide--graduation-cap]", href: `#education` },
     { title: dict.dock.skills, icon: "icon-[lucide--code-2]", href: `#skills` },
-    { title: dict.dock.projects, icon: "icon-[lucide--folder-git-2]", href: `#projects` },
-    { title: dict.dock.certificates, icon: "icon-[lucide--award]", href: `#certifications` },
     { title: dict.dock.contact, icon: "icon-[lucide--mail]", href: `#contact` },
   ];
 
