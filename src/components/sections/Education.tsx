@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { m } from "motion/react";
 import { Education as EducationType, Locale } from "@/types/portfolio";
 import { getDictionary, getLocalized } from "@/lib/i18n";
@@ -11,18 +12,22 @@ interface EducationProps {
   educations?: EducationType[];
 }
 
-function getSchoolBadge(school: string): { icon: string; className: string } {
+function getSchoolBadge(school: string): {
+  icon?: string;
+  image?: string;
+  className: string;
+} {
   const normalized = school.toLowerCase();
+  if (normalized.includes("amikom")) {
+    return {
+      image: "/education/amikom.png",
+      className: "bg-white border-zinc-200/90 shadow-2xs",
+    };
+  }
   if (normalized.includes("google") || normalized.includes("bangkit")) {
     return {
       icon: "icon-[logos--google-icon]",
       className: "bg-white border-zinc-200/90 shadow-2xs",
-    };
-  }
-  if (normalized.includes("amikom")) {
-    return {
-      icon: "icon-[lucide--graduation-cap]",
-      className: "bg-purple-50 border-purple-200 text-purple-700 shadow-2xs",
     };
   }
   return {
@@ -66,11 +71,22 @@ export function Education({ locale, educations = [] }: EducationProps) {
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className={`size-10 sm:size-11 rounded-xl border flex items-center justify-center shrink-0 group-hover:scale-108 transition-transform shadow-2xs ${badge.className}`}
+                      className={`size-10 sm:size-11 rounded-xl border flex items-center justify-center shrink-0 group-hover:scale-108 transition-transform shadow-2xs overflow-hidden p-1.5 ${badge.className}`}
                     >
-                      <span
-                        className={`${badge.icon} size-5 inline-block shrink-0`}
-                      />
+                      {badge.image ? (
+                        <div className="relative size-full">
+                          <Image
+                            src={badge.image}
+                            alt={edu.school}
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <span
+                          className={`${badge.icon} size-5 inline-block shrink-0`}
+                        />
+                      )}
                     </div>
 
                     <div className="min-w-0">
