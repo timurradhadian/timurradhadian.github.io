@@ -302,15 +302,6 @@ export function Experiences({
                             <span className="icon-[lucide--external-link] size-2.5 inline-block text-zinc-500 group-hover/link:text-zinc-800" />
                           </a>
                         )}
-
-                        <motion.span
-                          animate={{ rotate: isExpanded ? 90 : 0 }}
-                          transition={{ type: "spring", stiffness: 350, damping: 22 }}
-                          className={`icon-[lucide--chevron-right] size-3.5 ml-auto shrink-0 ${
-                            isExpanded ? "text-zinc-700" : "text-zinc-400 group-hover:text-zinc-700"
-                          }`}
-                          aria-hidden="true"
-                        />
                       </div>
                       <p className="text-xs sm:text-sm text-zinc-600 truncate">
                         {position}
@@ -318,8 +309,18 @@ export function Experiences({
                     </div>
                   </div>
 
-                  <div className="text-xs text-zinc-500 tabular-nums shrink-0 text-right">
-                    {dateDisplay}
+                  <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 pl-2">
+                    <span className="text-xs text-zinc-500 tabular-nums text-right">
+                      {dateDisplay}
+                    </span>
+                    <motion.span
+                      animate={{ rotate: isExpanded ? 90 : 0 }}
+                      transition={{ type: "spring", stiffness: 350, damping: 22 }}
+                      className={`icon-[lucide--chevron-right] size-3.5 sm:size-4 shrink-0 transition-colors ${
+                        isExpanded ? "text-zinc-900" : "text-zinc-400 group-hover:text-zinc-900"
+                      }`}
+                      aria-hidden="true"
+                    />
                   </div>
                 </div>
 
