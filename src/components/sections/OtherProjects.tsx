@@ -3,6 +3,7 @@ import { Locale, Project } from "@/types/portfolio";
 import { getDictionary, getLocalized } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
 import { NdaBadge } from "@/components/ui/NdaBadge";
+import { getTechIcon } from "@/lib/tech-icons";
 
 interface OtherProjectsProps {
   locale: Locale;
@@ -58,14 +59,22 @@ export function OtherProjects({ locale, projects }: OtherProjectsProps) {
 
                   <div className="mt-6 pt-4 border-t border-border/40 flex items-center justify-between">
                     <div className="flex flex-wrap gap-1.5">
-                      {project.techStack.slice(0, 3).map((tech) => (
-                        <span
-                          key={tech}
-                          className="px-2 py-0.5 rounded text-[11px] font-mono bg-canvas-subtle text-ink-muted"
-                        >
-                          {tech}
-                        </span>
-                      ))}
+                      {project.techStack.slice(0, 3).map((tech) => {
+                        const techInfo = getTechIcon(tech);
+                        return (
+                          <span
+                            key={tech}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono bg-canvas-subtle text-ink-muted border border-border/40"
+                          >
+                            <span
+                              className={`${techInfo.iconClass} size-3 inline-block shrink-0`}
+                              style={techInfo.color ? { color: techInfo.color } : undefined}
+                              aria-hidden="true"
+                            />
+                            <span>{tech}</span>
+                          </span>
+                        );
+                      })}
                     </div>
 
                     <div className="flex items-center gap-3 text-ink hover:text-cobalt">

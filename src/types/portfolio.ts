@@ -86,6 +86,8 @@ export interface Skill {
 export interface Education {
   id: string;
   school: string;
+  schoolId?: string;
+  schoolEn?: string;
   degree: string;
   degreeId?: string;
   degreeEn?: string;

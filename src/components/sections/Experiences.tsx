@@ -7,6 +7,7 @@ import { Experience, Locale, Project } from "@/types/portfolio";
 import { getDictionary, getLocalized, getLocalizedArray } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
 import { ProjectDetailModal } from "@/components/ui/ProjectDetailModal";
+import { getTechIcon } from "@/lib/tech-icons";
 
 interface ExperiencesProps {
   locale: Locale;
@@ -233,7 +234,7 @@ export function Experiences({
   }, [allProjects]);
 
   return (
-    <section id="experience" className="space-y-4 pt-4">
+    <section id="experience" className="space-y-4 pt-4 scroll-mt-6 sm:scroll-mt-8">
       <Reveal delay={0.1} yOffset={12}>
         <h2 className="text-xl font-bold tracking-tight text-ink">
           {dict.experience.title}
@@ -264,8 +265,8 @@ export function Experiences({
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 className="group rounded-xl border border-zinc-200/90 bg-white hover:border-zinc-300 hover:shadow-sm p-3.5 sm:p-4 transition-colors shadow-xs cursor-pointer"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="flex items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
                     <div
                       className={`size-10 sm:size-11 rounded-xl border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs overflow-hidden p-1.5 ${badge.className}`}
                     >
@@ -284,8 +285,8 @@ export function Experiences({
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-semibold text-sm sm:text-base text-zinc-900 truncate">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <h3 className="font-semibold text-sm sm:text-base text-zinc-900 leading-snug">
                           {exp.company}
                         </h3>
 
@@ -295,7 +296,7 @@ export function Experiences({
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-[11px] font-medium transition-all group/link shrink-0"
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-[11px] font-medium transition-all group/link shrink-0"
                             title="https://sejatidimedia.web.id/"
                           >
                             <span>sejatidimedia.web.id</span>
@@ -303,24 +304,33 @@ export function Experiences({
                           </a>
                         )}
                       </div>
-                      <p className="text-xs sm:text-sm text-zinc-600 truncate">
+                      <p className="text-xs sm:text-sm text-zinc-600 font-normal mt-0.5">
                         {position}
                       </p>
+
+                      {/* Mobile Date Display */}
+                      <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 font-mono mt-1 sm:hidden">
+                        <span className="icon-[lucide--calendar] size-3 text-zinc-400 shrink-0" />
+                        <span>{dateDisplay}</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 pl-2">
-                    <span className="text-xs text-zinc-500 tabular-nums text-right">
+                  {/* Desktop Date & Chevron Indicator */}
+                  <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 pt-0.5 sm:pt-0">
+                    <span className="hidden sm:inline-block text-xs text-zinc-500 tabular-nums text-right">
                       {dateDisplay}
                     </span>
-                    <motion.span
-                      animate={{ rotate: isExpanded ? 90 : 0 }}
-                      transition={{ type: "spring", stiffness: 350, damping: 22 }}
-                      className={`icon-[lucide--chevron-right] size-3.5 sm:size-4 shrink-0 transition-colors ${
-                        isExpanded ? "text-zinc-900" : "text-zinc-400 group-hover:text-zinc-900"
-                      }`}
-                      aria-hidden="true"
-                    />
+                    <div className="size-7 sm:size-8 rounded-lg bg-zinc-50 group-hover:bg-zinc-100 flex items-center justify-center transition-colors">
+                      <motion.span
+                        animate={{ rotate: isExpanded ? 90 : 0 }}
+                        transition={{ type: "spring", stiffness: 350, damping: 22 }}
+                        className={`icon-[lucide--chevron-right] size-3.5 sm:size-4 shrink-0 transition-colors ${
+                          isExpanded ? "text-zinc-900" : "text-zinc-400 group-hover:text-zinc-900"
+                        }`}
+                        aria-hidden="true"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -335,16 +345,16 @@ export function Experiences({
                     >
                       {/* Highlights */}
                       {highlights.length > 0 && (
-                        <ul className="mt-3.5 pt-3 border-t border-zinc-100 space-y-1.5 text-xs text-zinc-600 leading-relaxed pl-4 list-disc marker:text-zinc-400">
+                        <ul className="mt-3.5 pt-3 border-t border-zinc-100 space-y-2 text-xs text-zinc-600 leading-relaxed pl-4 list-disc marker:text-zinc-400">
                           {highlights.map((item, hIdx) => (
-                            <li key={hIdx}>{item}</li>
+                            <li key={hIdx} className="pl-0.5">{item}</li>
                           ))}
                         </ul>
                       )}
 
                       {/* Tanjung Kreasi Manufacturing Projects List */}
                       {isTanjungKreasi && manufacturingProjects.length > 0 && (
-                        <div className="mt-4 pt-3.5 border-t border-zinc-100 space-y-3">
+                        <div className="mt-4 pt-3.5 border-t border-zinc-100 space-y-2.5 sm:space-y-3">
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-semibold text-zinc-900 flex items-center gap-1.5">
                               <span className="icon-[lucide--layers] size-3.5 text-zinc-500" />
@@ -359,7 +369,7 @@ export function Experiences({
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-1 gap-2">
+                          <div className="grid grid-cols-1 gap-2 sm:gap-2.5">
                             {manufacturingProjects.map((proj) => {
                               const pTitle =
                                 (locale === "en" ? proj.titleEn : proj.titleId) ||
@@ -373,16 +383,16 @@ export function Experiences({
                                   key={proj.id || proj.slug}
                                   onClick={() => setSelectedProject(proj)}
                                   whileHover={{ y: -2, scale: 1.008 }}
-                                  whileTap={{ scale: 0.99 }}
+                                  whileTap={{ scale: 0.98 }}
                                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                                  className="group rounded-lg border border-zinc-200/90 bg-zinc-50/60 p-3 space-y-1.5 hover:bg-white hover:border-zinc-300 hover:shadow-xs transition-colors cursor-pointer shadow-2xs"
+                                  className="group rounded-lg border border-zinc-200/90 bg-zinc-50/60 hover:bg-white hover:border-zinc-300 p-2.5 sm:p-3 space-y-1.5 transition-colors cursor-pointer shadow-2xs active:bg-zinc-100"
                                 >
                                   <div className="flex items-start justify-between gap-2">
-                                    <h4 className="font-semibold text-xs sm:text-sm text-zinc-900 group-hover:text-zinc-950 leading-snug flex items-center gap-1.5">
+                                    <h4 className="font-semibold text-xs sm:text-sm text-zinc-900 group-hover:text-zinc-950 leading-snug">
                                       <span>{pTitle}</span>
-                                      <span className="icon-[lucide--info] size-3.5 text-zinc-400 group-hover:text-zinc-700 shrink-0 inline-block" />
+                                      <span className="icon-[lucide--info] size-3 sm:size-3.5 text-zinc-400 group-hover:text-zinc-700 shrink-0 inline-block align-middle ml-1" />
                                     </h4>
-                                    <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200 shrink-0">
+                                    <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200 shrink-0 mt-0.5">
                                       NDA
                                     </span>
                                   </div>
@@ -394,15 +404,23 @@ export function Experiences({
                                   )}
 
                                   {proj.techStack && proj.techStack.length > 0 && (
-                                    <div className="flex flex-wrap items-center gap-1 pt-1">
-                                      {proj.techStack.map((tech: string) => (
-                                        <span
-                                          key={tech}
-                                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium bg-white border border-zinc-200/80 text-zinc-700 shadow-2xs"
-                                        >
-                                          {tech}
-                                        </span>
-                                      ))}
+                                    <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 pt-0.5">
+                                      {proj.techStack.map((tech: string) => {
+                                        const techInfo = getTechIcon(tech);
+                                        return (
+                                          <span
+                                            key={tech}
+                                            className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded text-[10px] font-medium bg-white border border-zinc-200/80 text-zinc-700 shadow-2xs"
+                                          >
+                                            <span
+                                              className={`${techInfo.iconClass} size-2.5 sm:size-3 inline-block shrink-0`}
+                                              style={techInfo.color ? { color: techInfo.color } : undefined}
+                                              aria-hidden="true"
+                                            />
+                                            <span>{tech}</span>
+                                          </span>
+                                        );
+                                      })}
                                     </div>
                                   )}
                                 </motion.div>

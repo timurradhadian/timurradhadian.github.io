@@ -390,28 +390,88 @@ function normalizeGlioProfile(raw: Record<string, unknown>): Profile {
   };
 }
 
+function translateEducationDegree(rawDegree: string): { id: string; en: string } {
+  const clean = (rawDegree || "").trim();
+  const lower = clean.toLowerCase();
+  if (lower.includes("s1 informatika") || lower.includes("s1 teknik informatika")) {
+    return { id: clean, en: "Bachelor of Informatics" };
+  }
+  if (lower.includes("s1 sistem informasi")) {
+    return { id: clean, en: "Bachelor of Information Systems" };
+  }
+  if (lower.startsWith("s1 ")) {
+    return { id: clean, en: clean.replace(/^s1\s+/i, "Bachelor of ") };
+  }
+  if (lower.startsWith("d3 ")) {
+    return { id: clean, en: clean.replace(/^d3\s+/i, "Associate Degree in ") };
+  }
+  return { id: clean, en: clean };
+}
+
+function translateEducationDesc(rawDesc: string): { id: string; en: string } {
+  const clean = (rawDesc || "").trim();
+  const lower = clean.toLowerCase();
+  if (
+    lower.includes("fokus pada programming") ||
+    lower.includes("pengembangan sistem informasi")
+  ) {
+    return {
+      id: clean,
+      en: "Focus on programming and information systems development.",
+    };
+  }
+  return { id: clean, en: clean };
+}
+
+function translateEducationSchool(rawSchool: string): { id: string; en: string } {
+  const clean = (rawSchool || "").trim();
+  const en = clean.replace(/\(IPK\s*/i, "(GPA ").replace(/IPK\s*/i, "GPA ");
+  return { id: clean, en };
+}
+
 /**
  * Normalizes raw Glio education payload
  */
 function normalizeGlioEducation(raw: Record<string, unknown>, idx: number): Education {
-  const school = (raw.school as string) || "University";
-  const degree = (raw.degree as string) || "Bachelor Degree";
-  const desc = (raw.description as string) || "";
-  const descId = (raw.descriptionId as string) || desc;
-  const descEn = (raw.descriptionEn as string) || desc;
+  const rawSchool = (raw.school as string) || "University";
+  const rawDegree = (raw.degree as string) || "Bachelor Degree";
+  const rawDesc = (raw.description as string) || "";
+  const rawDescId = (raw.descriptionId as string) || "";
+  const rawDescEn = (raw.descriptionEn as string) || "";
+  const rawDegreeId = (raw.degreeId as string) || "";
+  const rawDegreeEn = (raw.degreeEn as string) || "";
+  const rawSchoolEn = (raw.schoolEn as string) || "";
+
+  const transDegree = translateEducationDegree(rawDegree);
+  const transDesc = translateEducationDesc(rawDesc);
+  const transSchool = translateEducationSchool(rawSchool);
+
+  const school = rawSchool;
+  const schoolId = rawSchool;
+  const schoolEn = rawSchoolEn && rawSchoolEn.trim() !== "" ? rawSchoolEn : transSchool.en;
+
+  const degree = rawDegree;
+  const degreeId = rawDegreeId && rawDegreeId.trim() !== "" ? rawDegreeId : transDegree.id;
+  const degreeEn = rawDegreeEn && rawDegreeEn.trim() !== "" ? rawDegreeEn : transDegree.en;
+
+  const descId = rawDescId && rawDescId.trim() !== "" ? rawDescId : transDesc.id;
+  const descEn = rawDescEn && rawDescEn.trim() !== "" ? rawDescEn : transDesc.en;
+
   const startDate = (raw.startDate as string) || "";
   const endDate = (raw.endDate as string) || null;
 
   return {
     id: (raw.id as string) || `edu-${idx}`,
     school,
+    schoolId,
+    schoolEn,
     degree,
-    degreeId: (raw.degreeId as string) || degree,
-    degreeEn: (raw.degreeEn as string) || degree,
-    field: desc,
+    degreeId,
+    degreeEn,
+    field: descId,
     fieldId: descId,
     fieldEn: descEn,
-    description: desc,
+    description: descId,
     descriptionId: descId,
     descriptionEn: descEn,
     startDate,

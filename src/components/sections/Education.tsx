@@ -42,7 +42,7 @@ export function Education({ locale, educations = [] }: EducationProps) {
   if (!educations || educations.length === 0) return null;
 
   return (
-    <section id="education" className="space-y-4 pt-4">
+    <section id="education" className="space-y-4 pt-4 scroll-mt-6 sm:scroll-mt-8">
       <Reveal delay={0.1} yOffset={12}>
         <h2 className="text-xl font-bold tracking-tight text-ink">
           {dict.education.title}
@@ -51,8 +51,9 @@ export function Education({ locale, educations = [] }: EducationProps) {
 
       <div className="space-y-3">
         {educations.map((edu, idx) => {
-          const degree = getLocalized(edu, "degree", locale);
-          const field = getLocalized(edu, "field", locale);
+          const school = getLocalized(edu, "school", locale) || edu.school;
+          const degree = getLocalized(edu, "degree", locale) || edu.degree;
+          const field = getLocalized(edu, "field", locale) || edu.field;
 
           const dateDisplay = `${edu.startDate} - ${
             edu.endDate ? edu.endDate : dict.experience.present
@@ -77,7 +78,7 @@ export function Education({ locale, educations = [] }: EducationProps) {
                         <div className="relative size-full">
                           <Image
                             src={badge.image}
-                            alt={edu.school}
+                            alt={school}
                             fill
                             className="object-contain"
                           />
@@ -91,7 +92,7 @@ export function Education({ locale, educations = [] }: EducationProps) {
 
                     <div className="min-w-0">
                       <h3 className="font-semibold text-sm sm:text-base text-zinc-900 truncate">
-                        {edu.school}
+                        {school}
                       </h3>
                       <p className="text-xs sm:text-sm text-zinc-600 truncate">
                         {degree} {field ? `• ${field}` : ""}

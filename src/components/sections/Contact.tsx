@@ -16,7 +16,7 @@ export function Contact({ locale, profile }: ContactProps) {
   const dict = getDictionary(locale);
 
   return (
-    <section id="contact" className="relative pt-6 sm:pt-8 pb-4">
+    <section id="contact" className="relative pt-6 sm:pt-8 pb-4 scroll-mt-6 sm:scroll-mt-8">
       <div className="relative">
         {/* Floating Top Pill Badge (centered on card top border) */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">

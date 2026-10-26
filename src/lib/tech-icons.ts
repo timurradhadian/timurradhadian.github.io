@@ -17,6 +17,7 @@ export function getTechIcon(name: unknown): TechIconInfo {
     str = (obj.name as string) || (obj.label as string) || (obj.title as string) || "";
   }
   const normalized = (str || "").toLowerCase().trim();
+  const words = normalized.split(/[\s,()\/&+-]+/);
 
   // 1. Programming Languages & Runtimes
   if (normalized === "typescript" || normalized === "ts") {
@@ -41,7 +42,12 @@ export function getTechIcon(name: unknown): TechIconInfo {
     normalized === "node.js" ||
     normalized === "nodejs" ||
     normalized === "node js" ||
-    normalized === "node"
+    normalized === "node" ||
+    normalized.startsWith("node.js") ||
+    normalized.startsWith("nodejs") ||
+    normalized.includes("node.js") ||
+    normalized.includes("nodejs") ||
+    (words.includes("node") && !words.includes("node-sass"))
   ) {
     return { iconClass: "icon-[logos--nodejs-icon]" };
   }
@@ -125,8 +131,31 @@ export function getTechIcon(name: unknown): TechIconInfo {
   if (normalized === "codeigniter") {
     return { iconClass: "icon-[logos--codeigniter-icon]" };
   }
-  if (normalized === "nestjs" || normalized === "nest.js") {
+  if (
+    normalized === "nestjs" ||
+    normalized === "nest.js" ||
+    normalized === "nest js" ||
+    normalized === "nest" ||
+    normalized.includes("nestjs") ||
+    normalized.includes("nest.js") ||
+    words.includes("nestjs") ||
+    (words.includes("nest") && !words.includes("honest"))
+  ) {
     return { iconClass: "icon-[logos--nestjs]" };
+  }
+  if (
+    normalized === "gin" ||
+    normalized === "gin gonic" ||
+    normalized === "gin-gonic" ||
+    normalized === "gin framework" ||
+    normalized === "gin web framework" ||
+    normalized === "go gin" ||
+    normalized === "golang gin" ||
+    normalized.includes("gin-gonic") ||
+    normalized.includes("gin gonic") ||
+    words.includes("gin")
+  ) {
+    return { iconClass: "icon-[logos--gin]" };
   }
   if (normalized === "fastapi" || normalized === "fast api") {
     return { iconClass: "icon-[devicon--fastapi]" };

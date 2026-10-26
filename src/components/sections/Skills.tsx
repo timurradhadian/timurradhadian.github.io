@@ -98,7 +98,7 @@ export function Skills({ locale, skills }: SkillsProps) {
   }, [skills, locale]);
 
   return (
-    <section id="skills" className="space-y-6 pt-4">
+    <section id="skills" className="space-y-6 pt-4 scroll-mt-6 sm:scroll-mt-8">
       <Reveal delay={0.1} yOffset={12}>
         <div className="space-y-1">
           <h2 className="text-xl font-bold tracking-tight text-ink">

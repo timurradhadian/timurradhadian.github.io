@@ -23,7 +23,7 @@ export function Hero({ locale, profile }: HeroProps) {
   const avatarSrc = profile.avatarUrl || "/avatar.png";
 
   return (
-    <section id="hero" className="space-y-8 pt-4 sm:pt-8">
+    <section id="hero" className="space-y-8 pt-4 sm:pt-8 scroll-mt-6 sm:scroll-mt-8">
       {/* Hero Header with Avatar */}
       <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-6 sm:gap-8">
         <div className="space-y-3 flex-1">
