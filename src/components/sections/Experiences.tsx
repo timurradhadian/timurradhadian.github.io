@@ -235,13 +235,57 @@ const DEFAULT_MANUFACTURING_PROJECTS: Array<{
     },
   ];
 
+function getExperienceRank(exp: Experience): number {
+  const combined = `${exp.company} ${exp.position}`.toLowerCase();
+  if (
+    combined.includes("independent") ||
+    combined.includes("sejati") ||
+    combined.includes("dimedia")
+  ) {
+    return 1;
+  }
+  if (
+    combined.includes("tanjung") ||
+    combined.includes("kreasi") ||
+    combined.includes("parquet") ||
+    combined.includes("dsn")
+  ) {
+    return 2;
+  }
+  if (
+    combined.includes("asisten") ||
+    combined.includes("dosen") ||
+    combined.includes("forum asisten")
+  ) {
+    return 3;
+  }
+  return 4;
+}
+
 export function Experiences({
   locale,
   experiences,
   allProjects = [],
 }: ExperiencesProps) {
   const dict = getDictionary(locale);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Sort experiences strictly by requested order:
+  // 1. Independent
+  // 2. Tanjung Kreasi
+  // 3. Asisten
+  const sortedExperiences = React.useMemo(() => {
+    return [...experiences].sort((a, b) => {
+      const rankA = getExperienceRank(a);
+      const rankB = getExperienceRank(b);
+      if (rankA !== rankB) return rankA - rankB;
+      return (a.order ?? 0) - (b.order ?? 0);
+    });
+  }, [experiences]);
+
+  // Initial state opens the first experience once; user can collapse or toggle freely
+  const [expandedId, setExpandedId] = useState<string | null>(
+    () => sortedExperiences[0]?.id || null
+  );
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const toggleExpand = (id: string) => {
@@ -274,52 +318,6 @@ export function Experiences({
     }
     return merged;
   }, [allProjects]);
-
-  // Sort experiences strictly by requested order:
-  // 1. Independent
-  // 2. Tanjung Kreasi
-  // 3. Asisten
-  const sortedExperiences = React.useMemo(() => {
-    const getRank = (exp: Experience): number => {
-      const combined = `${exp.company} ${exp.position}`.toLowerCase();
-      if (
-        combined.includes("independent") ||
-        combined.includes("sejati") ||
-        combined.includes("dimedia")
-      ) {
-        return 1;
-      }
-      if (
-        combined.includes("tanjung") ||
-        combined.includes("kreasi") ||
-        combined.includes("parquet") ||
-        combined.includes("dsn")
-      ) {
-        return 2;
-      }
-      if (
-        combined.includes("asisten") ||
-        combined.includes("dosen") ||
-        combined.includes("forum asisten")
-      ) {
-        return 3;
-      }
-      return 4;
-    };
-
-    return [...experiences].sort((a, b) => {
-      const rankA = getRank(a);
-      const rankB = getRank(b);
-      if (rankA !== rankB) return rankA - rankB;
-      return (a.order ?? 0) - (b.order ?? 0);
-    });
-  }, [experiences]);
-
-  React.useEffect(() => {
-    if (sortedExperiences.length > 0 && !expandedId) {
-      setExpandedId(sortedExperiences[0].id);
-    }
-  }, [sortedExperiences, expandedId]);
 
   return (
     <section id="experience" className="space-y-4 pt-4 scroll-mt-6 sm:scroll-mt-8">
