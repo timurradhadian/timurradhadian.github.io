@@ -14,6 +14,7 @@ export interface Dictionary {
     contact: string;
   };
   hero: {
+    kicker: string;
     title: string;
     description: string;
     aboutTitle: string;
@@ -125,9 +126,10 @@ export const dictionaries: Record<Locale, Dictionary> = {
       contact: "Kontak",
     },
     hero: {
-      title: "Halo, saya Timur Dian",
+      kicker: "SOFTWARE ENGINEER · AI INTEGRATION",
+      title: "Timur Dian Radha Sejati",
       description:
-        "Software Engineer Fullstack, Berfokus pada sistem web performa tinggi, arsitektur headless, dan aplikasi skala enterprise yang terukur.",
+        "Software Engineer Fullstack yang berfokus pada sistem performa tinggi, arsitektur headless, dan aplikasi skala enterprise",
       aboutTitle: "Tentang",
       aboutBio:
         "Software Engineer Fullstack dan Arsitek Web dengan pengalaman merancang sistem web performa tinggi, arsitektur headless modern, serta aplikasi terdistribusi. Saat ini memimpin rekayasa platform digital di SejatiDimedia, mengembangkan produk web skala produksi dengan Next.js, Go, TypeScript, Node.js, dan arsitektur cloud teruji.",
@@ -246,9 +248,10 @@ export const dictionaries: Record<Locale, Dictionary> = {
       contact: "Contact",
     },
     hero: {
-      title: "Hi, I'm Timur Dian",
+      kicker: "SOFTWARE ENGINEER · AI INTEGRATION",
+      title: "Timur Dian Radha Sejati",
       description:
-        "Fullstack Software Engineer, Focused on high-performance web systems, headless architectures, and scalable enterprise applications.",
+        "Fullstack Software Engineer focused on high-performance systems, headless architectures, and enterprise-scale applications",
       aboutTitle: "About",
       aboutBio:
         "Fullstack Software Engineer and Web Architect with a passion for high-performance web systems, headless architectures, and clean code. Currently leading digital platforms and software architecture at SejatiDimedia, building production web systems across Next.js, Go, TypeScript, Node.js, and modern cloud infrastructure.",

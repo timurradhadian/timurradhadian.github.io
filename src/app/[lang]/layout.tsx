@@ -48,7 +48,7 @@ export default async function LocaleLayout({
 
         <main
           id="main-content"
-          className="relative z-10 flex-1 max-w-2xl mx-auto px-6 pt-12 md:pt-20 pb-28 sm:pb-32 w-full space-y-12 md:space-y-16"
+          className="relative z-10 flex-1 max-w-4xl mx-auto px-6 pt-12 md:pt-20 pb-28 sm:pb-32 w-full space-y-12 md:space-y-16"
         >
           {children}
         </main>

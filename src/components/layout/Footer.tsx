@@ -12,7 +12,7 @@ export function Footer({ locale, profile }: FooterProps) {
 
   return (
     <footer className="border-t border-border/50 py-10 pb-28 text-center text-xs text-ink-muted transition-colors">
-      <div className="max-w-2xl mx-auto px-6 space-y-2">
+      <div className="max-w-4xl mx-auto px-6 space-y-2">
         <p>
           &copy; {new Date().getFullYear()} {profile.name}. {dict.footer.allRightsReserved}
         </p>
