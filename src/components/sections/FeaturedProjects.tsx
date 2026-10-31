@@ -18,6 +18,9 @@ interface FeaturedProjectsProps {
   ndaBlurEnabled?: boolean;
 }
 
+const INITIAL_ALL_COUNT = 4;
+const PAGE_SIZE = 4;
+
 export function FeaturedProjects({
   locale,
   projects,
@@ -26,6 +29,7 @@ export function FeaturedProjects({
 }: FeaturedProjectsProps) {
   const dict = getDictionary(locale);
   const [filter, setFilter] = useState<"featured" | "all">("featured");
+  const [visibleAllCount, setVisibleAllCount] = useState<number>(INITIAL_ALL_COUNT);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const validProjects = React.useMemo(
@@ -45,8 +49,8 @@ export function FeaturedProjects({
         ? validProjects
         : combinedProjects.slice(0, 6);
     }
-    return combinedProjects;
-  }, [filter, validProjects, combinedProjects]);
+    return combinedProjects.slice(0, visibleAllCount);
+  }, [filter, validProjects, combinedProjects, visibleAllCount]);
 
   return (
     <section id="projects" className="space-y-4 pt-4 scroll-mt-6 sm:scroll-mt-8">
@@ -104,16 +108,17 @@ export function FeaturedProjects({
         </div>
       </Reveal>
 
-      {/* 2-Column Responsive Card Grid */}
+      {/* Editorial Split Projects List */}
       <motion.div
         layout
-        className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2"
+        className="divide-y divide-zinc-200/80 pt-1"
       >
         <AnimatePresence mode="popLayout">
-          {filteredProjects.map((project) => {
+          {filteredProjects.map((project, index) => {
             const title = getLocalized(project, "title", locale);
             const summary = getLocalized(project, "summary", locale);
-            const category = getLocalized(project, "category", locale);
+            const thumbnail = project.thumbnailUrl || project.bannerImage;
+            const isEven = index % 2 === 0;
 
             return (
               <motion.article
@@ -121,85 +126,45 @@ export function FeaturedProjects({
                 key={project.id || project.slug}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.96 }}
-                whileHover={{ y: -4 }}
-                transition={{ duration: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                whileHover={{ y: -2 }}
+                transition={{ duration: 0.35, ease: [0.21, 0.47, 0.32, 0.98] }}
                 onClick={() => setSelectedProject(project)}
-                className="group relative rounded-xl border border-zinc-200/90 bg-white flex flex-col justify-between overflow-hidden hover:border-zinc-350 hover:shadow-md transition-shadow shadow-xs cursor-pointer"
+                className={`group relative py-7 sm:py-9 lg:py-10 cursor-pointer flex flex-col ${
+                  isEven ? "md:flex-row" : "md:flex-row-reverse"
+                } items-center gap-6 sm:gap-8 lg:gap-12`}
               >
-                <div>
-                  {/* Thumbnail / Media Container */}
-                  <div className="relative aspect-video w-full overflow-hidden bg-zinc-50">
-                    {project.thumbnailUrl ? (
-                      <Image
-                        src={project.thumbnailUrl}
-                        alt={title}
-                        fill
-                        sizes="(max-width: 640px) 100vw, 50vw"
-                        className={`object-cover transition-all duration-300 ease-out group-hover:scale-103 ${project.isNda && ndaBlurEnabled
-                            ? "filter blur-[2px] group-hover:blur-none"
-                            : ""
-                          }`}
-                      />
-                    ) : (
-                      <div className="flex size-full items-center justify-center p-4 text-center bg-zinc-100">
-                        <span className="font-mono text-xs uppercase tracking-wider text-zinc-500">
-                          {category}
-                        </span>
-                      </div>
-                    )}
-
+                {/* Text Content Column */}
+                <div className="w-full md:w-1/2 flex flex-col justify-center space-y-3.5 sm:space-y-4">
+                  {/* Project Title & NDA indicator */}
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-zinc-900 group-hover:text-zinc-700 transition-colors leading-tight">
+                      {title}
+                    </h3>
                     {project.isNda && (
-                      <div className="absolute top-2.5 right-2.5 z-10">
-                        <NdaBadge label={dict.projects.ndaBadge} size="sm" />
-                      </div>
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 shrink-0">
+                        NDA
+                      </span>
                     )}
                   </div>
 
-                  {/* Card Body */}
-                  <div className="p-4 space-y-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <h3 className="font-semibold text-sm sm:text-base text-zinc-900 line-clamp-1 group-hover:text-zinc-950">
-                        {title}
-                      </h3>
-                      {project.projectUrl && (
-                        <a
-                          href={project.projectUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          aria-label={`Open ${title}`}
-                          className="text-zinc-400 hover:text-zinc-800 shrink-0 transition-colors"
-                        >
-                          <span className="icon-[lucide--external-link] size-3.5 inline-block" />
-                        </a>
-                      )}
-                    </div>
+                  {/* Summary / Description */}
+                  <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
+                    {summary}
+                  </p>
 
-                    <p className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
-                      {category}
-                    </p>
-
-                    <p className="text-xs text-zinc-600 leading-relaxed line-clamp-3">
-                      {summary}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Card Footer: Tech Stack with Colorful Iconify Icons & Links */}
-                <div className="p-4 pt-0 space-y-3">
+                  {/* Tech Stack Badges with colorful Icons */}
                   {project.techStack && project.techStack.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-1.5 pt-1">
                       {project.techStack.map((tech) => {
                         const techInfo = getTechIcon(tech);
-
                         return (
                           <span
                             key={tech}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium bg-zinc-50 text-zinc-700 border border-zinc-200/80 shadow-2xs"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-zinc-50 text-zinc-700 border border-zinc-200/80 shadow-2xs hover:bg-zinc-100 transition-colors"
                           >
                             <span
-                              className={`${techInfo.iconClass} size-3 inline-block shrink-0`}
+                              className={`${techInfo.iconClass} size-3.5 inline-block shrink-0`}
                               aria-hidden="true"
                             />
                             <span>{tech}</span>
@@ -209,9 +174,8 @@ export function FeaturedProjects({
                     </div>
                   )}
 
-                  {/* Action Buttons */}
-                  <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-
+                  {/* Action Buttons & Links */}
+                  <div className="flex flex-wrap items-center gap-2 pt-2 text-xs">
                     {project.projectUrl && (
                       <motion.a
                         href={project.projectUrl}
@@ -220,9 +184,9 @@ export function FeaturedProjects({
                         onClick={(e) => e.stopPropagation()}
                         whileHover={{ scale: 1.04 }}
                         whileTap={{ scale: 0.96 }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-medium text-xs hover:bg-zinc-800 transition-colors shadow-2xs"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-zinc-900 text-white font-medium text-xs hover:bg-zinc-800 transition-colors shadow-2xs"
                       >
-                        <span className="icon-[lucide--globe] size-3 inline-block" />
+                        <span className="icon-[lucide--globe] size-3.5 inline-block" />
                         <span>{dict.projects.website}</span>
                       </motion.a>
                     )}
@@ -235,18 +199,48 @@ export function FeaturedProjects({
                         onClick={(e) => e.stopPropagation()}
                         whileHover={{ scale: 1.04 }}
                         whileTap={{ scale: 0.96 }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-medium text-xs transition-colors shadow-2xs"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-medium text-xs transition-colors shadow-2xs"
                       >
-                        <span className="icon-[simple-icons--github] size-3 inline-block" />
+                        <span className="icon-[simple-icons--github] size-3.5 inline-block" />
                         <span>{dict.projects.source}</span>
                       </motion.a>
                     )}
 
+                    {/* View Details Hint */}
+                    <span className="inline-flex items-center gap-1 text-xs text-zinc-400 group-hover:text-zinc-700 font-medium transition-colors ml-auto">
+                      <span>{locale === "id" ? "Detail proyek" : "Project detail"}</span>
+                      <span className="icon-[lucide--arrow-right] size-3.5 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </div>
+                </div>
+
+                {/* Single Thumbnail Image Column */}
+                <div className="w-full md:w-1/2 order-first md:order-none relative">
+                  <div className="relative aspect-16/10 w-full rounded-xl sm:rounded-2xl overflow-hidden bg-zinc-100 border border-zinc-200/80 shadow-2xs group-hover:border-zinc-350 transition-all">
+                    {thumbnail ? (
+                      <Image
+                        src={thumbnail}
+                        alt={title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 50vw"
+                        className={`object-cover transition-transform duration-500 ease-out group-hover:scale-104 ${
+                          project.isNda && ndaBlurEnabled
+                            ? "filter blur-[2.5px] group-hover:blur-none"
+                            : ""
+                        }`}
+                      />
+                    ) : (
+                      <div className="flex size-full items-center justify-center p-6 text-center bg-zinc-100">
+                        <span className="font-mono text-xs uppercase tracking-wider text-zinc-400 line-clamp-1">
+                          {title}
+                        </span>
+                      </div>
+                    )}
+
                     {project.isNda && (
-                      <span className="text-[11px] text-amber-800 italic flex items-center gap-1 font-medium bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                        <span className="icon-[lucide--lock] size-3 inline-block" />
-                        <span>{dict.projects.ndaBadge}</span>
-                      </span>
+                      <div className="absolute top-3 right-3 z-10 pointer-events-none">
+                        <NdaBadge label={dict.projects.ndaBadge} size="sm" />
+                      </div>
                     )}
                   </div>
                 </div>
@@ -255,6 +249,52 @@ export function FeaturedProjects({
           })}
         </AnimatePresence>
       </motion.div>
+
+      {/* Load More Controls for "All Projects" */}
+      {filter === "all" && combinedProjects.length > INITIAL_ALL_COUNT && (
+        <Reveal delay={0.08} yOffset={6}>
+          <div className="pt-6 sm:pt-8 flex flex-col items-center justify-center gap-3">
+            {visibleAllCount < combinedProjects.length ? (
+              <motion.button
+                type="button"
+                onClick={() =>
+                  setVisibleAllCount((prev) =>
+                    Math.min(prev + PAGE_SIZE, combinedProjects.length)
+                  )
+                }
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-200/90 bg-white hover:bg-zinc-50 text-zinc-800 text-xs sm:text-sm font-medium shadow-2xs hover:shadow-xs hover:border-zinc-350 transition-all cursor-pointer"
+              >
+                <span className="icon-[lucide--chevron-down] size-4 inline-block text-zinc-500" />
+                <span>{dict.projects.loadMore}</span>
+                <span className="ml-1 px-1.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-100 text-zinc-600">
+                  +{Math.min(PAGE_SIZE, combinedProjects.length - visibleAllCount)}
+                </span>
+              </motion.button>
+            ) : (
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-mono text-zinc-400">
+                  {locale === "id"
+                    ? `Semua ${combinedProjects.length} proyek telah ditampilkan`
+                    : `All ${combinedProjects.length} projects displayed`}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVisibleAllCount(INITIAL_ALL_COUNT);
+                    const section = document.getElementById("projects");
+                    if (section) section.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="text-xs font-medium text-zinc-500 hover:text-zinc-900 underline underline-offset-4 cursor-pointer"
+                >
+                  {dict.projects.showLess}
+                </button>
+              </div>
+            )}
+          </div>
+        </Reveal>
+      )}
 
       {/* Full Modal Project Detail */}
       <ProjectDetailModal

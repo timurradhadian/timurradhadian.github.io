@@ -33,6 +33,8 @@ export interface Dictionary {
     filterAll: string;
     filterFeatured: string;
     filterNda: string;
+    loadMore: string;
+    showLess: string;
     website: string;
     source: string;
     viewCode: string;
@@ -150,6 +152,8 @@ export const dictionaries: Record<Locale, Dictionary> = {
       filterAll: "Semua Proyek",
       filterFeatured: "Unggulan",
       filterNda: "Terikat NDA",
+      loadMore: "Muat Lebih Banyak",
+      showLess: "Tampilkan Lebih Sedikit",
       website: "Website",
       source: "Source",
       viewCode: "Sumber Kode",
@@ -270,6 +274,8 @@ export const dictionaries: Record<Locale, Dictionary> = {
       filterAll: "All Projects",
       filterFeatured: "Featured",
       filterNda: "NDA Protected",
+      loadMore: "Load More",
+      showLess: "Show Less",
       website: "Website",
       source: "Source",
       viewCode: "Source Code",

@@ -211,9 +211,9 @@ function normalizeGlioProject(
     category:
       Array.isArray(merged.categories) && merged.categories.length > 0
         ? typeof merged.categories[0] === "string"
-          ? "Fullstack Application"
-          : ((merged.categories[0] as Record<string, unknown>).name as string) || "Fullstack Application"
-        : (merged.category as string) || "Fullstack Application",
+          ? ""
+          : ((merged.categories[0] as Record<string, unknown>).name as string) || ""
+        : (merged.category as string) || "",
     summary: (merged.summary as string) || "",
     summaryId: (merged.summaryId as string) || (merged.summary as string) || "",
     summaryEn: (merged.summaryEn as string) || (merged.summary as string) || "",
