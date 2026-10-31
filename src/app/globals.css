@@ -87,3 +87,20 @@ p {
 .skip-link:focus {
   top: 1rem;
 }
+
+/* Custom Brand Tech Stack Icons */
+.icon-midtrans {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2300B4D8' d='M12 2.5l8 4.62v.1l-8 4.62-8-4.62v-.1l8-4.62z'/%3E%3Cpath fill='%230050D8' d='M3.5 7.72l7.75 4.47v9.06L3.5 16.78V7.72z'/%3E%3Cpath fill='%23002554' d='M20.5 7.72v9.06l-7.75 4.47v-9.06l7.75-4.47z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+}
+
+.icon-kag {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.5 12h11M12 6.5v11M8 8l8 8M16 8l-8 8' stroke='%2338bdf8' stroke-width='1.5' stroke-linecap='round'/%3E%3Ccircle cx='12' cy='12' r='3.5' fill='%230284c7'/%3E%3Ccircle cx='5' cy='12' r='2.5' fill='%232563eb'/%3E%3Ccircle cx='19' cy='12' r='2.5' fill='%232563eb'/%3E%3Ccircle cx='12' cy='5' r='2.5' fill='%237c3aed'/%3E%3Ccircle cx='12' cy='19' r='2.5' fill='%237c3aed'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+}

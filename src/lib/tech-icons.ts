@@ -229,7 +229,7 @@ export function getTechIcon(name: unknown): TechIconInfo {
     return { iconClass: "icon-[logos--telegram]" };
   }
   if (normalized.includes("midtrans")) {
-    return { iconClass: "icon-[lucide--credit-card]" };
+    return { iconClass: "icon-midtrans" };
   }
 
   // 6. DevOps, Cloud & Architecture
@@ -294,6 +294,28 @@ export function getTechIcon(name: unknown): TechIconInfo {
   }
   if (normalized === "langchain") {
     return { iconClass: "icon-[logos--langchain-icon]" };
+  }
+  if (
+    normalized === "langgraph" ||
+    normalized === "langgrpah" ||
+    normalized.includes("langgraph") ||
+    normalized.includes("langgrpah")
+  ) {
+    return { iconClass: "icon-[simple-icons--langgraph] text-[#2B5B5A]" };
+  }
+  if (
+    normalized === "kag" ||
+    normalized === "k.a.g" ||
+    normalized === "k-a-g" ||
+    normalized.includes("knowledge augmented") ||
+    normalized.includes("knowledge-augmented") ||
+    normalized === "openspg" ||
+    normalized.includes("openspg")
+  ) {
+    return { iconClass: "icon-kag" };
+  }
+  if (normalized === "kaggle") {
+    return { iconClass: "icon-[devicon--kaggle]" };
   }
   if (normalized === "huggingface" || normalized === "hugging face") {
     return { iconClass: "icon-[logos--hugging-face-icon]" };
