@@ -276,16 +276,16 @@ export function Experiences({
   }, [allProjects]);
 
   // Sort experiences strictly by requested order:
-  // 1. Asisten
+  // 1. Independent
   // 2. Tanjung Kreasi
-  // 3. Independent
+  // 3. Asisten
   const sortedExperiences = React.useMemo(() => {
     const getRank = (exp: Experience): number => {
       const combined = `${exp.company} ${exp.position}`.toLowerCase();
       if (
-        combined.includes("asisten") ||
-        combined.includes("dosen") ||
-        combined.includes("forum asisten")
+        combined.includes("independent") ||
+        combined.includes("sejati") ||
+        combined.includes("dimedia")
       ) {
         return 1;
       }
@@ -298,9 +298,9 @@ export function Experiences({
         return 2;
       }
       if (
-        combined.includes("independent") ||
-        combined.includes("sejati") ||
-        combined.includes("dimedia")
+        combined.includes("asisten") ||
+        combined.includes("dosen") ||
+        combined.includes("forum asisten")
       ) {
         return 3;
       }

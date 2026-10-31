@@ -112,6 +112,7 @@ export interface Certificate {
   issueDate: string;
   credentialUrl?: string;
   credentialId?: string;
+  logo?: string;
   order?: number;
 }
 
