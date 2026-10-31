@@ -703,24 +703,60 @@ export function ProjectDetailModal({
                 )}
               </div>
 
-              {/* Status & Timeline Badges */}
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-50 border border-zinc-200/80">
-                  <span className="text-zinc-500 font-medium">{activeDict.projects.status}:</span>
-                  <div className="flex items-center gap-1.5 font-bold text-zinc-900">
-                    <span className="icon-[lucide--check-circle-2] size-3.5 text-emerald-600 shrink-0" />
+              {/* Status, Timeline & Specifications (Clean Editorial Definition List with Icons) */}
+              <dl className="flex flex-wrap items-start gap-y-4 gap-x-8 sm:gap-x-12 py-1">
+                <div className="shrink-0">
+                  <dt className="text-xs font-medium text-zinc-400">
+                    {activeDict.projects.status}
+                  </dt>
+                  <dd className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-zinc-900 whitespace-nowrap">
+                    <span className="icon-[lucide--circle-check] size-4 text-emerald-600 shrink-0" />
                     <span>{displayStatus}</span>
-                  </div>
+                  </dd>
                 </div>
 
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-50 border border-zinc-200/80">
-                  <span className="text-zinc-500 font-medium">{activeDict.projects.timeline}:</span>
-                  <div className="flex items-center gap-1.5 font-bold text-zinc-900">
-                    <span className="icon-[lucide--calendar] size-3.5 text-zinc-700 shrink-0" />
-                    <span>{formattedTimeline}</span>
-                  </div>
+                <div className="shrink-0">
+                  <dt className="text-xs font-medium text-zinc-400">
+                    {activeDict.projects.timeline}
+                  </dt>
+                  <dd className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-zinc-900 tabular-nums whitespace-nowrap">
+                    <span className="icon-[lucide--calendar] size-4 text-zinc-500 shrink-0" />
+                    <span className="whitespace-nowrap">{formattedTimeline}</span>
+                  </dd>
                 </div>
-              </div>
+
+                {category && (
+                  <div className="shrink-0">
+                    <dt className="text-xs font-medium text-zinc-400">
+                      {activeLocale === "id" ? "Kategori" : "Category"}
+                    </dt>
+                    <dd className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-zinc-900 whitespace-nowrap">
+                      <span className="icon-[lucide--layers] size-4 text-zinc-500 shrink-0" />
+                      <span>{category}</span>
+                    </dd>
+                  </div>
+                )}
+
+                {activeProject.projectUrl && !isNda && (
+                  <div className="shrink-0">
+                    <dt className="text-xs font-medium text-zinc-400">
+                      {activeLocale === "id" ? "Akses Langsung" : "Live Access"}
+                    </dt>
+                    <dd className="mt-1">
+                      <a
+                        href={activeProject.projectUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-zinc-900 hover:text-zinc-600 transition-colors group whitespace-nowrap"
+                      >
+                        <span className="icon-[lucide--globe] size-4 text-zinc-500 group-hover:text-zinc-900 transition-colors" />
+                        <span>{activeDict.projects.website}</span>
+                        <span className="icon-[lucide--arrow-up-right] size-3.5 text-zinc-400 group-hover:text-zinc-900 transition-colors" />
+                      </a>
+                    </dd>
+                  </div>
+                )}
+              </dl>
 
               {/* Row: Teknologi yang Digunakan */}
               {normalizedTechStack.length > 0 && (
