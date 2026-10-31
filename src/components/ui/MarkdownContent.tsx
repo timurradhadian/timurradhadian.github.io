@@ -223,14 +223,14 @@ export function MarkdownContent({ content, className = "" }: MarkdownContentProp
   const blocks = parseMarkdownBlocks(content);
 
   return (
-    <div className={`space-y-4 text-zinc-600 leading-relaxed text-sm ${className}`}>
+    <div className={`space-y-4 text-zinc-600 leading-relaxed text-sm font-sans ${className}`}>
       {blocks.map((block, idx) => {
         switch (block.type) {
           case "h1":
             return (
               <h2
                 key={idx}
-                className="text-lg sm:text-xl font-bold text-zinc-900 tracking-tight pt-3 first:pt-0"
+                className="text-xl sm:text-2xl font-bold tracking-tight text-ink pt-5 pb-2 border-b border-zinc-200/80 first:pt-0"
               >
                 {renderInline(block.text)}
               </h2>
@@ -239,9 +239,9 @@ export function MarkdownContent({ content, className = "" }: MarkdownContentProp
             return (
               <h3
                 key={idx}
-                className="text-base sm:text-lg font-bold text-zinc-900 tracking-tight pt-4 pb-1 border-b border-zinc-100 flex items-center gap-2 first:pt-0"
+                className="text-lg sm:text-xl font-bold tracking-tight text-ink pt-4 pb-1.5 border-b border-zinc-100 flex items-center gap-2 first:pt-0"
               >
-                <span className="size-2 rounded-full bg-zinc-900 inline-block" />
+                <span className="size-2 rounded-full bg-zinc-900 inline-block shrink-0" />
                 <span>{renderInline(block.text)}</span>
               </h3>
             );
@@ -249,7 +249,7 @@ export function MarkdownContent({ content, className = "" }: MarkdownContentProp
             return (
               <h4
                 key={idx}
-                className="text-sm sm:text-base font-semibold text-zinc-900 pt-2"
+                className="text-base sm:text-lg font-bold tracking-tight text-ink pt-3"
               >
                 {renderInline(block.text)}
               </h4>
@@ -258,7 +258,7 @@ export function MarkdownContent({ content, className = "" }: MarkdownContentProp
             return (
               <h5
                 key={idx}
-                className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-zinc-800 pt-1"
+                className="text-sm sm:text-base font-semibold text-ink pt-2"
               >
                 {renderInline(block.text)}
               </h5>
@@ -315,7 +315,7 @@ export function MarkdownContent({ content, className = "" }: MarkdownContentProp
               <ol key={idx} className="space-y-1.5 pl-1 my-2">
                 {block.items.map((item, itemIdx) => (
                   <li key={itemIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-600">
-                    <span className="font-mono text-xs font-bold text-zinc-400 shrink-0 w-4">
+                    <span className="font-sans text-xs font-bold tabular-nums text-zinc-400 shrink-0 w-4">
                       {itemIdx + 1}.
                     </span>
                     <span className="flex-1">{renderInline(item)}</span>

@@ -174,7 +174,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       timeline: "Timeline",
       status: "Status",
       statusCompleted: "Selesai",
-      projectSpecsTitle: "SPESIFIKASI PROYEK",
+      projectSpecsTitle: "Spesifikasi Proyek",
       techUsed: "Teknologi yang Digunakan",
       similarProjectTitle: "Ingin Proyek Serupa?",
       similarProjectSubtitle:
@@ -296,7 +296,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       timeline: "Timeline",
       status: "Status",
       statusCompleted: "Completed",
-      projectSpecsTitle: "PROJECT SPECIFICATIONS",
+      projectSpecsTitle: "Project Specifications",
       techUsed: "Technologies Used",
       similarProjectTitle: "Interested in a Similar Project?",
       similarProjectSubtitle:

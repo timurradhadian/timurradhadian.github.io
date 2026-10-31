@@ -205,12 +205,6 @@ export function FeaturedProjects({
                         <span>{dict.projects.source}</span>
                       </motion.a>
                     )}
-
-                    {/* View Details Hint */}
-                    <span className="inline-flex items-center gap-1 text-xs text-zinc-400 group-hover:text-zinc-700 font-medium transition-colors ml-auto">
-                      <span>{locale === "id" ? "Detail proyek" : "Project detail"}</span>
-                      <span className="icon-[lucide--arrow-right] size-3.5 transition-transform group-hover:translate-x-1" />
-                    </span>
                   </div>
                 </div>
 
