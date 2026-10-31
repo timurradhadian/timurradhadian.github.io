@@ -386,7 +386,7 @@ function normalizeGlioProfile(raw: Record<string, unknown>): Profile {
     location: (raw.location as string) || mockPortfolioData.profile.location,
     workExperience: typeof raw.workExperience === "number" ? raw.workExperience : 5,
     availableForHire: true,
-    avatarUrl: (raw.profileImage as string) || mockPortfolioData.profile.avatarUrl || "/avatar.png",
+    avatarUrl: "/avatar.png",
   };
 }
 
