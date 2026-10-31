@@ -56,16 +56,34 @@ export function Hero({ locale, profile }: HeroProps) {
             animate={{ opacity: 1, scale: 1 }}
             whileHover={{ scale: 1.03, rotate: 0.5 }}
             transition={{ type: "spring", stiffness: 280, damping: 20, delay: 0.1 }}
-            className="relative size-28 sm:size-36 md:size-40 rounded-2xl sm:rounded-3xl overflow-hidden border border-zinc-200/90 shadow-sm bg-surface cursor-pointer ring-4 ring-transparent hover:ring-zinc-200/60 transition-all duration-300"
+            className="group relative size-28 sm:size-36 md:size-40 rounded-2xl sm:rounded-3xl border border-zinc-200/90 shadow-sm bg-surface cursor-pointer ring-4 ring-transparent hover:ring-zinc-200/60 transition-all duration-300"
           >
-            <Image
-              src={avatarSrc}
-              alt={profile.name}
-              width={160}
-              height={160}
-              priority
-              className="size-full object-cover transition-transform duration-500 hover:scale-105"
-            />
+            {/* Avatar Photo Frame */}
+            <div className="size-full rounded-2xl sm:rounded-3xl overflow-hidden">
+              <Image
+                src={avatarSrc}
+                alt={profile.name}
+                width={160}
+                height={160}
+                priority
+                className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            </div>
+
+            {/* Brand Logo Insignia Badge (Bottom-Left Corner) */}
+            <div
+              className="absolute -bottom-1 -left-1 sm:-bottom-1.5 sm:-left-1.5 size-6 sm:size-7 md:size-8 rounded-full overflow-hidden border-[1.5px] border-white bg-white shadow-xs select-none pointer-events-none z-10"
+              aria-hidden="true"
+            >
+              <Image
+                src="/icon.webp"
+                alt="Logo TD"
+                width={32}
+                height={32}
+                className="size-full object-cover"
+                priority
+              />
+            </div>
           </m.div>
         </div>
       </div>

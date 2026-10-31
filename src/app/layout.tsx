@@ -17,6 +17,14 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Timur Dian Radha Sejati" }],
   metadataBase: new URL("https://timurradhadian.github.io"),
+  icons: {
+    icon: [
+      { url: "/favicon.webp", type: "image/webp" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.webp",
+    apple: "/apple-icon.webp",
+  },
   openGraph: {
     type: "website",
     locale: "id_ID",

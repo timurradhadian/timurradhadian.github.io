@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import Image from "next/image";
 import {
   motion,
   useMotionValue,
@@ -218,6 +219,24 @@ export function FloatingDock({
           onMouseLeave={() => mouseX.set(Infinity)}
           className="hidden sm:flex items-center gap-1.5 p-2 rounded-full border border-zinc-200/90 bg-white/90 backdrop-blur-md shadow-lg"
         >
+          {/* Brand Logo (Static Badge, non-clickable) */}
+          <div
+            className="relative size-10 rounded-full overflow-hidden border border-zinc-200/90 bg-white shadow-2xs flex items-center justify-center shrink-0 select-none pointer-events-none"
+            aria-hidden="true"
+          >
+            <Image
+              src="/icon.webp"
+              alt="Logo TD"
+              width={40}
+              height={40}
+              className="size-full object-cover"
+              priority
+            />
+          </div>
+
+          {/* Separator between logo and links */}
+          <div className="h-6 w-px bg-zinc-200 mx-0.5" aria-hidden="true" />
+
           {dockItems.map((item) => (
             <DesktopDockIcon key={item.title} mouseX={mouseX} item={item} />
           ))}
@@ -231,6 +250,24 @@ export function FloatingDock({
 
         {/* Mobile Dock (< sm / 640px) */}
         <div className="flex sm:hidden items-center gap-1.5 p-1.5 rounded-full border border-zinc-200/90 bg-white/95 backdrop-blur-md shadow-xl">
+          {/* Brand Logo (Static Badge, non-clickable) */}
+          <div
+            className="relative size-9.5 rounded-full overflow-hidden border border-zinc-200/90 bg-white shadow-2xs flex items-center justify-center shrink-0 select-none pointer-events-none"
+            aria-hidden="true"
+          >
+            <Image
+              src="/icon.webp"
+              alt="Logo TD"
+              width={38}
+              height={38}
+              className="size-full object-cover"
+              priority
+            />
+          </div>
+
+          {/* Separator between logo and links */}
+          <div className="h-5 w-px bg-zinc-200/80 mx-0.5" aria-hidden="true" />
+
           {dockItems.map((item) => (
             <MobileDockItem key={item.title} item={item} />
           ))}
