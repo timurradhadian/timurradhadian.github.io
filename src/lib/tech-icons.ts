@@ -101,6 +101,12 @@ export function getTechIcon(name: unknown): TechIconInfo {
   ) {
     return { iconClass: "icon-[logos--tailwindcss-icon]" };
   }
+  if (normalized.includes("bootstrap")) {
+    return { iconClass: "icon-[logos--bootstrap]" };
+  }
+  if (normalized.includes("html") || normalized.includes("css")) {
+    return { iconClass: "icon-[logos--html-5]" };
+  }
   if (normalized === "redux") {
     return { iconClass: "icon-[logos--redux]" };
   }
@@ -122,7 +128,7 @@ export function getTechIcon(name: unknown): TechIconInfo {
   ) {
     return { iconClass: "icon-[skill-icons--expressjs-light]" };
   }
-  if (normalized === "laravel") {
+  if (normalized === "laravel" || normalized.includes("laravel")) {
     return { iconClass: "icon-[logos--laravel]" };
   }
   if (normalized.includes("laravel breeze") || normalized.includes("laravel sanctum")) {
@@ -242,8 +248,14 @@ export function getTechIcon(name: unknown): TechIconInfo {
   if (normalized.includes("google maps") || normalized.includes("gmaps")) {
     return { iconClass: "icon-[logos--google-maps]" };
   }
-  if (normalized === "git") {
+  if (normalized === "git" || normalized.includes("git")) {
     return { iconClass: "icon-[logos--git-icon]" };
+  }
+  if (normalized.includes("figma")) {
+    return { iconClass: "icon-[logos--figma]" };
+  }
+  if (normalized.includes("linux")) {
+    return { iconClass: "icon-[logos--linux-tux]" };
   }
   if (normalized === "postman") {
     return { iconClass: "icon-[logos--postman-icon]" };
@@ -268,6 +280,18 @@ export function getTechIcon(name: unknown): TechIconInfo {
   }
 
   // 7. AI & LLM Engineering
+  if (normalized.includes("claude")) {
+    return { iconClass: "icon-[logos--claude-icon]" };
+  }
+  if (normalized.includes("mcp")) {
+    return { iconClass: "icon-[lucide--cpu]" };
+  }
+  if (normalized.includes("vibe coding")) {
+    return { iconClass: "icon-[lucide--sparkles]" };
+  }
+  if (normalized.includes("hermes")) {
+    return { iconClass: "icon-[lucide--bot]" };
+  }
   if (normalized === "langchain") {
     return { iconClass: "icon-[logos--langchain-icon]" };
   }

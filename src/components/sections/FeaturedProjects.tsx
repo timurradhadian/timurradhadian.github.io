@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Locale, Project } from "@/types/portfolio";
 import { getDictionary, getLocalized } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { NdaBadge } from "@/components/ui/NdaBadge";
 import { getTechIcon } from "@/lib/tech-icons";
 import { ProjectDetailModal } from "@/components/ui/ProjectDetailModal";
@@ -49,23 +50,16 @@ export function FeaturedProjects({
 
   return (
     <section id="projects" className="space-y-6 pt-6">
-      {/* Centered Section Header */}
-      <div className="flex flex-col items-center text-center space-y-2">
-        <Reveal delay={0.05} yOffset={12}>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-ink">
-            {dict.projects.featuredTitle}
-          </h2>
-        </Reveal>
+      <SectionHeader
+        number="05"
+        title={dict.projects.featuredTitle}
+        hint={dict.projects.featuredSubtitle}
+        delay={0.05}
+      />
 
-        <Reveal delay={0.1} yOffset={12}>
-          <p className="text-sm sm:text-base text-ink-muted max-w-xl mx-auto leading-relaxed">
-            {dict.projects.featuredSubtitle}
-          </p>
-        </Reveal>
-
-        {/* Filter Pills */}
-        <Reveal delay={0.2} yOffset={10}>
-          <div className="inline-flex items-center gap-1 p-1 rounded-xl border border-zinc-200 bg-white mt-4 text-xs font-medium shadow-2xs">
+      {/* Filter Pills */}
+      <Reveal delay={0.1} yOffset={8}>
+        <div className="inline-flex items-center gap-1 p-1 rounded-xl border border-zinc-200 bg-white text-xs font-medium shadow-2xs">
             <button
               type="button"
               onClick={() => setFilter("featured")}
@@ -108,7 +102,6 @@ export function FeaturedProjects({
             </button>
           </div>
         </Reveal>
-      </div>
 
       {/* 2-Column Responsive Card Grid */}
       <motion.div

@@ -2,25 +2,41 @@
 
 import React from "react";
 import Image from "next/image";
-import { m } from "motion/react";
 import { Education as EducationType, Locale } from "@/types/portfolio";
 import { getDictionary, getLocalized } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 
 interface EducationProps {
   locale: Locale;
   educations?: EducationType[];
 }
 
-function getSchoolBadge(school: string): {
+function getSchoolBadge(school: string, logo?: string): {
   icon?: string;
   image?: string;
   className: string;
 } {
+  if (logo) {
+    return {
+      image: logo,
+      className: "bg-white border-zinc-200/90 shadow-2xs",
+    };
+  }
   const normalized = school.toLowerCase();
   if (normalized.includes("amikom")) {
     return {
       image: "/education/amikom.png",
+      className: "bg-white border-zinc-200/90 shadow-2xs",
+    };
+  }
+  if (
+    normalized.includes("sma") ||
+    normalized.includes("sman 6") ||
+    normalized.includes("balikpapan")
+  ) {
+    return {
+      image: "/education/sman6-balikpapan.png",
       className: "bg-white border-zinc-200/90 shadow-2xs",
     };
   }
@@ -43,68 +59,63 @@ export function Education({ locale, educations = [] }: EducationProps) {
 
   return (
     <section id="education" className="space-y-4 pt-4 scroll-mt-6 sm:scroll-mt-8">
-      <Reveal delay={0.1} yOffset={12}>
-        <h2 className="text-xl font-bold tracking-tight text-ink">
-          {dict.education.title}
-        </h2>
-      </Reveal>
+      <SectionHeader
+        number="03"
+        title={dict.education.title}
+        hint={locale === "en" ? "academic background" : "latar belakang akademik"}
+        delay={0.1}
+      />
 
-      <div className="space-y-3">
+      <div className="divide-y divide-zinc-200/80">
         {educations.map((edu, idx) => {
           const school = getLocalized(edu, "school", locale) || edu.school;
           const degree = getLocalized(edu, "degree", locale) || edu.degree;
-          const field = getLocalized(edu, "field", locale) || edu.field;
 
-          const dateDisplay = `${edu.startDate} - ${
-            edu.endDate ? edu.endDate : dict.experience.present
-          }`;
+          const dateDisplay =
+            !edu.endDate || edu.startDate === edu.endDate
+              ? edu.startDate
+              : `${edu.startDate} – ${edu.endDate}`;
 
-          const badge = getSchoolBadge(edu.school);
+          const badge = getSchoolBadge(edu.school, edu.logo);
 
           return (
-            <Reveal key={edu.id} delay={0.1 + idx * 0.05} yOffset={10}>
-              <m.div
-                whileHover={{ y: -3 }}
-                whileTap={{ scale: 0.99 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className="group rounded-xl border border-zinc-200/90 bg-white hover:border-zinc-300 hover:shadow-sm p-3.5 sm:p-4 transition-colors shadow-xs cursor-default"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div
-                      className={`size-10 sm:size-11 rounded-xl border flex items-center justify-center shrink-0 group-hover:scale-108 transition-transform shadow-2xs overflow-hidden p-1.5 ${badge.className}`}
-                    >
-                      {badge.image ? (
-                        <div className="relative size-full">
-                          <Image
-                            src={badge.image}
-                            alt={school}
-                            fill
-                            className="object-contain"
-                          />
-                        </div>
-                      ) : (
-                        <span
-                          className={`${badge.icon} size-5 inline-block shrink-0`}
-                        />
-                      )}
+            <Reveal key={edu.id} delay={0.08 + idx * 0.04} yOffset={8}>
+              <div className="group py-3.5 sm:py-4 flex items-center gap-3.5 sm:gap-4 -mx-2 px-2 rounded-xl transition-colors hover:bg-zinc-50/70">
+                {/* Logo Badge */}
+                <div
+                  className={`size-10 sm:size-11 rounded-xl border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs overflow-hidden p-1.5 ${badge.className}`}
+                >
+                  {badge.image ? (
+                    <div className="relative size-full">
+                      <Image
+                        src={badge.image}
+                        alt={school}
+                        fill
+                        className="object-contain"
+                      />
                     </div>
-
-                    <div className="min-w-0">
-                      <h3 className="font-semibold text-sm sm:text-base text-zinc-900 truncate">
-                        {school}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-zinc-600 truncate">
-                        {degree} {field ? `• ${field}` : ""}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="text-xs text-zinc-500 tabular-nums shrink-0 text-right">
-                    {dateDisplay}
-                  </div>
+                  ) : (
+                    <span
+                      className={`${badge.icon} size-5 inline-block shrink-0`}
+                    />
+                  )}
                 </div>
-              </m.div>
+
+                {/* Education Details */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h3 className="font-semibold text-sm sm:text-base text-zinc-900 truncate">
+                      {degree}
+                    </h3>
+                    <span className="text-xs sm:text-sm text-zinc-500 tabular-nums shrink-0 font-normal">
+                      {dateDisplay}
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-zinc-500 truncate mt-0.5">
+                    {school}
+                  </p>
+                </div>
+              </div>
             </Reveal>
           );
         })}

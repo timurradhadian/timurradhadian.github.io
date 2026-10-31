@@ -6,6 +6,7 @@ import { m } from "motion/react";
 import { Locale, Profile } from "@/types/portfolio";
 import { getDictionary } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 
 interface HeroProps {
   locale: Locale;
@@ -70,12 +71,13 @@ export function Hero({ locale, profile }: HeroProps) {
       </div>
 
       {/* About Section */}
-      <div id="about" className="space-y-3 pt-2">
-        <Reveal delay={0.15} yOffset={12}>
-          <h2 className="text-xl font-bold tracking-tight text-ink">
-            {dict.hero.aboutTitle}
-          </h2>
-        </Reveal>
+      <div id="about" className="pt-4 sm:pt-6">
+        <SectionHeader
+          number="01"
+          title={dict.hero.aboutTitle}
+          hint={locale === "en" ? "a quick read" : "ringkasan singkat"}
+          delay={0.15}
+        />
 
         <Reveal delay={0.2} yOffset={12}>
           <p className="text-sm sm:text-base text-ink-muted leading-relaxed whitespace-pre-line">

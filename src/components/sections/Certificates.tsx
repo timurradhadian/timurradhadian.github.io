@@ -6,6 +6,7 @@ import { m, AnimatePresence } from "motion/react";
 import { Certificate, Locale } from "@/types/portfolio";
 import { getDictionary } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 
 interface CertificatesProps {
   locale: Locale;
@@ -37,6 +38,16 @@ function getIssuerInfo(issuer: string): {
   if (normalized.includes("algoritma")) {
     return {
       image: "/certificates/algoritma.png",
+      bgClass: "bg-white border-zinc-200/90 shadow-2xs",
+    };
+  }
+  if (
+    normalized.includes("jago flutter") ||
+    normalized.includes("jagoflutter") ||
+    normalized.includes("fic")
+  ) {
+    return {
+      image: "/certificates/jago-flutter.png",
       bgClass: "bg-white border-zinc-200/90 shadow-2xs",
     };
   }
@@ -72,6 +83,13 @@ function getProviderKey(issuer: string): string {
   }
   if (clean.includes("algoritma")) {
     return "Algoritma";
+  }
+  if (
+    clean.includes("jago flutter") ||
+    clean.includes("jagoflutter") ||
+    clean.includes("fic")
+  ) {
+    return "Jago Flutter";
   }
   if (clean.includes("aws") || clean.includes("amazon")) {
     return "Amazon Web Services (AWS)";
@@ -153,20 +171,12 @@ export function Certificates({ locale, certificates }: CertificatesProps) {
 
   return (
     <section id="certifications" className="space-y-6 pt-6">
-      {/* Centered Section Header */}
-      <div className="flex flex-col items-center text-center space-y-2">
-        <Reveal delay={0.05} yOffset={12}>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-ink">
-            {dict.certificates.title}
-          </h2>
-        </Reveal>
-
-        <Reveal delay={0.1} yOffset={12}>
-          <p className="text-sm sm:text-base text-ink-muted max-w-xl mx-auto leading-relaxed">
-            {dict.certificates.subtitle}
-          </p>
-        </Reveal>
-      </div>
+      <SectionHeader
+        number="06"
+        title={dict.certificates.title}
+        hint={dict.certificates.subtitle}
+        delay={0.05}
+      />
 
       {/* Grouped Provider Cards */}
       <div className="space-y-3">

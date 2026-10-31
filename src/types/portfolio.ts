@@ -138,6 +138,7 @@ export interface Profile {
   bookingLink?: string;
   githubUrl: string;
   linkedinUrl: string;
+  cvUrl?: string;
   websiteUrl?: string;
   instagramUrl?: string;
   twitterUrl?: string;

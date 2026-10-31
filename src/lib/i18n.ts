@@ -100,6 +100,8 @@ export interface Dictionary {
     github: string;
     linkedin: string;
     email: string;
+    cv: string;
+    translate: string;
     toggleTheme: string;
     switchLang: string;
   };
@@ -141,8 +143,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
     projects: {
       badge: "Proyek",
       featuredTitle: "Karya & Proyek Terpilih",
-      featuredSubtitle:
-        "Koleksi proyek mulai dari web aplikasi modern, sistem enterprise, hingga arsitektur headless berkinerja tinggi.",
+      featuredSubtitle: "Karya pilihan",
       otherTitle: "Eksplorasi & Proyek Lainnya",
       otherSubtitle:
         "Kumpulan proyek open-source, alat pengembang, dan microservices mandiri.",
@@ -187,20 +188,17 @@ export const dictionaries: Record<Locale, Dictionary> = {
     },
     experience: {
       title: "Pengalaman Kerja",
-      subtitle:
-        "Perjalanan profesional merancang, membangun, dan mengoptimalkan sistem digital berskala tinggi.",
+      subtitle: "Riwayat karir",
       present: "Saat Ini",
     },
     skills: {
       title: "Keahlian",
-      subtitle:
-        "Kombinasi teknologi frontend, backend berkinerja tinggi, dan otomatisasi infrastruktur cloud.",
+      subtitle: "Alat & teknologi",
     },
     certificates: {
       badge: "Sertifikasi",
       title: "Sertifikasi & Kredensial",
-      subtitle:
-        "Pembelajaran berkelanjutan, kredensial terverifikasi, dan sertifikasi spesialisasi arsitektur cloud.",
+      subtitle: "Kredensial terverifikasi",
       issuedOn: "Diterbitkan",
       credentialId: "ID Kredensial",
       verifyLink: "Verifikasi",
@@ -224,6 +222,8 @@ export const dictionaries: Record<Locale, Dictionary> = {
       github: "GitHub",
       linkedin: "LinkedIn",
       email: "Email",
+      cv: "Curriculum Vitae (CV)",
+      translate: "Ganti Bahasa (Switch to EN)",
       toggleTheme: "Ganti Tema",
       switchLang: "Ganti Bahasa (Switch to EN)",
     },
@@ -263,8 +263,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
     projects: {
       badge: "Projects",
       featuredTitle: "Check out my latest work",
-      featuredSubtitle:
-        "I've worked on a variety of projects, from simple websites to complex web applications. Here are a few of my favorites.",
+      featuredSubtitle: "Selected works",
       otherTitle: "Selected Other Work",
       otherSubtitle:
         "A collection of open-source utilities, developer tooling, and standalone microservices.",
@@ -309,20 +308,17 @@ export const dictionaries: Record<Locale, Dictionary> = {
     },
     experience: {
       title: "Work Experience",
-      subtitle:
-        "Professional career building, scaling, and architecting resilient digital applications.",
+      subtitle: "Career journey",
       present: "Present",
     },
     skills: {
       title: "Skills",
-      subtitle:
-        "Proficiency across modern frontend ecosystems, robust backend systems, and automated cloud workflows.",
+      subtitle: "Tech stack & tools",
     },
     certificates: {
       badge: "Certifications",
       title: "I like building & learning",
-      subtitle:
-        "Lifelong learning, verified credentials, and specialized engineering certifications.",
+      subtitle: "Verified credentials",
       issuedOn: "Issued",
       credentialId: "Credential ID",
       verifyLink: "Verify",
@@ -346,6 +342,8 @@ export const dictionaries: Record<Locale, Dictionary> = {
       github: "GitHub",
       linkedin: "LinkedIn",
       email: "Email",
+      cv: "Curriculum Vitae (CV)",
+      translate: "Switch Language (Ganti ke ID)",
       toggleTheme: "Toggle Theme",
       switchLang: "Switch Language (Ganti ke ID)",
     },

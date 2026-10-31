@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Experience, Locale, Project } from "@/types/portfolio";
 import { getDictionary, getLocalized, getLocalizedArray } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ProjectDetailModal } from "@/components/ui/ProjectDetailModal";
 import { getTechIcon } from "@/lib/tech-icons";
 
@@ -235,11 +236,12 @@ export function Experiences({
 
   return (
     <section id="experience" className="space-y-4 pt-4 scroll-mt-6 sm:scroll-mt-8">
-      <Reveal delay={0.1} yOffset={12}>
-        <h2 className="text-xl font-bold tracking-tight text-ink">
-          {dict.experience.title}
-        </h2>
-      </Reveal>
+      <SectionHeader
+        number="02"
+        title={dict.experience.title}
+        hint={dict.experience.subtitle}
+        delay={0.1}
+      />
 
       <div className="space-y-3">
         {experiences.map((exp, idx) => {
