@@ -12,7 +12,7 @@ export const mockPortfolioData: PortfolioData = {
     email: "timurdianrs@gmail.com",
     githubUrl: "https://github.com/timurdian",
     linkedinUrl: "https://linkedin.com/in/timurdian",
-    cvUrl: "/cv.pdf",
+    cvUrl: "https://glio.vercel.app/cv-preview/69b0a3e1b6e1f3f79e6707a4",
     location: "Indonesia",
     availableForHire: true,
     avatarUrl: "/avatar.png",

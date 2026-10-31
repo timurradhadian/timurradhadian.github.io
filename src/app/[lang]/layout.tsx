@@ -58,7 +58,10 @@ export default async function LocaleLayout({
           email={data.profile.email}
           githubUrl={data.profile.githubUrl}
           linkedinUrl={data.profile.linkedinUrl}
-          cvUrl={data.profile.cvUrl || "/cv.pdf"}
+          cvUrl={
+            data.profile.cvUrl ||
+            "https://glio.vercel.app/cv-preview/69b0a3e1b6e1f3f79e6707a4"
+          }
         />
       </div>
     </LocaleProvider>

@@ -314,7 +314,10 @@ function normalizeGlioCertificate(
 /**
  * Normalizes raw Glio about/profile payload
  */
-function normalizeGlioProfile(raw: Record<string, unknown>): Profile {
+function normalizeGlioProfile(
+  raw: Record<string, unknown>,
+  cvUrl?: string
+): Profile {
   const socials = (raw.socials as Record<string, string>) || {};
 
   const formatGithub = (gh?: string) => {
@@ -380,6 +383,7 @@ function normalizeGlioProfile(raw: Record<string, unknown>): Profile {
     bookingLink: (raw.bookingLink as string) || undefined,
     githubUrl: formatGithub(socials.github),
     linkedinUrl: formatLinkedin(socials.linkedin),
+    cvUrl: cvUrl || (raw.cvUrl as string) || mockPortfolioData.profile.cvUrl,
     websiteUrl: formatWebsite(socials.website),
     instagramUrl: formatInstagram(socials.instagram),
     twitterUrl: socials.twitter && socials.twitter !== "#" ? socials.twitter : undefined,
@@ -667,6 +671,7 @@ export async function getPortfolioData(): Promise<PortfolioData> {
       rawSkills,
       rawProjects,
       sejatiPortfolio,
+      rawCv,
     ] = await Promise.all([
       fetchFromGlio<Record<string, unknown>>("/about").catch((err) => {
         console.warn("[Glio API] /about fallback to mock:", (err as Error).message);
@@ -693,11 +698,26 @@ export async function getPortfolioData(): Promise<PortfolioData> {
         return null;
       }),
       fetchSejatiPortfolioData(),
+      fetchFromGlio<Record<string, unknown>>("/cv/69b0a3e1b6e1f3f79e6707a4")
+        .catch(() => fetchFromGlio<Record<string, unknown>>("/cv"))
+        .catch((err) => {
+          console.warn("[Glio API] /cv fallback:", (err as Error).message);
+          return null;
+        }),
     ]);
 
+    const cvUrl =
+      (rawCv?.publicPreviewUrl as string) ||
+      (rawCv?.id ? `https://glio.vercel.app/cv-preview/${rawCv.id}` : undefined) ||
+      (rawAbout?.cvUrl as string) ||
+      mockPortfolioData.profile.cvUrl;
+
     const profile = rawAbout
-      ? normalizeGlioProfile(rawAbout)
-      : mockPortfolioData.profile;
+      ? normalizeGlioProfile(rawAbout, cvUrl)
+      : {
+          ...mockPortfolioData.profile,
+          cvUrl,
+        };
 
     const glioEducations = (rawEducations || []).map(normalizeGlioEducation);
     const educations =

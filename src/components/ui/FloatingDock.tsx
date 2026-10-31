@@ -163,7 +163,7 @@ export function FloatingDock({
   email,
   githubUrl,
   linkedinUrl,
-  cvUrl = "/cv.pdf",
+  cvUrl = "https://glio.vercel.app/cv-preview/69b0a3e1b6e1f3f79e6707a4",
 }: FloatingDockProps) {
   const { locale, setLocale, dict } = useLocale();
   const activeLocale = locale || fallbackLocale || "id";
