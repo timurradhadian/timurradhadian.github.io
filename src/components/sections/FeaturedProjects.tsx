@@ -49,7 +49,7 @@ export function FeaturedProjects({
   }, [filter, validProjects, combinedProjects]);
 
   return (
-    <section id="projects" className="space-y-6 pt-6">
+    <section id="projects" className="space-y-4 pt-4 scroll-mt-6 sm:scroll-mt-8">
       <SectionHeader
         number="05"
         title={dict.projects.featuredTitle}
@@ -57,51 +57,52 @@ export function FeaturedProjects({
         delay={0.05}
       />
 
-      {/* Filter Pills */}
-      <Reveal delay={0.1} yOffset={8}>
-        <div className="inline-flex items-center gap-1 p-1 rounded-xl border border-zinc-200 bg-white text-xs font-medium shadow-2xs">
-            <button
-              type="button"
-              onClick={() => setFilter("featured")}
-              className={`relative px-3.5 py-1.5 rounded-lg transition-colors cursor-pointer select-none ${
+      {/* Filter Badges */}
+      <Reveal delay={0.08} yOffset={6}>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setFilter("featured")}
+            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+              filter === "featured"
+                ? "bg-zinc-900 text-white shadow-2xs"
+                : "bg-zinc-100/80 hover:bg-zinc-200/80 text-zinc-600 hover:text-zinc-900 border border-zinc-200/60"
+            }`}
+          >
+            <span>{dict.projects.filterFeatured}</span>
+            <span
+              className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono leading-none ${
                 filter === "featured"
-                  ? "text-white font-semibold"
-                  : "text-zinc-600 hover:text-zinc-900"
+                  ? "bg-zinc-800 text-zinc-200"
+                  : "bg-zinc-200/90 text-zinc-600"
               }`}
             >
-              {filter === "featured" && (
-                <motion.span
-                  layoutId="activeFilterPill"
-                  className="absolute inset-0 rounded-lg bg-zinc-900 shadow-xs"
-                  transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                />
-              )}
-              <span className="relative z-10">
-                {dict.projects.filterFeatured} ({projects.length || 6})
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setFilter("all")}
-              className={`relative px-3.5 py-1.5 rounded-lg transition-colors cursor-pointer select-none ${
+              {projects.length || 6}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFilter("all")}
+            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+              filter === "all"
+                ? "bg-zinc-900 text-white shadow-2xs"
+                : "bg-zinc-100/80 hover:bg-zinc-200/80 text-zinc-600 hover:text-zinc-900 border border-zinc-200/60"
+            }`}
+          >
+            <span>{dict.projects.filterAll}</span>
+            <span
+              className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono leading-none ${
                 filter === "all"
-                  ? "text-white font-semibold"
-                  : "text-zinc-600 hover:text-zinc-900"
+                  ? "bg-zinc-800 text-zinc-200"
+                  : "bg-zinc-200/90 text-zinc-600"
               }`}
             >
-              {filter === "all" && (
-                <motion.span
-                  layoutId="activeFilterPill"
-                  className="absolute inset-0 rounded-lg bg-zinc-900 shadow-xs"
-                  transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                />
-              )}
-              <span className="relative z-10">
-                {dict.projects.filterAll} ({combinedProjects.length})
-              </span>
-            </button>
-          </div>
-        </Reveal>
+              {combinedProjects.length}
+            </span>
+          </button>
+        </div>
+      </Reveal>
 
       {/* 2-Column Responsive Card Grid */}
       <motion.div

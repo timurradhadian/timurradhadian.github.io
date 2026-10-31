@@ -25,7 +25,6 @@ interface DockItemData {
   href?: string;
   onClick?: (e: React.MouseEvent) => void;
   external?: boolean;
-  color?: string;
   badge?: string;
 }
 
@@ -56,7 +55,7 @@ function DesktopDockIcon({
       style={{ width, height: width }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative flex items-center justify-center rounded-full border border-zinc-200/90 bg-white hover:border-zinc-400 text-zinc-800 shadow-xs transition-colors cursor-pointer"
+      className="group relative flex items-center justify-center rounded-full border border-zinc-200/90 bg-white hover:border-zinc-400 text-zinc-700 hover:text-zinc-950 shadow-2xs transition-colors cursor-pointer"
     >
       <AnimatePresence>
         {hovered && (
@@ -77,13 +76,12 @@ function DesktopDockIcon({
         className="flex items-center justify-center"
       >
         <span
-          className={`${item.icon} size-4.5 inline-block shrink-0`}
-          style={item.color ? { color: item.color } : undefined}
+          className={`${item.icon} size-4.5 inline-block shrink-0 transition-colors`}
         />
       </motion.div>
 
       {item.badge && (
-        <span className="absolute -bottom-0.5 -right-0.5 text-[8px] font-mono font-bold leading-none bg-zinc-900 text-white px-1 py-0.5 rounded-full shadow-2xs border border-white select-none">
+        <span className="absolute -bottom-0.5 -right-0.5 text-[8px] font-mono font-semibold leading-none bg-zinc-900 text-white px-1 py-0.5 rounded-full shadow-2xs border border-white select-none">
           {item.badge}
         </span>
       )}
@@ -118,13 +116,12 @@ function DesktopDockIcon({
 
 function MobileDockItem({ item }: { item: DockItemData }) {
   const inner = (
-    <div className="relative size-10 flex items-center justify-center rounded-full border border-zinc-200/90 bg-white text-zinc-800 shadow-2xs transition-colors active:bg-zinc-100 cursor-pointer">
+    <div className="relative size-10 flex items-center justify-center rounded-full border border-zinc-200/90 bg-white text-zinc-700 shadow-2xs transition-colors active:bg-zinc-100 cursor-pointer">
       <span
         className={`${item.icon} size-4.5 inline-block shrink-0`}
-        style={item.color ? { color: item.color } : undefined}
       />
       {item.badge && (
-        <span className="absolute -bottom-0.5 -right-0.5 text-[8px] font-mono font-bold leading-none bg-zinc-900 text-white px-1 py-0.5 rounded-full shadow-2xs border border-white select-none">
+        <span className="absolute -bottom-0.5 -right-0.5 text-[8px] font-mono font-semibold leading-none bg-zinc-900 text-white px-1 py-0.5 rounded-full shadow-2xs border border-white select-none">
           {item.badge}
         </span>
       )}
@@ -180,28 +177,24 @@ export function FloatingDock({
       icon: "icon-[simple-icons--github]",
       href: githubUrl,
       external: true,
-      color: "#181717",
     },
     {
       title: dict.dock.linkedin,
       icon: "icon-[simple-icons--linkedin]",
       href: linkedinUrl,
       external: true,
-      color: "#0A66C2",
     },
     {
       title: dict.dock.email,
       icon: "icon-[lucide--mail]",
       href: `mailto:${email}`,
       external: true,
-      color: "#2563EB",
     },
     {
       title: dict.dock.cv,
       icon: "icon-[lucide--file-text]",
       href: cvUrl,
       external: true,
-      color: "#059669",
       badge: "CV",
     },
   ];
@@ -210,7 +203,6 @@ export function FloatingDock({
     title: dict.dock.translate,
     icon: "icon-[lucide--languages]",
     onClick: () => setLocale(targetLang),
-    color: "#4F46E5",
     badge: targetLang.toUpperCase(),
   };
 
