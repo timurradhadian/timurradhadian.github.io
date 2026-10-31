@@ -66,6 +66,7 @@ export interface Experience {
   startDate: string;
   endDate?: string | null; // null represents "Present" / "Saat Ini"
   isCurrent?: boolean;
+  logo?: string;
   highlights: string[];
   highlightsId?: string[];
   highlightsEn?: string[];

@@ -16,9 +16,23 @@ interface ExperiencesProps {
   allProjects?: Project[];
 }
 
-function getCompanyBadge(company: string): { icon?: string; image?: string; className: string } {
+function getCompanyBadge(company: string, logo?: string): {
+  icon?: string;
+  image?: string;
+  className: string;
+} {
+  if (logo) {
+    return {
+      image: logo,
+      className: "bg-white border-zinc-200/90 shadow-2xs",
+    };
+  }
   const normalized = company.toLowerCase();
-  if (normalized.includes("sejati")) {
+  if (
+    normalized.includes("sejati") ||
+    normalized.includes("independent") ||
+    normalized.includes("dimedia")
+  ) {
     return {
       image: "/companies/sejatidimedia.png",
       className: "bg-white border-zinc-200/90 shadow-2xs",
@@ -36,6 +50,18 @@ function getCompanyBadge(company: string): { icon?: string; image?: string; clas
       className: "bg-white border-zinc-200/90 shadow-2xs",
     };
   }
+  if (
+    normalized.includes("asisten") ||
+    normalized.includes("dosen") ||
+    normalized.includes("amikom") ||
+    normalized.includes("laboratorium") ||
+    normalized.includes("forum asisten")
+  ) {
+    return {
+      image: "/companies/asisten-dosen.png",
+      className: "bg-white border-zinc-200/90 shadow-2xs",
+    };
+  }
   if (normalized.includes("tech") || normalized.includes("digital")) {
     return {
       icon: "icon-[lucide--cpu]",
@@ -46,6 +72,23 @@ function getCompanyBadge(company: string): { icon?: string; image?: string; clas
     icon: "icon-[lucide--briefcase]",
     className: "bg-zinc-50 text-zinc-700 border-zinc-200",
   };
+}
+
+function formatExperienceDate(dateStr: string, locale: Locale): string {
+  if (locale === "id") return dateStr;
+  return dateStr
+    .replace(/\bJanuari\b/gi, "January")
+    .replace(/\bFebruari\b/gi, "February")
+    .replace(/\bMaret\b/gi, "March")
+    .replace(/\bApril\b/gi, "April")
+    .replace(/\bMei\b/gi, "May")
+    .replace(/\bJuni\b/gi, "June")
+    .replace(/\bJuli\b/gi, "July")
+    .replace(/\bAgustus\b/gi, "August")
+    .replace(/\bSeptember\b/gi, "September")
+    .replace(/\bOktober\b/gi, "October")
+    .replace(/\bNovember\b/gi, "November")
+    .replace(/\bDesember\b/gi, "December");
 }
 
 // Fallback high-fidelity manufacturing projects list developed at Tanjung Kreasi Parquet Industry
@@ -198,9 +241,7 @@ export function Experiences({
   allProjects = [],
 }: ExperiencesProps) {
   const dict = getDictionary(locale);
-  const [expandedId, setExpandedId] = useState<string | null>(
-    experiences[0]?.id || null
-  );
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const toggleExpand = (id: string) => {
@@ -234,6 +275,52 @@ export function Experiences({
     return merged;
   }, [allProjects]);
 
+  // Sort experiences strictly by requested order:
+  // 1. Asisten
+  // 2. Tanjung Kreasi
+  // 3. Independent
+  const sortedExperiences = React.useMemo(() => {
+    const getRank = (exp: Experience): number => {
+      const combined = `${exp.company} ${exp.position}`.toLowerCase();
+      if (
+        combined.includes("asisten") ||
+        combined.includes("dosen") ||
+        combined.includes("forum asisten")
+      ) {
+        return 1;
+      }
+      if (
+        combined.includes("tanjung") ||
+        combined.includes("kreasi") ||
+        combined.includes("parquet") ||
+        combined.includes("dsn")
+      ) {
+        return 2;
+      }
+      if (
+        combined.includes("independent") ||
+        combined.includes("sejati") ||
+        combined.includes("dimedia")
+      ) {
+        return 3;
+      }
+      return 4;
+    };
+
+    return [...experiences].sort((a, b) => {
+      const rankA = getRank(a);
+      const rankB = getRank(b);
+      if (rankA !== rankB) return rankA - rankB;
+      return (a.order ?? 0) - (b.order ?? 0);
+    });
+  }, [experiences]);
+
+  React.useEffect(() => {
+    if (sortedExperiences.length > 0 && !expandedId) {
+      setExpandedId(sortedExperiences[0].id);
+    }
+  }, [sortedExperiences, expandedId]);
+
   return (
     <section id="experience" className="space-y-4 pt-4 scroll-mt-6 sm:scroll-mt-8">
       <SectionHeader
@@ -243,32 +330,39 @@ export function Experiences({
         delay={0.1}
       />
 
-      <div className="space-y-3">
-        {experiences.map((exp, idx) => {
+      <div className="divide-y divide-zinc-200/80">
+        {sortedExperiences.map((exp, idx) => {
           const position = getLocalized(exp, "position", locale);
           const highlights = getLocalizedArray(exp, "highlights", locale);
           const isExpanded = expandedId === exp.id;
 
-          const dateDisplay = `${exp.startDate} - ${exp.endDate ? exp.endDate : dict.experience.present
-            }`;
+          const rawDateDisplay =
+            !exp.endDate || exp.isCurrent
+              ? `${exp.startDate} – ${dict.experience.present}`
+              : exp.startDate === exp.endDate
+              ? exp.startDate
+              : `${exp.startDate} – ${exp.endDate}`;
+          const dateDisplay = formatExperienceDate(rawDateDisplay, locale);
 
-          const badge = getCompanyBadge(exp.company);
-          const isSejati = exp.company.toLowerCase().includes("sejati");
+          const badge = getCompanyBadge(exp.company, exp.logo);
+          const isSejati =
+            exp.company.toLowerCase().includes("sejati") ||
+            exp.company.toLowerCase().includes("independent") ||
+            exp.position.toLowerCase().includes("independent");
           const isTanjungKreasi =
             exp.company.toLowerCase().includes("tanjung") ||
             exp.company.toLowerCase().includes("parquet") ||
             exp.company.toLowerCase().includes("kreasi");
 
           return (
-            <Reveal key={exp.id} delay={0.1 + idx * 0.05} yOffset={10}>
-              <motion.div
+            <Reveal key={exp.id} delay={0.08 + idx * 0.04} yOffset={8}>
+              <div
                 onClick={() => toggleExpand(exp.id)}
-                whileHover={{ y: -2 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className="group rounded-xl border border-zinc-200/90 bg-white hover:border-zinc-300 hover:shadow-sm p-3.5 sm:p-4 transition-colors shadow-xs cursor-pointer"
+                className="group py-3.5 sm:py-4 -mx-2 px-2 rounded-xl transition-colors hover:bg-zinc-50/70 cursor-pointer"
               >
-                <div className="flex items-start sm:items-center justify-between gap-3">
-                  <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-3 sm:gap-4">
+                  <div className="flex items-center gap-3.5 sm:gap-4 min-w-0 flex-1">
+                    {/* Logo Badge matching Education */}
                     <div
                       className={`size-10 sm:size-11 rounded-xl border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs overflow-hidden p-1.5 ${badge.className}`}
                     >
@@ -286,56 +380,50 @@ export function Experiences({
                       )}
                     </div>
 
+                    {/* Text Hierarchy: Position on top, Company on bottom */}
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <h3 className="font-semibold text-sm sm:text-base text-zinc-900 leading-snug">
-                          {exp.company}
+                      <div className="flex items-baseline justify-between gap-3">
+                        <h3 className="font-semibold text-sm sm:text-base text-zinc-900 truncate">
+                          {position}
                         </h3>
+                        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+                          <span className="text-xs sm:text-sm text-zinc-500 tabular-nums font-normal">
+                            {dateDisplay}
+                          </span>
+                          <motion.span
+                            animate={{ rotate: isExpanded ? 90 : 0 }}
+                            transition={{ type: "spring", stiffness: 350, damping: 22 }}
+                            className={`icon-[lucide--chevron-right] size-3.5 sm:size-4 shrink-0 transition-colors ${
+                              isExpanded
+                                ? "text-zinc-900"
+                                : "text-zinc-400 group-hover:text-zinc-800"
+                            }`}
+                            aria-hidden="true"
+                          />
+                        </div>
+                      </div>
 
+                      <div className="flex items-center gap-2 text-xs sm:text-sm text-zinc-500 truncate mt-0.5">
+                        <span>{exp.company}</span>
                         {isSejati && (
                           <a
                             href="https://sejatidimedia.web.id/"
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-[11px] font-medium transition-all group/link shrink-0"
+                            className="inline-flex items-center gap-1 text-[11px] text-zinc-500 hover:text-zinc-900 underline underline-offset-2 shrink-0"
                             title="https://sejatidimedia.web.id/"
                           >
                             <span>sejatidimedia.web.id</span>
-                            <span className="icon-[lucide--external-link] size-2.5 inline-block text-zinc-500 group-hover/link:text-zinc-800" />
+                            <span className="icon-[lucide--external-link] size-2.5 inline-block" />
                           </a>
                         )}
                       </div>
-                      <p className="text-xs sm:text-sm text-zinc-600 font-normal mt-0.5">
-                        {position}
-                      </p>
-
-                      {/* Mobile Date Display */}
-                      <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 font-mono mt-1 sm:hidden">
-                        <span className="icon-[lucide--calendar] size-3 text-zinc-400 shrink-0" />
-                        <span>{dateDisplay}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Desktop Date & Chevron Indicator */}
-                  <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 pt-0.5 sm:pt-0">
-                    <span className="hidden sm:inline-block text-xs text-zinc-500 tabular-nums text-right">
-                      {dateDisplay}
-                    </span>
-                    <div className="size-7 sm:size-8 rounded-lg bg-zinc-50 group-hover:bg-zinc-100 flex items-center justify-center transition-colors">
-                      <motion.span
-                        animate={{ rotate: isExpanded ? 90 : 0 }}
-                        transition={{ type: "spring", stiffness: 350, damping: 22 }}
-                        className={`icon-[lucide--chevron-right] size-3.5 sm:size-4 shrink-0 transition-colors ${
-                          isExpanded ? "text-zinc-900" : "text-zinc-400 group-hover:text-zinc-900"
-                        }`}
-                        aria-hidden="true"
-                      />
                     </div>
                   </div>
                 </div>
 
+                {/* Expandable Details Container */}
                 <AnimatePresence initial={false}>
                   {isExpanded && (
                     <motion.div
@@ -343,11 +431,11 @@ export function Experiences({
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.22, ease: "easeOut" }}
-                      className="overflow-hidden"
+                      className="overflow-hidden pl-0 sm:pl-14.5 pt-2"
                     >
                       {/* Highlights */}
                       {highlights.length > 0 && (
-                        <ul className="mt-3.5 pt-3 border-t border-zinc-100 space-y-2 text-xs text-zinc-600 leading-relaxed pl-4 list-disc marker:text-zinc-400">
+                        <ul className="mt-3 pt-3 border-t border-zinc-100 space-y-1.5 text-xs sm:text-[13px] text-zinc-600 leading-relaxed pl-4 list-disc marker:text-zinc-400">
                           {highlights.map((item, hIdx) => (
                             <li key={hIdx} className="pl-0.5">{item}</li>
                           ))}
@@ -383,7 +471,10 @@ export function Experiences({
                               return (
                                 <motion.div
                                   key={proj.id || proj.slug}
-                                  onClick={() => setSelectedProject(proj)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedProject(proj);
+                                  }}
                                   whileHover={{ y: -2, scale: 1.008 }}
                                   whileTap={{ scale: 0.98 }}
                                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
@@ -434,7 +525,7 @@ export function Experiences({
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             </Reveal>
           );
         })}

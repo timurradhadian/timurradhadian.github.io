@@ -282,6 +282,7 @@ function normalizeGlioExperience(
     highlightsId: highlightsId.length > 0 ? highlightsId : fallbackHighlights,
     highlightsEn: highlightsEn.length > 0 ? highlightsEn : fallbackHighlights,
     order: typeof raw.order === "number" ? raw.order : idx,
+    logo: (raw.logo as string) || undefined,
   };
 }
 
@@ -477,6 +478,7 @@ function normalizeGlioEducation(raw: Record<string, unknown>, idx: number): Educ
     startDate,
     endDate,
     order: typeof raw.order === "number" ? raw.order : idx,
+    logo: (raw.logo as string) || undefined,
   };
 }
 
