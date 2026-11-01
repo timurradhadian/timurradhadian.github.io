@@ -268,6 +268,13 @@ function normalizeGlioExperience(
 
   const endDateStr = raw.endDate as string | undefined;
 
+  const isHidden = Boolean(
+    raw.isHidden === true ||
+    raw.isHidden === "true" ||
+    raw.is_hidden === true ||
+    raw.is_hidden === "true"
+  );
+
   return {
     id: (raw.id as string) || `exp-${idx}`,
     position: (raw.position as string) || "Software Engineer",
@@ -278,6 +285,7 @@ function normalizeGlioExperience(
     startDate: (raw.startDate as string) || "",
     endDate: endDateStr && endDateStr.trim() !== "" ? endDateStr : null,
     isCurrent: !endDateStr || endDateStr.trim() === "",
+    isHidden,
     highlights: fallbackHighlights,
     highlightsId: highlightsId.length > 0 ? highlightsId : fallbackHighlights,
     highlightsEn: highlightsEn.length > 0 ? highlightsEn : fallbackHighlights,
@@ -725,11 +733,14 @@ export async function getPortfolioData(): Promise<PortfolioData> {
         ? [...glioEducations].sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
         : mockPortfolioData.educations;
 
-    const glioExperiences = (rawExperiences || []).map(normalizeGlioExperience);
+    const rawGlioExperiences = Array.isArray(rawExperiences)
+      ? rawExperiences.map(normalizeGlioExperience)
+      : [];
+    const glioExperiences = rawGlioExperiences.filter((exp) => !exp.isHidden);
     const experiences =
-      glioExperiences.length > 0
+      rawGlioExperiences.length > 0
         ? [...glioExperiences].sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
-        : mockPortfolioData.experiences;
+        : mockPortfolioData.experiences.filter((exp) => !exp.isHidden);
 
     const glioCertificates = (rawCertificates || []).map(normalizeGlioCertificate);
     const certificates =

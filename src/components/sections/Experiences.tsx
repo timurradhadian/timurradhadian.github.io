@@ -269,17 +269,19 @@ export function Experiences({
 }: ExperiencesProps) {
   const dict = getDictionary(locale);
 
-  // Sort experiences strictly by requested order:
+  // Sort experiences strictly by requested order (excluding hidden ones):
   // 1. Independent
   // 2. Tanjung Kreasi
   // 3. Asisten
   const sortedExperiences = React.useMemo(() => {
-    return [...experiences].sort((a, b) => {
-      const rankA = getExperienceRank(a);
-      const rankB = getExperienceRank(b);
-      if (rankA !== rankB) return rankA - rankB;
-      return (a.order ?? 0) - (b.order ?? 0);
-    });
+    return [...experiences]
+      .filter((exp) => !exp.isHidden)
+      .sort((a, b) => {
+        const rankA = getExperienceRank(a);
+        const rankB = getExperienceRank(b);
+        if (rankA !== rankB) return rankA - rankB;
+        return (a.order ?? 0) - (b.order ?? 0);
+      });
   }, [experiences]);
 
   // Initial state opens the first experience once; user can collapse or toggle freely
