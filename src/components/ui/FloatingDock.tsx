@@ -159,6 +159,132 @@ function MobileDockItem({ item }: { item: DockItemData }) {
   );
 }
 
+function DockBrandLogo({
+  locale,
+  size = "md",
+}: {
+  locale: Locale;
+  size?: "md" | "sm";
+}) {
+  const [hovered, setHovered] = useState(false);
+  const touchTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleTouch = () => {
+    setHovered(true);
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+    touchTimerRef.current = setTimeout(() => {
+      setHovered(false);
+    }, 2800);
+  };
+
+  const isSmall = size === "sm";
+
+  return (
+    <div
+      className="relative flex items-center shrink-0"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onTouchStart={handleTouch}
+      onClick={handleTouch}
+    >
+      {/* Branded Greeting Pop-up */}
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.88, filter: "blur(4px)" }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            exit={{
+              opacity: 0,
+              y: 6,
+              scale: 0.88,
+              filter: "blur(2px)",
+              transition: { duration: 0.16 },
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 420,
+              damping: 24,
+              delay: 0.1,
+            }}
+            style={{
+              background:
+                "linear-gradient(135deg, #08213f 0%, #0a2241 45%, #2753a4 100%)",
+            }}
+            className="absolute -top-11.5 left-0 flex items-center gap-2 px-3 py-1.5 rounded-full text-[#d6f5f8] text-[11px] font-medium border border-[#2753a4]/80 shadow-[0_8px_24px_-4px_rgba(39,83,164,0.45)] whitespace-nowrap pointer-events-none z-50 select-none backdrop-blur-md"
+          >
+            <motion.span
+              initial={{ scale: 0 }}
+              animate={{ scale: 1, rotate: [0, 14, -10, 14, -4, 10, 0] }}
+              transition={{
+                scale: {
+                  delay: 0.18,
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 20,
+                },
+                rotate: {
+                  delay: 0.28,
+                  duration: 1.2,
+                  repeat: Infinity,
+                  repeatDelay: 0.9,
+                  ease: "easeInOut",
+                },
+              }}
+              className="inline-block origin-[70%_70%]"
+            >
+              👋
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0, x: -3 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.18, duration: 0.2 }}
+              className="tracking-tight text-white font-medium drop-shadow-xs"
+            >
+              {locale === "en"
+                ? "Hello! Thanks for visiting"
+                : "Halo! Senang Anda berkunjung"}
+            </motion.span>
+
+            {/* Triangle Caret */}
+            <div
+              style={{ background: "#0a2241" }}
+              className="absolute -bottom-1 left-4.5 size-2 rotate-45 border-r border-b border-[#2753a4]/80"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Rotating Brand Logo Button */}
+      <motion.div
+        animate={{
+          rotate: hovered ? 360 : 0,
+          scale: hovered ? 1.08 : 1,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 260,
+          damping: 20,
+          mass: 0.8,
+        }}
+        whileTap={{ scale: 0.94 }}
+        className={`relative ${
+          isSmall ? "size-9.5" : "size-10"
+        } rounded-full overflow-hidden border border-zinc-200/90 bg-white shadow-2xs flex items-center justify-center shrink-0 select-none cursor-pointer`}
+        aria-label="Timur Dian"
+      >
+        <Image
+          src="/icon.webp"
+          alt="Logo TD"
+          width={isSmall ? 38 : 40}
+          height={isSmall ? 38 : 40}
+          className="size-full object-cover"
+          priority
+        />
+      </motion.div>
+    </div>
+  );
+}
+
 export function FloatingDock({
   locale: fallbackLocale,
   email,
@@ -219,20 +345,8 @@ export function FloatingDock({
           onMouseLeave={() => mouseX.set(Infinity)}
           className="hidden sm:flex items-center gap-1.5 p-2 rounded-full border border-zinc-200/90 bg-white/90 backdrop-blur-md shadow-lg"
         >
-          {/* Brand Logo (Static Badge, non-clickable) */}
-          <div
-            className="relative size-10 rounded-full overflow-hidden border border-zinc-200/90 bg-white shadow-2xs flex items-center justify-center shrink-0 select-none pointer-events-none"
-            aria-hidden="true"
-          >
-            <Image
-              src="/icon.webp"
-              alt="Logo TD"
-              width={40}
-              height={40}
-              className="size-full object-cover"
-              priority
-            />
-          </div>
+          {/* Brand Logo with Interactive Hover Greeting */}
+          <DockBrandLogo locale={activeLocale} size="md" />
 
           {/* Separator between logo and links */}
           <div className="h-6 w-px bg-zinc-200 mx-0.5" aria-hidden="true" />
@@ -250,20 +364,8 @@ export function FloatingDock({
 
         {/* Mobile Dock (< sm / 640px) */}
         <div className="flex sm:hidden items-center gap-1.5 p-1.5 rounded-full border border-zinc-200/90 bg-white/95 backdrop-blur-md shadow-xl">
-          {/* Brand Logo (Static Badge, non-clickable) */}
-          <div
-            className="relative size-9.5 rounded-full overflow-hidden border border-zinc-200/90 bg-white shadow-2xs flex items-center justify-center shrink-0 select-none pointer-events-none"
-            aria-hidden="true"
-          >
-            <Image
-              src="/icon.webp"
-              alt="Logo TD"
-              width={38}
-              height={38}
-              className="size-full object-cover"
-              priority
-            />
-          </div>
+          {/* Brand Logo with Interactive Hover Greeting */}
+          <DockBrandLogo locale={activeLocale} size="sm" />
 
           {/* Separator between logo and links */}
           <div className="h-5 w-px bg-zinc-200/80 mx-0.5" aria-hidden="true" />

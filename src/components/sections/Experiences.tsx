@@ -459,7 +459,7 @@ export function Experiences({
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-1 gap-2 sm:gap-2.5">
+                          <div className="border-t border-zinc-200/70 mt-2">
                             {manufacturingProjects.map((proj) => {
                               const pTitle =
                                 (locale === "en" ? proj.titleEn : proj.titleId) ||
@@ -469,54 +469,30 @@ export function Experiences({
                                 proj.summary;
 
                               return (
-                                <motion.div
+                                <div
                                   key={proj.id || proj.slug}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedProject(proj);
                                   }}
-                                  whileHover={{ y: -2, scale: 1.008 }}
-                                  whileTap={{ scale: 0.98 }}
-                                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                                  className="group rounded-lg border border-zinc-200/90 bg-zinc-50/60 hover:bg-white hover:border-zinc-300 p-2.5 sm:p-3 space-y-1.5 transition-colors cursor-pointer shadow-2xs active:bg-zinc-100"
+                                  className="group py-3 border-b border-zinc-200/70 transition-colors hover:bg-zinc-50/50 cursor-pointer px-1"
                                 >
-                                  <div className="flex items-start justify-between gap-2">
-                                    <h4 className="font-semibold text-xs sm:text-sm text-zinc-900 group-hover:text-zinc-950 leading-snug">
-                                      <span>{pTitle}</span>
-                                      <span className="icon-[lucide--info] size-3 sm:size-3.5 text-zinc-400 group-hover:text-zinc-700 shrink-0 inline-block align-middle ml-1" />
+                                  <div className="flex items-baseline justify-between gap-3">
+                                    <h4 className="font-semibold text-xs sm:text-sm text-zinc-900 group-hover:text-zinc-950 transition-colors">
+                                      {pTitle}
                                     </h4>
-                                    <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200 shrink-0 mt-0.5">
-                                      NDA
-                                    </span>
+                                    <span
+                                      className="icon-[lucide--chevron-right] size-3 sm:size-3.5 text-zinc-400 group-hover:text-zinc-800 shrink-0 transition-transform group-hover:translate-x-0.5"
+                                      aria-hidden="true"
+                                    />
                                   </div>
 
                                   {pSummary && (
-                                    <p className="text-xs text-zinc-600 leading-relaxed">
+                                    <p className="text-xs text-zinc-500 leading-relaxed mt-1">
                                       {pSummary}
                                     </p>
                                   )}
-
-                                  {proj.techStack && proj.techStack.length > 0 && (
-                                    <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 pt-0.5">
-                                      {proj.techStack.map((tech: string) => {
-                                        const techInfo = getTechIcon(tech);
-                                        return (
-                                          <span
-                                            key={tech}
-                                            className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded text-[10px] font-medium bg-white border border-zinc-200/80 text-zinc-700 shadow-2xs"
-                                          >
-                                            <span
-                                              className={`${techInfo.iconClass} size-2.5 sm:size-3 inline-block shrink-0`}
-                                              style={techInfo.color ? { color: techInfo.color } : undefined}
-                                              aria-hidden="true"
-                                            />
-                                            <span>{tech}</span>
-                                          </span>
-                                        );
-                                      })}
-                                    </div>
-                                  )}
-                                </motion.div>
+                                </div>
                               );
                             })}
                           </div>
