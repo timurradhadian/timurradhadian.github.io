@@ -210,7 +210,7 @@ function DockBrandLogo({
               background:
                 "linear-gradient(135deg, #08213f 0%, #0a2241 45%, #2753a4 100%)",
             }}
-            className="absolute -top-11.5 left-0 flex items-center gap-2 px-3 py-1.5 rounded-full text-[#d6f5f8] text-[11px] font-medium border border-[#2753a4]/80 shadow-[0_8px_24px_-4px_rgba(39,83,164,0.45)] whitespace-nowrap pointer-events-none z-50 select-none backdrop-blur-md"
+            className="absolute -top-11.5 left-0 flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[#d6f5f8] text-[11px] font-medium shadow-[0_8px_24px_-4px_rgba(39,83,164,0.5)] whitespace-nowrap pointer-events-none z-50 select-none backdrop-blur-md"
           >
             <motion.span
               initial={{ scale: 0 }}
@@ -248,38 +248,43 @@ function DockBrandLogo({
             {/* Triangle Caret */}
             <div
               style={{ background: "#0a2241" }}
-              className="absolute -bottom-1 left-4.5 size-2 rotate-45 border-r border-b border-[#2753a4]/80"
+              className="absolute -bottom-1 left-4.5 size-2 rotate-45"
             />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Rotating Brand Logo Button */}
+      {/* Rotating & Blurring Brand Logo Button */}
       <motion.div
-        animate={{
-          rotate: hovered ? 360 : 0,
-          scale: hovered ? 1.08 : 1,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 260,
-          damping: 20,
-          mass: 0.8,
-        }}
         whileTap={{ scale: 0.94 }}
         className={`relative ${
           isSmall ? "size-9.5" : "size-10"
-        } rounded-full overflow-hidden border border-zinc-200/90 bg-white shadow-2xs flex items-center justify-center shrink-0 select-none cursor-pointer`}
+        } rounded-full overflow-hidden flex items-center justify-center shrink-0 select-none cursor-pointer`}
         aria-label="Timur Dian"
       >
-        <Image
-          src="/icon.webp"
-          alt="Logo TD"
-          width={isSmall ? 38 : 40}
-          height={isSmall ? 38 : 40}
-          className="size-full object-cover"
-          priority
-        />
+        <motion.div
+          animate={{
+            rotate: hovered ? 360 : 0,
+            filter: hovered ? "blur(4px)" : "blur(0px)",
+            scale: hovered ? 1.05 : 1,
+          }}
+          transition={{
+            type: "spring",
+            stiffness: 260,
+            damping: 20,
+            mass: 0.8,
+          }}
+          className="size-full flex items-center justify-center"
+        >
+          <Image
+            src="/icon.webp"
+            alt="Logo TD"
+            width={isSmall ? 38 : 40}
+            height={isSmall ? 38 : 40}
+            className="size-full object-cover"
+            priority
+          />
+        </motion.div>
       </motion.div>
     </div>
   );
