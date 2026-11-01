@@ -103,17 +103,22 @@ export function Education({ locale, educations = [] }: EducationProps) {
 
                 {/* Education Details */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <h3 className="font-semibold text-sm sm:text-base text-zinc-900 truncate">
+                  <div className="flex items-start justify-between gap-2 sm:gap-3">
+                    <h3 className="font-semibold text-sm sm:text-base text-zinc-900 leading-snug">
                       {degree}
                     </h3>
-                    <span className="text-xs sm:text-sm text-zinc-500 tabular-nums shrink-0 font-normal">
+                    <span className="hidden sm:inline text-xs sm:text-sm text-zinc-500 tabular-nums shrink-0 font-normal">
                       {dateDisplay}
                     </span>
                   </div>
-                  <p className="text-xs sm:text-sm text-zinc-500 truncate mt-0.5">
-                    {school}
-                  </p>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-2 text-xs sm:text-sm text-zinc-500 mt-1 sm:mt-0.5">
+                    <p className="break-words">
+                      {school}
+                    </p>
+                    <span className="sm:hidden text-[11px] text-zinc-400 tabular-nums font-normal pt-0.5">
+                      {dateDisplay}
+                    </span>
+                  </div>
                 </div>
               </div>
             </Reveal>

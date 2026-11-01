@@ -382,12 +382,12 @@ export function Experiences({
 
                     {/* Text Hierarchy: Position on top, Company on bottom */}
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-baseline justify-between gap-3">
-                        <h3 className="font-semibold text-sm sm:text-base text-zinc-900 truncate">
+                      <div className="flex items-start justify-between gap-2 sm:gap-3">
+                        <h3 className="font-semibold text-sm sm:text-base text-zinc-900 leading-snug">
                           {position}
                         </h3>
-                        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-                          <span className="text-xs sm:text-sm text-zinc-500 tabular-nums font-normal">
+                        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 pt-0.5">
+                          <span className="hidden sm:inline text-xs sm:text-sm text-zinc-500 tabular-nums font-normal">
                             {dateDisplay}
                           </span>
                           <motion.span
@@ -403,21 +403,28 @@ export function Experiences({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 text-xs sm:text-sm text-zinc-500 truncate mt-0.5">
-                        <span>{exp.company}</span>
-                        {isSejati && (
-                          <a
-                            href="https://sejatidimedia.web.id/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="inline-flex items-center gap-1 text-[11px] text-zinc-500 hover:text-zinc-900 underline underline-offset-2 shrink-0"
-                            title="https://sejatidimedia.web.id/"
-                          >
-                            <span>sejatidimedia.web.id</span>
-                            <span className="icon-[lucide--external-link] size-2.5 inline-block" />
-                          </a>
-                        )}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-2 text-xs sm:text-sm text-zinc-500 mt-1 sm:mt-0.5">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 min-w-0">
+                          <span className="break-words">{exp.company}</span>
+                          {isSejati && (
+                            <a
+                              href="https://sejatidimedia.web.id/"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center gap-1 text-[11px] text-zinc-500 hover:text-zinc-900 underline underline-offset-2 shrink-0"
+                              title="https://sejatidimedia.web.id/"
+                            >
+                              <span>sejatidimedia.web.id</span>
+                              <span className="icon-[lucide--external-link] size-2.5 inline-block" />
+                            </a>
+                          )}
+                        </div>
+
+                        {/* Mobile date shown below position & company */}
+                        <span className="sm:hidden text-[11px] text-zinc-400 tabular-nums font-normal pt-0.5">
+                          {dateDisplay}
+                        </span>
                       </div>
                     </div>
                   </div>
