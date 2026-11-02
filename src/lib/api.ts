@@ -155,6 +155,18 @@ function parseBulletPoints(text?: string | null): string[] {
     .filter((line) => line.length > 0);
 }
 
+function parseOutcomes(val: unknown): string[] {
+  if (Array.isArray(val)) {
+    return val
+      .map((item) => String(item).replace(/^[●•\-\*]\s*/, "").trim())
+      .filter((s) => s.length > 0);
+  }
+  if (typeof val === "string") {
+    return parseBulletPoints(val);
+  }
+  return [];
+}
+
 /**
  * Normalizes raw Glio project payload into our standard Project type
  */
@@ -223,6 +235,18 @@ function normalizeGlioProject(
     description: (merged.description as string) || undefined,
     descriptionId: (merged.descriptionId as string) || (merged.description as string) || undefined,
     descriptionEn: (merged.descriptionEn as string) || (merged.description as string) || undefined,
+    keyOutcomes: (() => {
+      const parsed = parseOutcomes(merged.keyOutcomes);
+      return parsed.length > 0 ? parsed : undefined;
+    })(),
+    keyOutcomesId: (() => {
+      const parsed = parseOutcomes(merged.keyOutcomesId ?? merged.keyOutcomes);
+      return parsed.length > 0 ? parsed : undefined;
+    })(),
+    keyOutcomesEn: (() => {
+      const parsed = parseOutcomes(merged.keyOutcomesEn ?? merged.keyOutcomes);
+      return parsed.length > 0 ? parsed : undefined;
+    })(),
     thumbnailUrl,
     bannerImage,
     techStack,

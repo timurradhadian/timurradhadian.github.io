@@ -52,6 +52,21 @@ export const mockPortfolioData: PortfolioData = {
         },
       ],
       techStack: ["Next.js", "TypeScript", "Tailwind CSS", "PostgreSQL", "Cloudflare"],
+      keyOutcomes: [
+        "Meningkatkan skor Lighthouse kinerja web hingga 99+ dengan optimasi static rendering dan font subsetting.",
+        "Mengurangi ukuran bundel JavaScript utama sebesar 42% melalui arsitektur modular dan dynamic import.",
+        "Mempercepat waktu tanggap interaksi (INP) di bawah 50ms untuk pengalaman pengguna yang instan dan mulus.",
+      ],
+      keyOutcomesId: [
+        "Meningkatkan skor Lighthouse kinerja web hingga 99+ dengan optimasi static rendering dan font subsetting.",
+        "Mengurangi ukuran bundel JavaScript utama sebesar 42% melalui arsitektur modular dan dynamic import.",
+        "Mempercepat waktu tanggap interaksi (INP) di bawah 50ms untuk pengalaman pengguna yang instan dan mulus.",
+      ],
+      keyOutcomesEn: [
+        "Boosted web performance Lighthouse score to 99+ via static rendering and font subsetting.",
+        "Reduced main JavaScript bundle size by 42% through modular architecture and dynamic imports.",
+        "Accelerated Interaction to Next Paint (INP) below 50ms for instantaneous and fluid UX.",
+      ],
       projectUrl: "https://sejatidimedia.com",
       githubUrl: "https://github.com/timurdian/sejatidimedia",
       isFeatured: true,

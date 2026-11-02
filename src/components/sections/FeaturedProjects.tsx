@@ -4,12 +4,13 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { Locale, Project } from "@/types/portfolio";
-import { getDictionary, getLocalized } from "@/lib/i18n";
+import { getDictionary, getLocalized, getLocalizedArray } from "@/lib/i18n";
 import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { NdaBadge } from "@/components/ui/NdaBadge";
 import { getTechIcon } from "@/lib/tech-icons";
 import { ProjectDetailModal } from "@/components/ui/ProjectDetailModal";
+import { ProjectOutcomesModal } from "@/components/ui/ProjectOutcomesModal";
 
 interface FeaturedProjectsProps {
   locale: Locale;
@@ -18,8 +19,8 @@ interface FeaturedProjectsProps {
   ndaBlurEnabled?: boolean;
 }
 
-const INITIAL_ALL_COUNT = 4;
-const PAGE_SIZE = 4;
+const INITIAL_ALL_COUNT = 6;
+const PAGE_SIZE = 6;
 
 export function FeaturedProjects({
   locale,
@@ -31,6 +32,7 @@ export function FeaturedProjects({
   const [filter, setFilter] = useState<"featured" | "all">("featured");
   const [visibleAllCount, setVisibleAllCount] = useState<number>(INITIAL_ALL_COUNT);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [outcomesProject, setOutcomesProject] = useState<Project | null>(null);
 
   const validProjects = React.useMemo(
     () => projects.filter((p) => p.isPublic !== false),
@@ -61,48 +63,38 @@ export function FeaturedProjects({
         delay={0.05}
       />
 
-      {/* Filter Badges */}
+      {/* Filter Links */}
       <Reveal delay={0.08} yOffset={6}>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-4 text-xs font-medium border-b border-zinc-200/60 pb-2">
           <button
             type="button"
             onClick={() => setFilter("featured")}
-            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 py-1 transition-colors cursor-pointer ${
               filter === "featured"
-                ? "bg-zinc-900 text-white shadow-2xs"
-                : "bg-zinc-100/80 hover:bg-zinc-200/80 text-zinc-600 hover:text-zinc-900 border border-zinc-200/60"
+                ? "text-zinc-900 font-semibold underline underline-offset-8 decoration-zinc-900 decoration-2"
+                : "text-zinc-500 hover:text-zinc-800"
             }`}
           >
             <span>{dict.projects.filterFeatured}</span>
-            <span
-              className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono leading-none ${
-                filter === "featured"
-                  ? "bg-zinc-800 text-zinc-200"
-                  : "bg-zinc-200/90 text-zinc-600"
-              }`}
-            >
-              {projects.length || 6}
+            <span className="text-[11px] font-mono text-zinc-400">
+              ({projects.length || 6})
             </span>
           </button>
+
+          <span className="text-zinc-300 select-none">/</span>
 
           <button
             type="button"
             onClick={() => setFilter("all")}
-            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 py-1 transition-colors cursor-pointer ${
               filter === "all"
-                ? "bg-zinc-900 text-white shadow-2xs"
-                : "bg-zinc-100/80 hover:bg-zinc-200/80 text-zinc-600 hover:text-zinc-900 border border-zinc-200/60"
+                ? "text-zinc-900 font-semibold underline underline-offset-8 decoration-zinc-900 decoration-2"
+                : "text-zinc-500 hover:text-zinc-800"
             }`}
           >
             <span>{dict.projects.filterAll}</span>
-            <span
-              className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono leading-none ${
-                filter === "all"
-                  ? "bg-zinc-800 text-zinc-200"
-                  : "bg-zinc-200/90 text-zinc-600"
-              }`}
-            >
-              {combinedProjects.length}
+            <span className="text-[11px] font-mono text-zinc-400">
+              ({combinedProjects.length})
             </span>
           </button>
         </div>
@@ -119,6 +111,8 @@ export function FeaturedProjects({
             const summary = getLocalized(project, "summary", locale);
             const thumbnail = project.thumbnailUrl || project.bannerImage;
             const isEven = index % 2 === 0;
+            const outcomes = getLocalizedArray(project, "keyOutcomes", locale);
+            const hasOutcomes = outcomes && outcomes.length > 0;
 
             return (
               <motion.article
@@ -175,35 +169,64 @@ export function FeaturedProjects({
                   )}
 
                   {/* Action Buttons & Links */}
-                  <div className="flex flex-wrap items-center gap-2 pt-2 text-xs">
+                  <div className="flex flex-wrap items-center gap-2.5 pt-2 text-xs">
+                    {/* Explicit Button to Open Full Project Details */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedProject(project);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-medium text-xs hover:bg-zinc-800 transition-colors shadow-2xs cursor-pointer"
+                    >
+                      <span className="icon-[lucide--file-text] size-3.5 inline-block" />
+                      <span>{dict.projects.viewDetails}</span>
+                    </button>
+
+                    {/* Dedicated Outcomes & Summary Link Styled in Portfolio Theme (Only shown if outcomes exist) */}
+                    {hasOutcomes && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOutcomesProject(project);
+                        }}
+                        className="group/outcomes inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-950 transition-colors cursor-pointer"
+                      >
+                        <span className="icon-[lucide--target] size-3.5 text-zinc-400 group-hover/outcomes:text-zinc-800 transition-colors" />
+                        <span className="underline underline-offset-4 decoration-zinc-300 group-hover/outcomes:decoration-zinc-800">
+                          {locale === "id"
+                            ? "Hasil & Ringkasan"
+                            : "Outcomes & Summary"}
+                        </span>
+                        <span className="icon-[lucide--chevron-right] size-3 text-zinc-400 group-hover/outcomes:text-zinc-800 group-hover/outcomes:translate-x-0.5 transition-all" />
+                      </button>
+                    )}
+
                     {project.projectUrl && (
-                      <motion.a
+                      <a
                         href={project.projectUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        whileHover={{ scale: 1.04 }}
-                        whileTap={{ scale: 0.96 }}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-zinc-900 text-white font-medium text-xs hover:bg-zinc-800 transition-colors shadow-2xs"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-700 hover:text-zinc-950 hover:bg-zinc-50 font-medium text-xs transition-colors shadow-2xs"
                       >
-                        <span className="icon-[lucide--globe] size-3.5 inline-block" />
+                        <span className="icon-[lucide--globe] size-3.5 inline-block text-zinc-400" />
                         <span>{dict.projects.website}</span>
-                      </motion.a>
+                      </a>
                     )}
 
                     {project.githubUrl && (
-                      <motion.a
+                      <a
                         href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        whileHover={{ scale: 1.04 }}
-                        whileTap={{ scale: 0.96 }}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-medium text-xs transition-colors shadow-2xs"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-700 hover:text-zinc-950 hover:bg-zinc-50 font-medium text-xs transition-colors shadow-2xs"
                       >
-                        <span className="icon-[simple-icons--github] size-3.5 inline-block" />
+                        <span className="icon-[simple-icons--github] size-3.5 inline-block text-zinc-400" />
                         <span>{dict.projects.source}</span>
-                      </motion.a>
+                      </a>
                     )}
                   </div>
                 </div>
@@ -289,6 +312,17 @@ export function FeaturedProjects({
           </div>
         </Reveal>
       )}
+
+      {/* Compact Outcomes & Summary Modal */}
+      <ProjectOutcomesModal
+        project={outcomesProject}
+        onClose={() => setOutcomesProject(null)}
+        locale={locale}
+        onOpenFullDetail={(proj) => {
+          setOutcomesProject(null);
+          setSelectedProject(proj);
+        }}
+      />
 
       {/* Full Modal Project Detail */}
       <ProjectDetailModal

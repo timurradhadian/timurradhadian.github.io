@@ -64,6 +64,8 @@ export interface Dictionary {
     ndaRestrictedGallery: string;
     tabOverview: string;
     tabDetails: string;
+    outcomesTitle: string;
+    outcomesBadge: string;
     backButton: string;
     quickStats: string;
   };
@@ -187,6 +189,8 @@ export const dictionaries: Record<Locale, Dictionary> = {
         "Arsip tangkapan layar antarmuka dan skema sistem internal dilindungi oleh NDA dan tidak dipublikasikan.",
       tabOverview: "Ringkasan Proyek",
       tabDetails: "Detail & Studi Kasus",
+      outcomesTitle: "Hasil & Dampak Utama (Outcomes)",
+      outcomesBadge: "Pencapaian Terukur",
       backButton: "Kembali",
       quickStats: "Informasi Proyek",
     },
@@ -309,6 +313,8 @@ export const dictionaries: Record<Locale, Dictionary> = {
         "UI screenshots and internal system architecture are restricted by NDA and not publicly disclosed.",
       tabOverview: "Project Overview",
       tabDetails: "Details & Case Study",
+      outcomesTitle: "Key Outcomes & Impact",
+      outcomesBadge: "Key Results",
       backButton: "Back",
       quickStats: "Project Information",
     },

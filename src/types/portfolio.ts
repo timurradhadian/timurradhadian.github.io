@@ -39,6 +39,9 @@ export interface Project {
   description?: string;
   descriptionId?: string;
   descriptionEn?: string;
+  keyOutcomes?: string[];
+  keyOutcomesId?: string[];
+  keyOutcomesEn?: string[];
   thumbnailUrl?: string;
   bannerImage?: string;
   techStack: string[];
