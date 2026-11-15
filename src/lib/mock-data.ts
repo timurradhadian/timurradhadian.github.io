@@ -497,28 +497,30 @@ export const mockPortfolioData: PortfolioData = {
     { id: "sk-10", name: "Laravel (PHP)", category: "Backend", level: 92, order: 10 },
     { id: "sk-11", name: "Node.js", category: "Backend", level: 92, order: 11 },
     { id: "sk-12", name: "Go (Golang)", category: "Backend", level: 86, order: 12 },
-    { id: "sk-13", name: "RESTful APIs", category: "Backend", level: 95, order: 13 },
+    { id: "sk-13", name: "Java", category: "Backend", level: 88, order: 13 },
+    { id: "sk-14", name: "Spring Boot", category: "Backend", level: 86, order: 14 },
+    { id: "sk-15", name: "RESTful APIs", category: "Backend", level: 95, order: 15 },
 
     // Database
-    { id: "sk-14", name: "MySQL", category: "Database", level: 92, order: 14 },
-    { id: "sk-15", name: "PostgreSQL", category: "Database", level: 90, order: 15 },
-    { id: "sk-16", name: "MongoDB", category: "Database", level: 85, order: 16 },
+    { id: "sk-16", name: "MySQL", category: "Database", level: 92, order: 16 },
+    { id: "sk-17", name: "PostgreSQL", category: "Database", level: 90, order: 17 },
+    { id: "sk-18", name: "MongoDB", category: "Database", level: 85, order: 18 },
 
     // DevOps & Tools
-    { id: "sk-17", name: "Docker", category: "DevOps & Tools", level: 88, order: 17 },
-    { id: "sk-18", name: "Linux", category: "DevOps & Tools", level: 85, order: 18 },
-    { id: "sk-19", name: "CI/CD", category: "DevOps & Tools", level: 88, order: 19 },
-    { id: "sk-20", name: "Git", category: "DevOps & Tools", level: 92, order: 20 },
-    { id: "sk-21", name: "Figma", category: "DevOps & Tools", level: 85, order: 21 },
+    { id: "sk-19", name: "Docker", category: "DevOps & Tools", level: 88, order: 19 },
+    { id: "sk-20", name: "Linux", category: "DevOps & Tools", level: 85, order: 20 },
+    { id: "sk-21", name: "CI/CD", category: "DevOps & Tools", level: 88, order: 21 },
+    { id: "sk-22", name: "Git", category: "DevOps & Tools", level: 92, order: 22 },
+    { id: "sk-23", name: "Figma", category: "DevOps & Tools", level: 85, order: 23 },
 
     // AI & Automation
-    { id: "sk-22", name: "Claude Code", category: "AI & Automation", level: 95, order: 22 },
-    { id: "sk-23", name: "Hermes Agent", category: "AI & Automation", level: 90, order: 23 },
-    { id: "sk-24", name: "MCP", category: "AI & Automation", level: 92, order: 24 },
-    { id: "sk-25", name: "n8n", category: "AI & Automation", level: 88, order: 25 },
-    { id: "sk-26", name: "Prompt Engineering", category: "AI & Automation", level: 92, order: 26 },
-    { id: "sk-27", name: "Vibe Coding", category: "AI & Automation", level: 90, order: 27 },
-    { id: "sk-28", name: "AI Agent Workflows", category: "AI & Automation", level: 92, order: 28 },
+    { id: "sk-24", name: "Claude Code", category: "AI & Automation", level: 95, order: 24 },
+    { id: "sk-25", name: "Hermes Agent", category: "AI & Automation", level: 90, order: 25 },
+    { id: "sk-26", name: "MCP", category: "AI & Automation", level: 92, order: 26 },
+    { id: "sk-27", name: "n8n", category: "AI & Automation", level: 88, order: 27 },
+    { id: "sk-28", name: "Prompt Engineering", category: "AI & Automation", level: 92, order: 28 },
+    { id: "sk-29", name: "Vibe Coding", category: "AI & Automation", level: 90, order: 29 },
+    { id: "sk-30", name: "AI Agent Workflows", category: "AI & Automation", level: 92, order: 30 },
   ],
   certificates: [
     {

@@ -26,6 +26,14 @@ export function getTechIcon(name: unknown): TechIconInfo {
   if (normalized === "javascript" || normalized === "js") {
     return { iconClass: "icon-[logos--javascript]" };
   }
+  if (
+    normalized === "java" ||
+    normalized.startsWith("java ") ||
+    normalized.endsWith(" java") ||
+    (words.includes("java") && !normalized.includes("javascript") && !normalized.includes("js"))
+  ) {
+    return { iconClass: "icon-[logos--java]" };
+  }
   if (normalized === "golang" || normalized === "go") {
     return { iconClass: "icon-[logos--go]" };
   }
@@ -168,6 +176,19 @@ export function getTechIcon(name: unknown): TechIconInfo {
   }
   if (normalized === "django") {
     return { iconClass: "icon-[logos--django-icon]" };
+  }
+  if (
+    normalized === "spring" ||
+    normalized === "spring boot" ||
+    normalized === "springboot" ||
+    normalized === "spring framework" ||
+    normalized === "spring boot framework" ||
+    normalized.includes("spring boot") ||
+    normalized.includes("springboot") ||
+    normalized.includes("spring framework") ||
+    (words.includes("spring") && !normalized.includes("react-spring") && !normalized.includes("react spring"))
+  ) {
+    return { iconClass: "icon-[logos--spring-icon]" };
   }
   if (normalized === "filament") {
     return { iconClass: "icon-[logos--laravel]" };
